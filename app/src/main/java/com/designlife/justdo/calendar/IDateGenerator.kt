@@ -1,0 +1,174 @@
+package com.designlife.justdo.calendar
+
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.emitAll
+import java.text.SimpleDateFormat
+import java.time.ZoneId
+import java.time.format.TextStyle
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
+
+
+class IDateGenerator : DateGenerator {
+
+    private val _allDateList : MutableStateFlow<ArrayList<Date>> = MutableStateFlow(arrayListOf())
+//    public val allDates : StateFlow<List<Date>> = _allDateList
+    private var previousMonth = getCurrentMonth()
+    private var nextMonth = getCurrentMonth()
+    private var prevYear = getCurrentYear()
+    private var nextYear = getCurrentYear()
+
+
+    override fun getDateList(): StateFlow<List<Date>>  {
+        return _allDateList
+    }
+
+    override suspend fun loadPreviousMonth(){
+        val preservedMonth = previousMonth
+        previousMonth -= 1 % 12
+        if (previousMonth == 0){
+            prevYear -= 1;
+            previousMonth = 12
+        }
+        val previousMonthList =  ArrayList<Date>()
+        val firstDayIndex = getFirstDayOfMonth(previousMonth,prevYear)
+        for (days in 1..totalDaysInAMonth(previousMonth,prevYear)){
+            val dayIndex = (firstDayIndex + (days-1)) % daysList.size
+            previousMonthList.add(getDateBy(days, previousMonth, prevYear))
+        }
+        previousMonthList.addAll(_allDateList.value)
+        _allDateList.value.clear()
+        _allDateList.value.addAll(previousMonthList)
+
+    }
+
+    override suspend fun loadNextMonth() : List<Date>{
+        val preservedMonth = nextMonth
+        nextMonth += 1
+        if (nextMonth == 13){
+            nextYear += 1
+            nextMonth = 1
+        }
+        val nextMonthList =  arrayListOf<Date>()
+        val firstDayIndex = getFirstDayOfMonth(nextMonth,nextYear)
+        for (days in 1..totalDaysInAMonth(nextMonth,nextYear)){
+            val dayIndex = (firstDayIndex + (days-1)) % daysList.size
+            val date = getDateBy(days, nextMonth, nextYear)
+            nextMonthList.add(date)
+        }
+//        _allDateList.value.addAll(nextMonthList)
+        return nextMonthList
+    }
+
+
+
+
+
+    override fun setupDates() {
+        val month = getCurrentMonth()
+        val year = getCurrentYear()
+        val firstDayIndex = getFirstDayOfMonth(month,year)
+        val datesList =  arrayListOf<Date>()
+        for (days in 1..totalDaysInAMonth(month,year)){
+            val dayIndex = (firstDayIndex + (days-1)) % daysList.size
+            val date = getDateBy(days,month,year)
+            datesList.add(date)
+
+        }
+        _allDateList.value = datesList
+        prevIndex = getCurrentDay()-1
+    }
+
+
+
+    companion object {
+        val daysList =  listOf<String>( "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat")
+        val monthsList =  listOf<String>( "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+
+        var prevIndex = 0;
+        var nextIndex = 0;
+
+        private fun getNoLength(value : Int) : Int{
+            return (Math.log(value as Double)+1).toInt()
+        }
+
+        public fun getToday() : Date{
+            return getDateBy(getCurrentDay(), getCurrentMonth(), getCurrentYear())
+        }
+
+
+        private fun getDateBy(day : Int, month : Int, year : Int) : Date{
+            val dateString = "$day/$month/$year"
+            val formate = SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH)
+            return formate.parse(dateString)!!
+        }
+
+        public fun getDayInfoFrom(date : Date) : Pair<Int,String>{
+            val calendar = Calendar.getInstance()
+            calendar.time = date
+            val day = calendar.get(Calendar.DAY_OF_MONTH)
+            return Pair(day, daysList[calendar.get(Calendar.DAY_OF_WEEK)-1])
+        }
+
+//        public fun getMonthFromDate(date : Date) : String{
+//            val calendar = Calendar.getInstance()
+//            calendar.time = date
+//            return monthsList[calendar.get(Calendar.MONTH)]
+//        }
+
+        fun getMonthFromDate(date: Date): String {
+            val format = SimpleDateFormat("MMM", Locale.ENGLISH)
+            return format.format(date)
+        }
+
+
+        private fun getFirstDayOfMonth(month : Int,year : Int) : Int{
+            val calendar = Calendar.getInstance()
+            calendar.set(Calendar.MONTH,month - 1)
+            calendar.set(Calendar.YEAR,year)
+            calendar.set(Calendar.DAY_OF_MONTH,1)
+            return calendar.get(Calendar.DAY_OF_WEEK) - 1
+        }
+
+        private fun getCurrentMonth() : Int{
+            val today = Date(System.currentTimeMillis());
+            val calendar = Calendar.getInstance()
+            calendar.time = today
+            return calendar.get(Calendar.MONTH)+1
+        }
+
+        public fun getCurrentYear() : Int{
+            val today = Date(System.currentTimeMillis());
+            val calendar = Calendar.getInstance()
+            calendar.time = today
+            return calendar.get(Calendar.YEAR)
+        }
+
+        private fun totalDaysInAMonth(month : Int,year : Int) : Int{
+            val calendar = Calendar.getInstance()
+            calendar.set(Calendar.YEAR, year)
+            calendar.set(Calendar.MONTH, month - 1)
+            return calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
+        }
+
+        private fun getDayName(index : Int) : String{
+            return daysList.get(index)
+        }
+
+        private fun getCurrentDay() : Int{
+            val date = Date(System.currentTimeMillis())
+            val calendar = Calendar.getInstance()
+            calendar.time = date
+            return calendar.get(Calendar.DAY_OF_MONTH)
+        }
+
+        fun getYearFromDate(date: Date): String {
+            val calendar = Calendar.getInstance()
+            calendar.time = date
+            return calendar.get(Calendar.YEAR).toString()
+        }
+    }
+
+}

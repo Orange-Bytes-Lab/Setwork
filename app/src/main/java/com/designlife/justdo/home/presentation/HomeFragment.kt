@@ -33,12 +33,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.findNavController
+import com.designlife.justdo.R
 import com.designlife.justdo.common.data.room.dao.AppDatabase
 import com.designlife.justdo.common.domain.calendar.IDateGenerator
 import com.designlife.justdo.common.domain.converters.ColorConverter
 import com.designlife.justdo.common.domain.repositories.CategoryRepository
 import com.designlife.justdo.common.domain.repositories.TodoRepository
 import com.designlife.justdo.common.presentation.components.BottomSheetComponent
+import com.designlife.justdo.common.utils.enums.BottomSheetItem
 import com.designlife.justdo.home.domain.usecase.LoadIntialDatesUseCase
 import com.designlife.justdo.home.domain.usecase.LoadNextDatesSetUseCase
 import com.designlife.justdo.home.domain.usecase.LoadPreviousDatesSetUseCase
@@ -48,7 +51,6 @@ import com.designlife.justdo.home.presentation.components.HeaderComponent
 import com.designlife.justdo.home.presentation.viewmodel.HomeViewModel
 import com.designlife.justdo.home.presentation.viewmodel.HomeViewModelFactory
 import com.designlife.justdo.ui.theme.ButtonPrimary
-import com.designlife.justdo.ui.theme.PoppyOrangePrimary
 import com.designlife.justdo.ui.theme.PrimaryColor1
 import com.designlife.justdo.ui.theme.PrimaryColor2
 import kotlinx.coroutines.CoroutineScope
@@ -174,7 +176,15 @@ class HomeFragment : Fragment() {
                         Icon(imageVector = Icons.Default.Add, contentDescription = "FAB", tint = PrimaryColor2)
                     }
                     if (sheetLayoutVisible){
-                        BottomSheetComponent(sheetState = bottomSheetState,sheetLayoutVisible) {
+                        BottomSheetComponent(sheetState = bottomSheetState,sheetLayoutVisible, onSelectSheetItem = {
+                            when(it){
+                                BottomSheetItem.CATEGORY -> {}
+                                BottomSheetItem.NOTE -> {}
+                                BottomSheetItem.TASK -> {
+                                    findNavController().navigate(R.id.taskFragment)
+                                }
+                            }
+                        }) {
                             viewModel.updateSheetVisibility(false)
                             scope.launch {
                                 bottomSheetState.hide()

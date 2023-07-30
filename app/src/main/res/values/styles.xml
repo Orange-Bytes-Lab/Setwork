@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="CustomDatePickerTheme" parent="Theme.AppCompat.Light.Dialog">
+        <!-- Customize the color of the title -->
+        <item name="android:textColorPrimary">@color/primary</item>
+        <!-- Customize the color of the selected date -->
+        <item name="android:colorAccent">@color/primary</item>
+        <item name="android:yearListSelectorColor">@color/primary</item>
+        <item name="android:yearListItemTextAppearance">@color/primary</item>
+    </style>
+
+    <style name="CustomTimePickerTheme" parent="Theme.AppCompat.Light.Dialog">
+        <!-- Customize the color of the title -->
+        <item name="android:textColorPrimary">@color/primary</item>
+        <!-- Customize the color of the selected date -->
+        <item name="android:colorAccent">@color/primary</item>
+
+    </style>
+</resources>

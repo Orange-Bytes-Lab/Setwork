@@ -112,17 +112,10 @@ class IDateGenerator : DateGenerator {
             return Pair(day, daysList[calendar.get(Calendar.DAY_OF_WEEK)-1])
         }
 
-//        public fun getMonthFromDate(date : Date) : String{
-//            val calendar = Calendar.getInstance()
-//            calendar.time = date
-//            return monthsList[calendar.get(Calendar.MONTH)]
-//        }
-
         fun getMonthFromDate(date: Date): String {
             val format = SimpleDateFormat("MMM", Locale.ENGLISH)
             return format.format(date)
         }
-
 
         private fun getFirstDayOfMonth(month : Int,year : Int) : Int{
             val calendar = Calendar.getInstance()
@@ -177,6 +170,36 @@ class IDateGenerator : DateGenerator {
         fun getDateFromEpoch(timeMillis : Long) : Date{
             return Date(timeMillis)
         }
+
+        fun getGracefullyDateFrom(day : Int,month : Int,year : Int) : String{
+            val calendar = Calendar.getInstance()
+            calendar.set(year, month - 1, day)
+            val dateFormat = SimpleDateFormat("EEE dd MMM yyyy", Locale.ENGLISH)
+            return dateFormat.format(calendar.time)
+        }
+
+        fun getGracefullyDateFromDate(date : Date) : String{
+            val calendar = Calendar.getInstance()
+            calendar.time = date
+            val dateFormat = SimpleDateFormat("EEE dd MMM yyyy", Locale.ENGLISH)
+            return dateFormat.format(calendar.time)
+        }
+
+        fun getGracefullyTimeFromEpoch(epoch : Long) : String{
+            val date = Date(epoch) // Convert epoch value from seconds to milliseconds
+            val dateFormat = SimpleDateFormat("hh:mm a", Locale.US)
+            return dateFormat.format(date)
+        }
+
+        fun getGracefullyTimeFrom(hour : Int,minute : Int) : String{
+            val calendar = Calendar.getInstance().apply {
+                set(Calendar.HOUR_OF_DAY, hour)
+                set(Calendar.MINUTE, minute)
+            }
+            val dateFormat = SimpleDateFormat("hh:mm a", Locale.US)
+            return dateFormat.format(calendar.time)
+        }
+
     }
 
 }

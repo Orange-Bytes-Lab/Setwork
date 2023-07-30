@@ -39,7 +39,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.designlife.justdo.common.domain.entities.Category
-import com.designlife.justdo.ui.theme.PrimaryBackgroundColor
+import com.designlife.justdo.ui.theme.PrimaryBackgroundCategoryColor
 import com.designlife.justdo.ui.theme.PrimaryColor1
 import com.designlife.justdo.ui.theme.PrimaryColor2
 import com.designlife.justdo.ui.theme.contentStyle_One
@@ -137,7 +137,7 @@ fun DummyCategoryItem(
             style = headerStyle.copy(
                 fontSize = 18.sp,
                 fontWeight = FontWeight.ExtraBold,
-                color = PrimaryBackgroundColor
+                color = PrimaryBackgroundCategoryColor
             )
         )
         Spacer(modifier = Modifier.height(5.dp))
@@ -150,7 +150,7 @@ fun DummyCategoryItem(
                 modifier = Modifier.size(220.dp),
                 imageVector = Icons.Default.Add,
                 contentDescription = "Add Icon",
-                tint = PrimaryBackgroundColor,
+                tint = PrimaryBackgroundCategoryColor,
             )
         }
     }
@@ -176,7 +176,7 @@ fun AnimatedCategoryBar(
             .fillMaxWidth()
             .height(5.dp),
         color = color,
-        backgroundColor = PrimaryBackgroundColor,
+        backgroundColor = PrimaryBackgroundCategoryColor,
         progress = progressBarAnimation,
     )
 

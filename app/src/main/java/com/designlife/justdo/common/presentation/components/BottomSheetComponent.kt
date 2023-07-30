@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.sp
 import com.designlife.justdo.ui.theme.PrimaryColor2
 import com.designlife.justdo.ui.theme.contentStyle_One
 import com.designlife.justdo.R
+import com.designlife.justdo.common.utils.enums.BottomSheetItem
 import com.designlife.justdo.ui.theme.PrimaryColor1
 
 
@@ -50,6 +51,7 @@ import com.designlife.justdo.ui.theme.PrimaryColor1
 fun BottomSheetComponent(
     sheetState : ModalBottomSheetState,
     sheetLayoutVisible : Boolean,
+    onSelectSheetItem : (sheetItem : BottomSheetItem) -> Unit,
     sheetCloseEvent : () -> Unit
 ) {
 
@@ -78,13 +80,16 @@ fun BottomSheetComponent(
                     })
                 Spacer(modifier = Modifier.height(20.dp))
                 SheetItem(icon = R.drawable.ic_note, name = "Note") {
-
+                    sheetCloseEvent()
+                    onSelectSheetItem(BottomSheetItem.NOTE)
                 }
                 SheetItem(icon = R.drawable.ic_event, name = "Task") {
-
+                    sheetCloseEvent()
+                    onSelectSheetItem(BottomSheetItem.TASK)
                 }
                 SheetItem(icon = R.drawable.ic_category, name = "Category") {
-
+                    sheetCloseEvent()
+                    onSelectSheetItem(BottomSheetItem.CATEGORY)
                 }
             }
 

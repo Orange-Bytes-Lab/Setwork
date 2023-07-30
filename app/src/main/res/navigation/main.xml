@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     app:startDestination="@id/homeFragment">
 
@@ -8,4 +9,16 @@
         android:id="@+id/homeFragment"
         android:name="com.designlife.justdo.home.presentation.HomeFragment"
         android:label="HomeFragment" />
+    <fragment
+        android:id="@+id/taskFragment"
+        android:name="com.designlife.justdo.task.TaskFragment"
+        android:label="fragment_task" />
+    <fragment
+        android:id="@+id/containerFragment"
+        android:name="com.designlife.justdo.container.ContainerFragment"
+        android:label="fragment_container" >
+        <argument
+            android:name="ScreentType"
+            app:argType="com.designlife.justdo.common.utils.enums.ScreenType" />
+    </fragment>
 </navigation>

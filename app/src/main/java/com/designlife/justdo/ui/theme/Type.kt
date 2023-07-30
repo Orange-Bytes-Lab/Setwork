@@ -56,3 +56,24 @@ val contentStyle_One = TextStyle(
     fontSize = 10.sp,
     fontWeight = FontWeight.Medium
 )
+
+val buttonStyle = TextStyle(
+    color = Color.White,
+    fontFamily = fontFamily,
+    fontSize = 12.sp,
+    fontWeight = FontWeight.Medium
+)
+
+val taskItemLabelStyle =  TextStyle(
+    color = TaskItemLabelColor,
+    fontFamily = fontFamily,
+    fontSize = 10.sp,
+    fontWeight = FontWeight.Medium
+)
+
+val taskItemStyle =  TextStyle(
+    color = Color.Black,
+    fontFamily = fontFamily,
+    fontSize = 13.sp,
+    fontWeight = FontWeight.Medium
+)

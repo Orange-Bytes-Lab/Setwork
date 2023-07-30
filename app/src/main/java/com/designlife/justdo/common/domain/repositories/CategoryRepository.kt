@@ -1,0 +1,25 @@
+package com.designlife.justdo.common.domain.repositories
+
+import com.designlife.justdo.common.data.room.dao.CategoryDao
+import com.designlife.justdo.common.domain.converters.CategoryConverter
+import com.designlife.justdo.common.domain.entities.Category
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+
+class CategoryRepository(
+    private val categoryDao: CategoryDao
+) {
+
+    fun getAllCategory() : Flow<List<Category>>{
+        return categoryDao.getAllCategories().map { rawCategoryList ->
+            rawCategoryList.map {rawCategory ->
+                CategoryConverter.getCategory(rawCategory)
+            }
+        }
+    }
+
+    suspend fun insertCategory(category: Category) : Long{
+        return categoryDao.insertCategory(CategoryConverter.getCategoryEntity(category))
+    }
+
+}

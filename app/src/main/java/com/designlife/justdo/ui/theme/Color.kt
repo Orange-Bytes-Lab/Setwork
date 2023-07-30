@@ -10,6 +10,13 @@ val Teal200 = Color(0xFF03DAC5)
 
 
 val ButtonPrimary = Color(0xFF5779F4)
+val PrimaryCardColor = Color(0xFFA5D8CA)
+val ButtonHighLightPrimary = Color(0xFFB3AFAF)
+val PrimaryColor1 = Color(0xFFD3F0E8)
+val PrimaryBackgroundColor = Color(0xFFDBE1DF)
+
+
+val PrimaryColor2 = Color(0xFFFFFFFF)
 
 val PrimaryDark = Color(0xFF1A1B1B)
 val LightWhite = Color(0xFFCDCDCE)

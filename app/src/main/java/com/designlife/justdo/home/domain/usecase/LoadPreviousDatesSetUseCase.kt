@@ -1,13 +1,14 @@
 package com.designlife.justdo.home.domain.usecase
 
-import com.designlife.justdo.calendar.DateGenerator
+import com.designlife.justdo.common.domain.calendar.DateGenerator
+import java.util.Date
 
 class LoadPreviousDatesSetUseCase(
     private val dateGenerator: DateGenerator
 ) {
 
-    suspend operator fun invoke(){
-        dateGenerator.loadPreviousMonth()
+    suspend operator fun invoke() : List<Date>{
+        return dateGenerator.loadPreviousMonth()
     }
 
 }

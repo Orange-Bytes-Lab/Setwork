@@ -1,4 +1,4 @@
-package com.designlife.justdo.calendar
+package com.designlife.justdo.common.domain.calendar
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -25,7 +25,7 @@ class IDateGenerator : DateGenerator {
         return _allDateList
     }
 
-    override suspend fun loadPreviousMonth(){
+    override suspend fun loadPreviousMonth() : List<Date>{
         val preservedMonth = previousMonth
         previousMonth -= 1 % 12
         if (previousMonth == 0){
@@ -38,10 +38,10 @@ class IDateGenerator : DateGenerator {
             val dayIndex = (firstDayIndex + (days-1)) % daysList.size
             previousMonthList.add(getDateBy(days, previousMonth, prevYear))
         }
-        previousMonthList.addAll(_allDateList.value)
-        _allDateList.value.clear()
-        _allDateList.value.addAll(previousMonthList)
-
+//        previousMonthList.addAll(_allDateList.value)
+//        _allDateList.value.clear()
+//        _allDateList.value.addAll(previousMonthList)
+        return previousMonthList
     }
 
     override suspend fun loadNextMonth() : List<Date>{
@@ -78,7 +78,7 @@ class IDateGenerator : DateGenerator {
 
         }
         _allDateList.value = datesList
-        prevIndex = getCurrentDay()-1
+        prevIndex = getCurrentDay() -1
     }
 
 
@@ -168,6 +168,14 @@ class IDateGenerator : DateGenerator {
             val calendar = Calendar.getInstance()
             calendar.time = date
             return calendar.get(Calendar.YEAR).toString()
+        }
+
+        fun getEpochFromDate(date : Date) : Long{
+            return date.time
+        }
+
+        fun getDateFromEpoch(timeMillis : Long) : Date{
+            return Date(timeMillis)
         }
     }
 

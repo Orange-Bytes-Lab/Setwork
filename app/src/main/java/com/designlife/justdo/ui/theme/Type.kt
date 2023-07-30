@@ -49,3 +49,10 @@ val headerStyle = TextStyle(
     fontSize = 16.sp,
     fontWeight = FontWeight.Medium
 )
+
+val contentStyle_One = TextStyle(
+    color = Color.Black,
+    fontFamily = fontFamily,
+    fontSize = 10.sp,
+    fontWeight = FontWeight.Medium
+)

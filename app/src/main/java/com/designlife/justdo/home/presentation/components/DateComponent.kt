@@ -2,6 +2,7 @@ package com.designlife.justdo.home.presentation.components
 
 import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -31,7 +32,8 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.designlife.justdo.calendar.IDateGenerator
+import com.designlife.justdo.common.domain.calendar.IDateGenerator
+import com.designlife.justdo.ui.theme.ButtonHighLightPrimary
 import com.designlife.justdo.ui.theme.ButtonPrimary
 import com.designlife.justdo.ui.theme.fontFamily
 import com.designlife.justdo.ui.theme.headerStyle
@@ -49,6 +51,7 @@ fun DateComponent(
     onChangeVisibleDate : (date : Date) -> Unit,
     loadPreviousTrigger : () -> Unit,
     loadNextTrigger : () -> Unit,
+    selectedIndex : Int
 ) {
 
     val firstVisibleIndex = remember {
@@ -61,18 +64,6 @@ fun DateComponent(
 
     LaunchedEffect(dateList){
         dateListSize.value = dateList.size
-    }
-
-    LaunchedEffect(listState){
-        snapshotFlow {
-            listState.firstVisibleItemIndex
-        }.collect{index ->
-            if (index == 1){
-                loadPreviousTrigger()
-
-            }
-
-        }
     }
 
     Column(
@@ -107,25 +98,28 @@ fun DateComponent(
             ){
                 items(
                     count = dateList.size,
-                    key = {
-                        dateList[it].time
-                    }
+//                    key = {}
                 ){ index ->
 
-                    DateItem(isCurrent = dateList[index].time.equals(currentDate.time), date = dateList[index]) {
+                    DateItem(isCurrent = dateList[index].time.equals(currentDate.time), isSelected = index == selectedIndex, date = dateList[index]) {
                         onEventClick(index)
+                    }
+
+
+                    if (index == 0){
+                        DisposableEffect(Unit){
+                            loadPreviousTrigger()
+                            onDispose {  }
+                        }
                     }
 
                     if (index == dateList.size-1){
                         DisposableEffect(Unit){
                             loadNextTrigger()
-
                             onDispose {  }
                         }
                     }
                     onChangeVisibleDate(dateList[index])
-                    Log.i("CHECK_TIME", "DateComponent: ${dateList[index].time} == ${currentDate.time}")
-
                 }
             }
         }
@@ -138,7 +132,8 @@ fun DateComponent(
 fun DateItem(
     isCurrent : Boolean,
     date : Date,
-    onEventClick : () -> Unit,
+    isSelected : Boolean,
+    onEventClick : () -> Unit
 ) {
 
     val pair = IDateGenerator.getDayInfoFrom(date)
@@ -147,9 +142,12 @@ fun DateItem(
         .width(60.dp)
         .height(76.dp)
         .background(
-            color = if (isCurrent) ButtonPrimary else Color.White,
+            color = if (isCurrent) ButtonPrimary else if (isSelected) ButtonHighLightPrimary else Color.White,
             shape = RoundedCornerShape(12)
-        ),
+        )
+        .clickable {
+            onEventClick()
+        },
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {

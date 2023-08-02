@@ -37,6 +37,7 @@ fun TaskItemView(
     @DrawableRes icon : Int,
     labelText : String,
     inputText : String,
+    placeholder : String = "",
     isNote : Boolean = false,
     isClickable : Boolean = false,
     onInputChange : (value : String) -> Unit,
@@ -90,6 +91,7 @@ fun TaskItemView(
             }else{
                 CustomTaskInput(
                     value = inputText,
+                    placeholder = placeholder,
                     multiline = isNote,
                     onValueChange = {onInputChange(it)}
                 )

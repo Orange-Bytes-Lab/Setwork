@@ -31,6 +31,7 @@ import com.designlife.justdo.ui.theme.headerStyle
 @Composable
 fun CommonCustomHeader(
     headerTitle : String,
+    autoSave : Boolean = false,
     onCloseEvent : () -> Unit,
     onSaveEvent : () -> Unit
 ) {
@@ -67,9 +68,11 @@ fun CommonCustomHeader(
                     style = headerStyle
                 )
             }
-            Row(modifier = Modifier.padding(end = 10.dp).wrapContentWidth()) {
-                CustomButton {
-                    onSaveEvent()
+            if (!autoSave){
+                Row(modifier = Modifier.padding(end = 10.dp).wrapContentWidth()) {
+                    CustomButton {
+                        onSaveEvent()
+                    }
                 }
             }
         }

@@ -10,10 +10,10 @@ import java.util.Date
 
 class TaskViewModel : ViewModel() {
 
-    private val _titleValue : MutableState<String> = mutableStateOf("New Task Title")
+    private val _titleValue : MutableState<String> = mutableStateOf("")
     val titleValue = _titleValue
 
-    private val _noteValue : MutableState<String> = mutableStateOf("Note to remember ...")
+    private val _noteValue : MutableState<String> = mutableStateOf("")
     val noteValue = _noteValue
 
     private val _selectedDateText : MutableState<String> = mutableStateOf(IDateGenerator.getGracefullyDateFromDate(

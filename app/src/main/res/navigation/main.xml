@@ -15,7 +15,7 @@
         android:label="fragment_task" />
     <fragment
         android:id="@+id/containerFragment"
-        android:name="com.designlife.justdo.container.ContainerFragment"
+        android:name="com.designlife.justdo.container.presentation.ContainerFragment"
         android:label="fragment_container" >
         <argument
             android:name="ScreentType"

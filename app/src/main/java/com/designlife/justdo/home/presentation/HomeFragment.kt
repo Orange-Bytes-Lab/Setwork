@@ -32,6 +32,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.unit.dp
+import androidx.core.os.bundleOf
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import com.designlife.justdo.R
@@ -41,7 +42,11 @@ import com.designlife.justdo.common.domain.converters.ColorConverter
 import com.designlife.justdo.common.domain.repositories.CategoryRepository
 import com.designlife.justdo.common.domain.repositories.TodoRepository
 import com.designlife.justdo.common.presentation.components.BottomSheetComponent
+import com.designlife.justdo.common.utils.AppServiceLocator
+import com.designlife.justdo.common.utils.constants.Constants.EDIT_MODE
 import com.designlife.justdo.common.utils.enums.BottomSheetItem
+import com.designlife.justdo.container.presentation.viewmodel.ContainerViewModel
+import com.designlife.justdo.container.presentation.viewmodel.ContainerViewModelFactory
 import com.designlife.justdo.home.domain.usecase.LoadIntialDatesUseCase
 import com.designlife.justdo.home.domain.usecase.LoadNextDatesSetUseCase
 import com.designlife.justdo.home.domain.usecase.LoadPreviousDatesSetUseCase
@@ -72,10 +77,8 @@ class HomeFragment : Fragment() {
         val loadDatesUseCase = LoadIntialDatesUseCase(dateGenerator)
         val loadNextDatesUseCase = LoadNextDatesSetUseCase(dateGenerator)
         val loadPreviousDatesUseCase = LoadPreviousDatesSetUseCase(dateGenerator)
-        val todoDao = AppDatabase.getDatabase(requireActivity().application).todoDao()
-        val categoryDao = AppDatabase.getDatabase(requireActivity().application).categoryDao()
-        val todoRepository = TodoRepository(todoDao)
-        val categoryRepository = CategoryRepository(categoryDao)
+        val todoRepository = AppServiceLocator.provideTodoRepository(requireActivity().applicationContext)
+        val categoryRepository = AppServiceLocator.provideCategoryRepository(requireActivity().applicationContext)
         val factory = HomeViewModelFactory(dateGenerator,todoRepository,categoryRepository,loadDatesUseCase,loadNextDatesUseCase,loadPreviousDatesUseCase)
         viewModel = ViewModelProvider(this,factory)[HomeViewModel::class.java]
         viewModel.loadInitialDates()
@@ -178,7 +181,14 @@ class HomeFragment : Fragment() {
                     if (sheetLayoutVisible){
                         BottomSheetComponent(sheetState = bottomSheetState,sheetLayoutVisible, onSelectSheetItem = {
                             when(it){
-                                BottomSheetItem.CATEGORY -> {}
+                                BottomSheetItem.CATEGORY -> {
+                                    val bundle = bundleOf()
+                                    bundle.putBoolean(EDIT_MODE,true)
+                                    findNavController().navigate(
+                                        R.id.containerFragment,
+                                        bundle
+                                    )
+                                }
                                 BottomSheetItem.NOTE -> {}
                                 BottomSheetItem.TASK -> {
                                     findNavController().navigate(R.id.taskFragment)

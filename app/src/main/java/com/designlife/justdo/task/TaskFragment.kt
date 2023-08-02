@@ -21,10 +21,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.core.os.bundleOf
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import com.designlife.justdo.R
 import com.designlife.justdo.common.presentation.components.CommonCustomHeader
+import com.designlife.justdo.common.utils.AppServiceLocator
+import com.designlife.justdo.common.utils.camelCase
+import com.designlife.justdo.common.utils.constants.Constants
+import com.designlife.justdo.container.presentation.viewmodel.ContainerViewModel
+import com.designlife.justdo.container.presentation.viewmodel.ContainerViewModelFactory
 import com.designlife.justdo.task.presentation.components.TaskItemDate
 import com.designlife.justdo.task.presentation.components.TaskItemView
 import com.designlife.justdo.task.presentation.events.TaskEvents
@@ -32,17 +38,22 @@ import com.designlife.justdo.task.presentation.viewmodel.TaskViewModel
 import com.designlife.justdo.task.presentation.viewmodel.TaskViewModelFactory
 import com.designlife.justdo.ui.theme.ButtonPrimary
 import com.designlife.justdo.ui.theme.PrimaryBackgroundColor
+import com.designlife.justdo.ui.theme.TaskItemLabelColor
 import java.util.Calendar
 
 class TaskFragment : Fragment() {
 
     private lateinit var viewmodel : TaskViewModel
+    private lateinit var shareViewModel : ContainerViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         val factory = TaskViewModelFactory()
         viewmodel = ViewModelProvider(this,factory)[TaskViewModel::class.java]
+        val categoryRepository = AppServiceLocator.provideCategoryRepository(requireActivity().applicationContext)
+        val shareViewModelFactory = ContainerViewModelFactory(categoryRepository)
+        shareViewModel = ViewModelProvider(requireActivity(),shareViewModelFactory)[ContainerViewModel::class.java]
     }
 
     override fun onCreateView(
@@ -56,6 +67,7 @@ class TaskFragment : Fragment() {
                 val selectedDateText = viewmodel.selectedDateText.value
                 val selectedTimeText = viewmodel.selectedTimeText.value
                 val calendar = Calendar.getInstance()
+                val selectedCategory = shareViewModel.categoryList.value[shareViewModel.selectedCategory.value]
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
@@ -72,10 +84,11 @@ class TaskFragment : Fragment() {
                         item{
                             TaskItemView(
                                 hasIcon = false,
-                                color = ButtonPrimary,
-                                icon = R.drawable.ic_schedule,
+                                color = selectedCategory.color,
+                                icon = R.drawable.ic_launcher_background,
                                 labelText = "Add Title",
                                 isNote = false,
+                                placeholder = "New Task Title",
                                 inputText = inputText,
                                 onInputChange = {
                                     viewmodel.onEvent(TaskEvents.OnTitleChange(it))
@@ -90,6 +103,7 @@ class TaskFragment : Fragment() {
                                 icon = R.drawable.ic_note,
                                 labelText = "Note",
                                 isNote = true,
+                                placeholder = "Note to remember ...",
                                 inputText = noteText,
                                 onInputChange = {
                                     viewmodel.onEvent(TaskEvents.OnNoteChange(it))
@@ -155,11 +169,16 @@ class TaskFragment : Fragment() {
                                 icon = R.drawable.ic_category,
                                 labelText = "Category",
                                 isNote = false,
-                                inputText = "Category Text",
+                                inputText = selectedCategory.name.camelCase(),
                                 onInputChange = {},
                                 isClickable = true
                             ){
-
+                                val bundle = bundleOf()
+                                bundle.putBoolean(Constants.EDIT_MODE,false)
+                                findNavController().navigate(
+                                    R.id.containerFragment,
+                                    bundle
+                                )
                             }
                         }
                     }

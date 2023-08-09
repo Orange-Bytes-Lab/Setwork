@@ -31,6 +31,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -42,14 +43,16 @@ import com.designlife.justdo.common.domain.entities.Category
 import com.designlife.justdo.ui.theme.PrimaryBackgroundCategoryColor
 import com.designlife.justdo.ui.theme.PrimaryColor1
 import com.designlife.justdo.ui.theme.PrimaryColor2
+import com.designlife.justdo.ui.theme.SelectedCategoryBackground
 import com.designlife.justdo.ui.theme.contentStyle_One
 import com.designlife.justdo.ui.theme.fontFamily
 import com.designlife.justdo.ui.theme.headerStyle
 
 @Composable
 fun CategoryComponent(
+    selectedCategoryIndex : Int,
     categoryList : List<Category>,
-    newCategoryEvent : () -> Unit
+    newCategoryEvent : (categoryIndex : Int) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -72,7 +75,9 @@ fun CategoryComponent(
                 }
             ){index ->
                 val item = categoryList[index]
-                CategoryItem(totalTasks = item.totalTodo, categoryName = item.name , totalCompleted = item.totalCompleted, categoryTheme = item.color)
+                CategoryItem(totalTasks = item.totalTodo, categoryName = item.name , totalCompleted = item.totalCompleted, categoryTheme = item.color, isSelected = index == selectedCategoryIndex){
+                    newCategoryEvent(index)
+                }
             }
 //            item {
 //                DummyCategoryItem{
@@ -88,7 +93,9 @@ fun CategoryItem(
     totalTasks : Int,
     categoryName : String,
     totalCompleted : Int,
-    categoryTheme : Color
+    categoryTheme : Color,
+    isSelected : Boolean,
+    onCategoryEvent : () -> Unit
 ) {
 
     Column(
@@ -96,24 +103,29 @@ fun CategoryItem(
             .padding(horizontal = 6.dp)
             .width(200.dp)
             .height(100.dp)
-            .background(color = PrimaryColor1, shape = RoundedCornerShape(20))
+            .clickable {
+                onCategoryEvent()
+            }
+            .alpha(if (isSelected) .8F else 1F)
+            .background(color = if (isSelected) categoryTheme else PrimaryColor1, shape = RoundedCornerShape(20))
             .padding(horizontal = 8.dp),
     ) {
         Spacer(modifier = Modifier.height(10.dp))
         Text(
             text = "${totalTasks} Task's",
-            style = contentStyle_One
+            style = contentStyle_One.copy(color = if (isSelected) Color.White else Color.Black)
         )
         Spacer(modifier = Modifier.height(2.dp))
         Text(
             text = categoryName.uppercase(),
             style = headerStyle.copy(
                 fontSize = 18.sp,
-                fontWeight = FontWeight.ExtraBold
+                fontWeight = FontWeight.ExtraBold,
+                color = if (isSelected) Color.White else Color.Black
             )
         )
         Spacer(modifier = Modifier.height(30.dp))
-        AnimatedCategoryBar(totalTasks = totalTasks.toFloat(), totalCompleted = totalCompleted.toFloat(), color = categoryTheme)
+        AnimatedCategoryBar(totalTasks = totalTasks.toFloat(), totalCompleted = totalCompleted.toFloat(), color = if (isSelected) Color.White else categoryTheme)
     }
 }
 

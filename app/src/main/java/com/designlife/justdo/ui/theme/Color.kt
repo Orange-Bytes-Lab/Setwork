@@ -17,6 +17,7 @@ val PrimaryColor1 = Color(0xFF92FFF5)
 val PrimaryBackgroundCategoryColor = Color(0xFFDBE1DF)
 val PrimaryBackgroundColor = Color(0xFFF3F3F3)
 val TaskItemLabelColor = Color(0xFFA0A0A0)
+val SelectedCategoryBackground = Color(0xFF4053BE)
 
 val PrimaryColor2 = Color(0xFFFFFFFF)
 

@@ -253,6 +253,24 @@ class IDateGenerator : DateGenerator {
             return calendar.get(Calendar.MONTH)
         }
 
+        fun getFormattedDate(date : Date) : String{
+            val calendar = Calendar.getInstance()
+            calendar.time = date
+            val dateFormat = SimpleDateFormat("dd MMM yyyy", Locale.ENGLISH)
+            return dateFormat.format(calendar.time)
+        }
+        fun getEpochForDate(date: Date): Long {
+            val calendar = Calendar.getInstance()
+            calendar.time = date
+            calendar.set(Calendar.HOUR_OF_DAY, 0)
+            calendar.set(Calendar.MINUTE, 0)
+            calendar.set(Calendar.SECOND, 0)
+            calendar.set(Calendar.MILLISECOND, 0)
+
+            return calendar.timeInMillis / 1000
+        }
+
     }
 
 }
+

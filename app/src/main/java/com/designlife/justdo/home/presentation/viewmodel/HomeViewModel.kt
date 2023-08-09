@@ -3,6 +3,7 @@ package com.designlife.justdo.home.presentation.viewmodel
 import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.designlife.justdo.common.domain.calendar.DateGenerator
@@ -20,6 +21,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Calendar
 import java.util.Date
+import kotlin.time.Duration.Companion.days
 
 class HomeViewModel(
     private val dateGenerator: DateGenerator,
@@ -29,6 +31,7 @@ class HomeViewModel(
     private val loadNextDatesSetUseCase: LoadNextDatesSetUseCase,
     private val loadPreviousDatesSetUseCase: LoadPreviousDatesSetUseCase
 ) : ViewModel() {
+    private val TAG = "TAG"
 
     private val _dateList : MutableState<List<Date>> = mutableStateOf(listOf());
     val dateList = _dateList
@@ -38,6 +41,9 @@ class HomeViewModel(
 
     private val _todoList : MutableState<List<Todo>> = mutableStateOf(listOf());
     val todoList = _todoList
+
+    private val _colorMap : MutableState<Map<Long, Color>> = mutableStateOf(mapOf());
+    val colorMap = _colorMap
 
     private val _currentMonth : MutableState<String> = mutableStateOf(IDateGenerator.getMonthFromDate(Date(System.currentTimeMillis())))
     val currentMonth = _currentMonth
@@ -54,8 +60,19 @@ class HomeViewModel(
     private var _selectedIndex : MutableState<Int> = mutableStateOf(-1)
     val selectedIndex  = _selectedIndex
 
+    private var _todoIndex : MutableState<Int> = mutableStateOf(0)
+    val todoIndex  = _todoIndex
+
     private var _sheetVisibility : MutableState<Boolean> = mutableStateOf(false)
     val sheetVisibility  = _sheetVisibility
+
+    private var _selectedCategoryIndex : MutableState<Int> = mutableStateOf(-1)
+    val selectedCategoryIndex  = _selectedCategoryIndex
+
+    private var todoSortedList = listOf<Todo>()
+    private var todoUnSortedList =  listOf<Todo>()
+
+    private var _isSorted : Boolean = false
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
@@ -70,7 +87,63 @@ class HomeViewModel(
             is HomeEvents.OnIndexSelected -> {
                 _selectedIndex.value = event.index
             }
+            is HomeEvents.OnTodoEvent -> {
+                _todoIndex.value = event.index
+            }
+            is HomeEvents.HighlightTodoByDate -> {
+                val calendar = Calendar.getInstance()
+                calendar.time = _dateList.value[event.visibleIndex]
+                val index = getTodoIndexByDate(calendar.time)
+                _todoIndex.value = if (index >= 0) index else 0
+            }
+            is HomeEvents.HighlightDateByTodo -> {
+                try{
+                    val date = _todoList.value[event.visibleIndex].date
+                    val dateEpoch = IDateGenerator.getEpochForDate(date)
+                    _dateList.value.forEachIndexed{ index: Int, date: Date ->
+                        val epoch = IDateGenerator.getEpochForDate(date)
+                        if (dateEpoch == epoch){
+                            _selectedIndex.value = index
+                            _currentDateIndex.value = index
+                            return
+                        }
+                    }
+                    Log.d(TAG, "onEvent: Selected Index : ${_selectedIndex.value}")
+                }catch (e : Exception){
+                    Log.e(TAG, "onEvent: $e")
+                }
+            }
+            is HomeEvents.OnCategorySortSelected -> {
+                _isSorted = !(_selectedCategoryIndex.value == event.categoryIndex)
+                _selectedCategoryIndex.value = if (event.categoryIndex == _selectedCategoryIndex.value) -1 else event.categoryIndex
+                applySortByCategory()
+            }
         }
+    }
+
+    private fun applySortByCategory() {
+        todoList.value = todoUnSortedList
+        if (_isSorted){
+            todoList.value = todoList.value.filter { it.categoryId == _categoryList.value[_selectedCategoryIndex.value].id}
+        }
+    }
+
+    private fun searchDateIndex(list: List<Date>, date: Date): Int {
+        var left = 0
+        var right = list.size-1
+        while (left < right){
+            var mid = left + ((right-left)/2)
+            val midEpoch = IDateGenerator.getEpochForDate(list[mid])
+            val dateEpoch = IDateGenerator.getEpochForDate(date)
+            if (midEpoch == dateEpoch){
+                return mid
+            }else if (midEpoch > dateEpoch){
+                left = mid+1
+            }else if (midEpoch < dateEpoch){
+                right = mid-1
+            }
+        }
+        return -1
     }
 
     public fun fetchDateDataByDate(index : Int){
@@ -125,14 +198,51 @@ class HomeViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             categoryRepository.getAllCategory().collect{
                 _categoryList.value = it
+                fillColorMap(it)
             }
         }
     }
+
+    private fun fillColorMap(categories: List<Category>) {
+        val colorMap = mutableMapOf<Long,Color>()
+        categories.forEach {
+            colorMap.put(it.id,it.color)
+        }
+        _colorMap.value = colorMap
+    }
+
     fun fetchAllTodo() {
         viewModelScope.launch(Dispatchers.IO) {
             todoRepository.getAllTodo().collect{
-                _todoList.value = it
+                val sortedList =  it.sortedBy { it.date }
+                _todoList.value = sortedList
+                todoUnSortedList = sortedList
+                currentTodoIndex(sortedList)
             }
+        }
+    }
+
+    private fun currentTodoIndex(todos: List<Todo>) {
+        val calendar = Calendar.getInstance()
+        calendar.time = _currentDate.value
+        val index =  getTodoIndexByDate(calendar.time)
+        _todoIndex.value = if (index-1 >= 0) index-1 else _todoIndex.value
+    }
+
+    private fun getTodoIndexByDate(selectedDate : Date): Int {
+        var dateTodo : Todo? = null
+        try {
+            dateTodo = _todoList.value.filter { IDateGenerator.getFormattedDate(it.date).equals(IDateGenerator.getFormattedDate(selectedDate)) }.sortedBy { it.date }[0]
+        }catch (e : Exception){
+            Log.e(TAG, "getTodoIndexByDate: $e")
+        }
+
+        return _todoList.value.indexOf(dateTodo)
+    }
+
+    private fun todoSort(todos: List<Todo>): List<Todo> {
+        return todos.sortedBy {
+            it.date
         }
     }
 }

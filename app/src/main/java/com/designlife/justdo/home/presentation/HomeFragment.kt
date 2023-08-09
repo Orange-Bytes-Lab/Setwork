@@ -56,6 +56,7 @@ import com.designlife.justdo.home.domain.usecase.LoadPreviousDatesSetUseCase
 import com.designlife.justdo.home.presentation.components.CategoryComponent
 import com.designlife.justdo.home.presentation.components.DateComponent
 import com.designlife.justdo.home.presentation.components.HeaderComponent
+import com.designlife.justdo.home.presentation.components.TodoItemList
 import com.designlife.justdo.home.presentation.events.HomeEvents
 import com.designlife.justdo.home.presentation.viewmodel.HomeViewModel
 import com.designlife.justdo.home.presentation.viewmodel.HomeViewModelFactory
@@ -74,6 +75,7 @@ class HomeFragment : Fragment() {
 
     private lateinit var viewModel: HomeViewModel
     private lateinit var listState : LazyListState
+    private lateinit var todoListState : LazyListState
     private lateinit var scope : CoroutineScope
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -97,7 +99,10 @@ class HomeFragment : Fragment() {
         CoroutineScope(Dispatchers.Default).launch {
             delay(800)
             scope.launch(Dispatchers.Main) {
-                scrollToRollCurrentDate(viewModel.dateList.value.indexOf(viewModel.currentDate.value),listState)
+                val index = viewModel.dateList.value.indexOf(viewModel.currentDate.value)
+                viewModel.onEvent(HomeEvents.OnIndexSelected(index))
+                scrollToRollCurrentDate(viewModel.todoIndex.value+1 ,todoListState)
+                scrollToRollCurrentDate(index,listState)
             }
         }
     }
@@ -120,10 +125,14 @@ class HomeFragment : Fragment() {
                 val dateList = viewModel.dateList.value
                 val categoryList = viewModel.categoryList.value
                 val todoList = viewModel.todoList.value
+                todoListState = rememberLazyListState()
+                val colorMap = viewModel.colorMap.value
                 val currentMonth = viewModel.currentMonth.value
                 val currentYear = viewModel.currentYear.value
                 val currentDate = viewModel.currentDate.value
                 val todayDateIndex = dateList.indexOf(currentDate)
+                val selectedDateTodoIndex = viewModel.todoIndex.value
+                val selectedCategoryIndex = viewModel.selectedCategoryIndex.value
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.BottomEnd
@@ -142,7 +151,8 @@ class HomeFragment : Fragment() {
                                 scope.launch(Dispatchers.Main) {
                                     viewModel.onEvent(HomeEvents.OnIndexSelected(todayDateIndex))
                                     listState.scrollToItem(todayDateIndex)
-//                                    scrollToRollCurrentDate(todayDateIndex,listState)
+                                    viewModel.onEvent(HomeEvents.HighlightTodoByDate(todayDateIndex))
+                                    todoListState.scrollToItem(viewModel.todoIndex.value)
                                 }
                             },
                             currentDate = Date(System.currentTimeMillis()),
@@ -156,7 +166,11 @@ class HomeFragment : Fragment() {
                             dateList = dateList,
                             onEventClick = {
                                 viewModel.onEvent(HomeEvents.OnIndexSelected(it))
-                                viewModel.fetchDateDataByDate(it)
+                                viewModel.onEvent(HomeEvents.HighlightTodoByDate(it))
+                                scope.launch(Dispatchers.Main) {
+                                    scrollToRollCurrentDate(viewModel.todoIndex.value,todoListState)
+                                }
+
                             },
                             onChangeVisibleDate = {
                                 viewModel.onYearChange(it)
@@ -177,10 +191,23 @@ class HomeFragment : Fragment() {
                             selectedIndex = selectedIndex
                         )
                         Spacer(modifier = Modifier.height(40.dp))
-                        CategoryComponent(categoryList = categoryList){
+                        CategoryComponent(categoryList = categoryList, selectedCategoryIndex = selectedCategoryIndex){ categoryIndex ->
+                            viewModel.onEvent(HomeEvents.OnCategorySortSelected(categoryIndex))
+                        }
+                        Spacer(modifier = Modifier.height(20.dp))
+                        TodoItemList(
+                            listState = todoListState,
+                            todoList = todoList,
+                            colorMap = colorMap,
+                            onFirstIndexChangeEvent = {index ->
+                                 viewModel.onEvent(HomeEvents.HighlightDateByTodo(index))
+                                 scope.launch(Dispatchers.Main) {
+                                     scrollToRollCurrentDate(viewModel.currentDateIndex.value,listState)
+                                 }
+                            },
+                        ){
 
                         }
-                        Spacer(modifier = Modifier.height(40.dp))
                     }
                     FloatingActionButton(
                         modifier = Modifier

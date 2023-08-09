@@ -7,3 +7,4 @@ fun String.camelCase() : String{
         return this.get(0).uppercase() + this.substring(1)
     return this
 }
+

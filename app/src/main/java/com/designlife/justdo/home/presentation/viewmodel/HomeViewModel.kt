@@ -17,11 +17,10 @@ import com.designlife.justdo.home.domain.usecase.LoadNextDatesSetUseCase
 import com.designlife.justdo.home.domain.usecase.LoadPreviousDatesSetUseCase
 import com.designlife.justdo.home.presentation.events.HomeEvents
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.util.Calendar
 import java.util.Date
-import kotlin.time.Duration.Companion.days
 
 class HomeViewModel(
     private val dateGenerator: DateGenerator,
@@ -74,6 +73,9 @@ class HomeViewModel(
 
     private var _isSorted : Boolean = false
 
+    private var _progressBarVisibility : MutableState<Boolean> = mutableStateOf(false)
+    val progressBarVisibility  = _progressBarVisibility
+
     init {
         viewModelScope.launch(Dispatchers.IO) {
             dateGenerator.getDateList().collect{
@@ -91,10 +93,13 @@ class HomeViewModel(
                 _todoIndex.value = event.index
             }
             is HomeEvents.HighlightTodoByDate -> {
-                val calendar = Calendar.getInstance()
-                calendar.time = _dateList.value[event.visibleIndex]
-                val index = getTodoIndexByDate(calendar.time)
-                _todoIndex.value = if (index >= 0) index else 0
+                viewModelScope.launch(Dispatchers.Default) {
+                    delay(500) // debounce
+                    val calendar = Calendar.getInstance()
+                    calendar.time = _dateList.value[event.visibleIndex]
+                    val index = getTodoIndexByDate(calendar.time)
+                    _todoIndex.value = if (index >= 0) index else 0
+                }
             }
             is HomeEvents.HighlightDateByTodo -> {
                 viewModelScope.launch(Dispatchers.Default) {
@@ -116,6 +121,9 @@ class HomeViewModel(
                 _isSorted = !(_selectedCategoryIndex.value == event.categoryIndex)
                 _selectedCategoryIndex.value = if (event.categoryIndex == _selectedCategoryIndex.value) -1 else event.categoryIndex
                 applySortByCategory()
+            }
+            is HomeEvents.OnProgressBarToggle -> {
+                _progressBarVisibility.value = event.toggleValue
             }
         }
     }
@@ -174,7 +182,6 @@ class HomeViewModel(
 
     private fun setNextMonthIndex(listSize : Int) {
         _currentDateIndex.value =  listSize-25
-
     }
 
     private fun setPreviousMonthIndex() {

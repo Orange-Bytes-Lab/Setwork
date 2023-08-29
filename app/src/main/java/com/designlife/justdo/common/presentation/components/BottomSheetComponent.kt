@@ -39,7 +39,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.designlife.justdo.ui.theme.PrimaryColor2
+import com.designlife.justdo.ui.theme.*
 import com.designlife.justdo.ui.theme.contentStyle_One
 import com.designlife.justdo.R
 import com.designlife.justdo.common.utils.enums.BottomSheetItem

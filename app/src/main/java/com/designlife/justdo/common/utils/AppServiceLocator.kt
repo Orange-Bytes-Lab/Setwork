@@ -19,7 +19,8 @@ object AppServiceLocator {
 
     private fun createCategoryRepository(context: Context): CategoryRepository {
         val categoryDao = AppDatabase.getDatabase(context).categoryDao()
-        return CategoryRepository(categoryDao)
+        categoryRepository = CategoryRepository(categoryDao)
+        return categoryRepository!!
     }
 
     public fun provideTodoRepository(context : Context) : TodoRepository{
@@ -28,7 +29,8 @@ object AppServiceLocator {
 
     private fun createTodoRepository(context: Context): TodoRepository {
         val todoDao = AppDatabase.getDatabase(context).todoDao()
-        return TodoRepository(todoDao)
+        todoRepository = TodoRepository(todoDao)
+        return todoRepository!!
     }
 
     public fun provideRepeatRepository() : RepeatRepository{
@@ -36,6 +38,7 @@ object AppServiceLocator {
     }
 
     private fun createRepeatRepository(): RepeatRepository {
-        return RepeatRepository()
+        repeatRepository = RepeatRepository()
+        return repeatRepository!!
     }
 }

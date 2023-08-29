@@ -17,9 +17,9 @@ fun ProgressBar() {
         contentAlignment = Alignment.Center
     ) {
         CircularProgressIndicator(
-            modifier = Modifier.size(40.dp),
+            modifier = Modifier.size(30.dp),
             color = ButtonPrimary,
-            strokeWidth = 1.5.dp
+            strokeWidth = 4.dp
         )
     }
 }

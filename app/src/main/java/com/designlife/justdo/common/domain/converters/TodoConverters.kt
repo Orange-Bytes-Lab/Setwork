@@ -13,18 +13,23 @@ object TodoConverters {
             note = todo.note,
             isRepeated = todo.isRepeated,
             isCompleted = todo.isCompleted,
-            categoryId = todo.categoryId
+            categoryId = todo.categoryId,
+            createdOn = todo.createdOn,
+            repeatIndex = todo.repeatIndex
         )
     }
 
     fun getTodo(todo: com.designlife.justdo.common.data.entities.Todo) : Todo{
         return Todo(
+            todoId = todo.todoId.toInt(),
             title = todo.title,
             date = IDateGenerator.getDateFromEpoch(todo.date),
             note = todo.note,
             isRepeated = todo.isRepeated,
             isCompleted = todo.isCompleted,
-            categoryId = todo.categoryId
+            categoryId = todo.categoryId,
+            createdOn = todo.createdOn,
+            repeatIndex = todo.repeatIndex
         )
     }
 

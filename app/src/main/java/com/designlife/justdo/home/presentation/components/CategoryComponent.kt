@@ -41,9 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.designlife.justdo.common.domain.entities.Category
 import com.designlife.justdo.ui.theme.PrimaryBackgroundCategoryColor
-import com.designlife.justdo.ui.theme.PrimaryColor1
-import com.designlife.justdo.ui.theme.PrimaryColor2
-import com.designlife.justdo.ui.theme.SelectedCategoryBackground
+import com.designlife.justdo.ui.theme.*
 import com.designlife.justdo.ui.theme.contentStyle_One
 import com.designlife.justdo.ui.theme.fontFamily
 import com.designlife.justdo.ui.theme.headerStyle
@@ -138,7 +136,7 @@ fun DummyCategoryItem(
             .padding(horizontal = 6.dp)
             .width(200.dp)
             .height(100.dp)
-            .background(color = PrimaryColor2, shape = RoundedCornerShape(20))
+            .background(color = PrimaryColorHome2, shape = RoundedCornerShape(20))
             .clickable { newCategoryEvent() }
             .border(width = 1.dp, color = Color.Gray, shape = RoundedCornerShape(20))
             .padding(horizontal = 8.dp),

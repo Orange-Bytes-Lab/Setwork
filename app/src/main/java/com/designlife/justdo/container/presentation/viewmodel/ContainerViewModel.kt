@@ -106,4 +106,9 @@ class ContainerViewModel(
         _repeatList.value = repeatRepository.getRepeatList(currentDate)
     }
 
+    public fun getCatiegoryIndexById(categoryId : Long) : Int{
+        val categoryData = categoryList.value.filterIndexed { index, category -> category.id == categoryId }
+        return categoryList.value.indexOf(categoryData[0])
+    }
+
 }

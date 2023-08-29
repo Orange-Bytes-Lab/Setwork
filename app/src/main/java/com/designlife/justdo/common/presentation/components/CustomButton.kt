@@ -11,24 +11,27 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.designlife.justdo.ui.theme.ButtonPrimary
+import com.designlife.justdo.ui.theme.DangerButton
 import com.designlife.justdo.ui.theme.Purple500
 import com.designlife.justdo.ui.theme.buttonStyle
 
 @Composable
 fun CustomButton(
+    buttonText : String,
+    isDangerButton : Boolean,
     onButtonEvent : () -> Unit
 ) {
     Button(
         onClick = { onButtonEvent() },
         modifier = Modifier
-            .width(60.dp)
+            .width(62.dp)
             .height(32.dp),
         colors = ButtonDefaults.buttonColors(
-            backgroundColor = ButtonPrimary,
+            backgroundColor = if(isDangerButton) DangerButton else ButtonPrimary,
             disabledBackgroundColor = Purple500
         ),
         shape = RoundedCornerShape(20.dp),
     ) {
-        Text(text = "Save", textAlign = TextAlign.Center, style = buttonStyle)
+        Text(text = buttonText, textAlign = TextAlign.Center, style = buttonStyle)
     }
 }

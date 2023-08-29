@@ -32,8 +32,9 @@ import com.designlife.justdo.ui.theme.headerStyle
 fun CommonCustomHeader(
     headerTitle : String,
     autoSave : Boolean = false,
+    isOverview : Boolean = false,
     onCloseEvent : () -> Unit,
-    onSaveEvent : () -> Unit
+    onButtonClickEvent : () -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -62,7 +63,7 @@ fun CommonCustomHeader(
                 ) {
                     Icon(imageVector = Icons.Default.Close, contentDescription = "Close Icon" )
                 }
-                Spacer(modifier = Modifier.width(12.dp))
+                Spacer(modifier = Modifier.width(10.dp))
                 Text(
                     text = headerTitle,
                     style = headerStyle
@@ -70,8 +71,8 @@ fun CommonCustomHeader(
             }
             if (!autoSave){
                 Row(modifier = Modifier.padding(end = 10.dp).wrapContentWidth()) {
-                    CustomButton {
-                        onSaveEvent()
+                    CustomButton(buttonText = if (isOverview) "Done" else "Save", isDangerButton = isOverview) {
+                        onButtonClickEvent()
                     }
                 }
             }

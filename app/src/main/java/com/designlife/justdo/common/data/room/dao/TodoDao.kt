@@ -23,4 +23,12 @@ interface TodoDao {
     @Query("SELECT * FROM TODO")
     fun getAllTodos() : Flow<List<Todo>>
 
+    @Transaction
+    @Query("SELECT * FROM TODO WHERE todoId=:todoId")
+    suspend fun getTodoById(todoId : Long) : Todo
+
+    @Transaction
+    @Query("UPDATE TODO SET isCompleted=:isCompleted WHERE todoId=:todoId")
+    suspend fun updateTodoById(todoId : Long,isCompleted : Boolean = true)
+
 }

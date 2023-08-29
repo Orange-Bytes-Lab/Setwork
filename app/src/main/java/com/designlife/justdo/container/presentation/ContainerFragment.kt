@@ -86,7 +86,7 @@ class ContainerFragment : Fragment() {
                             onCloseEvent = {
                                 findNavController().navigateUp()
                             },
-                            onSaveEvent = { /* auto save mode */ }
+                            onButtonClickEvent = { /* auto save mode */ }
                         )
                         when(screenType){
                             ScreenType.CATEGORY -> {

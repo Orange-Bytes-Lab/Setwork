@@ -1,7 +1,10 @@
 package com.designlife.justdo.task
 
+import android.app.AlarmManager
 import android.app.DatePickerDialog
+import android.app.NotificationManager
 import android.app.TimePickerDialog
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -25,7 +28,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.os.bundleOf
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.NavDeepLinkBuilder
+import androidx.navigation.Navigation.findNavController
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import com.designlife.justdo.R
 import com.designlife.justdo.common.domain.calendar.IDateGenerator
 import com.designlife.justdo.common.presentation.components.CommonCustomHeader
@@ -45,24 +51,57 @@ import com.designlife.justdo.task.presentation.viewmodel.TaskViewModelFactory
 import com.designlife.justdo.ui.theme.ButtonPrimary
 import com.designlife.justdo.ui.theme.PrimaryBackgroundColor
 import com.designlife.justdo.ui.theme.TaskItemLabelColor
+import com.designlife.orchestrator.NotificationServiceLocator
+import com.designlife.orchestrator.notification.broadcastreceiver.TaskService
+import com.designlife.orchestrator.notification.clickmanager.NotificationClickManager
+import com.designlife.orchestrator.notification.clickmanager.TaskListener
+import com.designlife.orchestrator.notification.repository.TaskNotificationRepository
 import java.util.Calendar
 
-class TaskFragment : Fragment() {
+class TaskFragment : Fragment(), TaskListener {
 
     private lateinit var viewmodel : TaskViewModel
     private lateinit var shareViewModel : ContainerViewModel
+    private lateinit var alarmManager : AlarmManager
+    private lateinit var notificationManager : NotificationManager
+    private lateinit var taskNotificationRepository : TaskNotificationRepository
+    private var isOverview : Boolean = false
+    private var taskId : Int = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        alarmManager = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        notificationManager = requireContext().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val repeatRepository = AppServiceLocator.provideRepeatRepository()
         val todoRepository = AppServiceLocator.provideTodoRepository(requireActivity().applicationContext)
         val categoryRepository = AppServiceLocator.provideCategoryRepository(requireActivity().applicationContext)
-        val factory = TaskViewModelFactory(repeatRepository,todoRepository,categoryRepository)
-        viewmodel = ViewModelProvider(this,factory)[TaskViewModel::class.java]
+        taskNotificationRepository = NotificationServiceLocator.provideNotificationRepository(requireContext(),alarmManager)
+        NotificationClickManager.setListener(this)
         val shareViewModelFactory = ContainerViewModelFactory(categoryRepository,repeatRepository)
         shareViewModel = ViewModelProvider(requireActivity(),shareViewModelFactory)[ContainerViewModel::class.java]
+        val factory = TaskViewModelFactory(repeatRepository,todoRepository,categoryRepository,taskNotificationRepository,shareViewModel)
+        viewmodel = ViewModelProvider(this,factory)[TaskViewModel::class.java]
+
         shareViewModel.setupRepeatList(IDateGenerator.getToday())
+        navigationArgsDateSet()
+
+    }
+
+    private fun navigationArgsDateSet() {
+        arguments?.let { bundle ->
+            val todoId = bundle.getInt(Constants.TASK_VIEW_ID)
+            val taskViewCheck = bundle.getBoolean(Constants.TASK_VIEW)
+            taskViewCheck?.let {
+                if (it){
+                    isOverview = it
+                    todoId?.let {
+                        taskId = it
+                        viewmodel.onEvent(TaskEvents.LoadTodoById(it))
+                    }
+                }
+            }
+
+        }
     }
 
     override fun onCreateView(
@@ -91,8 +130,12 @@ class TaskFragment : Fragment() {
                             .background(color = PrimaryBackgroundColor),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        CommonCustomHeader(headerTitle = "New Task", onCloseEvent = { findNavController().navigateUp()}) {
-                            viewmodel.onEvent(TaskEvents.CreateTask(getRepeatType(shareViewModel.selectedRepeatIndex.value),selectedCategory))
+                        CommonCustomHeader(headerTitle = if (isOverview) "Task Overview" else "New Task", autoSave = viewmodel.isCompleted.value, onCloseEvent = { findNavController().navigateUp()}, isOverview = isOverview) {
+                            if (isOverview){
+                                viewmodel.onEvent(TaskEvents.MarkTaskDone(taskId))
+                            }else{
+                                viewmodel.onEvent(TaskEvents.CreateTask(getRepeatType(shareViewModel.selectedRepeatIndex.value),selectedCategory))
+                            }
                             findNavController().navigateUp()
                         }
                         Spacer(modifier = Modifier.height(20.dp))
@@ -107,6 +150,7 @@ class TaskFragment : Fragment() {
                                     labelText = "Add Title",
                                     isNote = false,
                                     placeholder = "New Task Title",
+                                    isClickable = isOverview,
                                     inputText = inputText,
                                     onInputChange = {
                                         viewmodel.onEvent(TaskEvents.OnTitleChange(it))
@@ -121,6 +165,7 @@ class TaskFragment : Fragment() {
                                     icon = R.drawable.ic_note,
                                     labelText = "Note",
                                     isNote = true,
+                                    isClickable = isOverview,
                                     placeholder = "Note to remember ...",
                                     inputText = noteText,
                                     onInputChange = {
@@ -136,7 +181,6 @@ class TaskFragment : Fragment() {
                                     icon = R.drawable.ic_schedule,
                                     labelText = "Date",
                                     onDateChange = {
-
                                         val year = calendar[Calendar.YEAR]
                                         val month = calendar[Calendar.MONTH]
                                         val dayOfMonth = calendar[Calendar.DAY_OF_MONTH]
@@ -176,12 +220,14 @@ class TaskFragment : Fragment() {
                                     onInputChange = {},
                                     isClickable = true
                                 ){
-                                    val bundle = bundleOf()
-                                    bundle.putInt(Constants.SCREEN_TYPE, ScreenType.REPEAT.ordinal)
-                                    findNavController().navigate(
-                                        R.id.containerFragment,
-                                        bundle
-                                    )
+                                    if(!isOverview){
+                                        val bundle = bundleOf()
+                                        bundle.putInt(Constants.SCREEN_TYPE, ScreenType.REPEAT.ordinal)
+                                        findNavController().navigate(
+                                            R.id.containerFragment,
+                                            bundle
+                                        )
+                                    }
                                 }
                             }
                             item{
@@ -196,13 +242,15 @@ class TaskFragment : Fragment() {
                                     onInputChange = {},
                                     isClickable = true
                                 ){
-                                    val bundle = bundleOf()
-                                    bundle.putBoolean(Constants.EDIT_MODE,false)
-                                    bundle.putInt(Constants.SCREEN_TYPE, ScreenType.CATEGORY.ordinal)
-                                    findNavController().navigate(
-                                        R.id.containerFragment,
-                                        bundle
-                                    )
+                                    if (!isOverview){
+                                        val bundle = bundleOf()
+                                        bundle.putBoolean(Constants.EDIT_MODE,false)
+                                        bundle.putInt(Constants.SCREEN_TYPE, ScreenType.CATEGORY.ordinal)
+                                        findNavController().navigate(
+                                            R.id.containerFragment,
+                                            bundle
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -227,4 +275,15 @@ class TaskFragment : Fragment() {
             else -> RepeatType.NO_REPEAT
         }
     }
+
+    override fun onBroadCastRecieveListener(id: Int, title: String) {
+//        val bundle = bundleOf()
+//        bundle.putBoolean(Constants.TASK_VIEW,true)
+//        bundle.putInt(Constants.TASK_VIEW_ID,id)
+//        findNavController().navigate(R.id.taskFragment, bundle)
+        taskId = id
+        Log.i("LISTENER", "onBroadCastRecieveListener: ${id} : ${title}")
+    }
+
+
 }

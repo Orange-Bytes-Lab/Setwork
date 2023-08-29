@@ -24,11 +24,20 @@ class TodoRepository(private val todoDao: TodoDao) {
         )
     }
 
-    fun getAllTodo() : Flow<List<Todo>> {
+   suspend fun getAllTodo() : Flow<List<Todo>> {
        return todoDao.getAllTodos().map { rawTodoList ->
            rawTodoList.map{ rawTodo ->
                TodoConverters.getTodo(rawTodo)
            }
        }
     }
+
+    suspend fun getTodoById(todoId : Int) : Todo {
+        return TodoConverters.getTodo(todoDao.getTodoById(todoId.toLong()))
+    }
+
+    suspend fun updateTodo(todoId : Int) : Unit {
+        todoDao.updateTodoById(todoId.toLong(),true)
+    }
+
 }

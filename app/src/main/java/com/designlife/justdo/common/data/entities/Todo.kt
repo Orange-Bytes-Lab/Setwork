@@ -12,6 +12,8 @@ data class Todo(
     val date : Long,
     val note : String,
     val isRepeated : Boolean,
+    val repeatIndex : Int,
     val isCompleted : Boolean,
-    val categoryId : Long
+    val categoryId : Long,
+    val createdOn : Long
 )

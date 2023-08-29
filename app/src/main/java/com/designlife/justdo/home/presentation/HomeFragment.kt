@@ -1,7 +1,6 @@
 package com.designlife.justdo.home.presentation
 
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -14,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.ExperimentalMaterialApi
@@ -24,28 +22,26 @@ import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.rememberModalBottomSheetState
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.unit.dp
 import androidx.core.os.bundleOf
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import com.designlife.justdo.R
-import com.designlife.justdo.common.data.room.dao.AppDatabase
 import com.designlife.justdo.common.domain.calendar.IDateGenerator
-import com.designlife.justdo.common.domain.converters.ColorConverter
-import com.designlife.justdo.common.domain.repositories.CategoryRepository
-import com.designlife.justdo.common.domain.repositories.TodoRepository
 import com.designlife.justdo.common.presentation.components.BottomSheetComponent
+import com.designlife.justdo.common.presentation.components.ProgressBar
 import com.designlife.justdo.common.utils.AppServiceLocator
 import com.designlife.justdo.common.utils.constants.Constants.EDIT_MODE
 import com.designlife.justdo.common.utils.constants.Constants.SCREEN_TYPE
+import com.designlife.justdo.common.utils.constants.Constants.TASK_VIEW
+import com.designlife.justdo.common.utils.constants.Constants.TASK_VIEW_ID
 import com.designlife.justdo.common.utils.enums.BottomSheetItem
 import com.designlife.justdo.common.utils.enums.ScreenType
 import com.designlife.justdo.container.presentation.viewmodel.ContainerViewModel
@@ -60,15 +56,11 @@ import com.designlife.justdo.home.presentation.components.TodoItemList
 import com.designlife.justdo.home.presentation.events.HomeEvents
 import com.designlife.justdo.home.presentation.viewmodel.HomeViewModel
 import com.designlife.justdo.home.presentation.viewmodel.HomeViewModelFactory
-import com.designlife.justdo.ui.theme.ButtonPrimary
-import com.designlife.justdo.ui.theme.PrimaryColor1
-import com.designlife.justdo.ui.theme.PrimaryColor2
+import com.designlife.justdo.ui.theme.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.util.Date
 
 class HomeFragment : Fragment() {
@@ -133,122 +125,145 @@ class HomeFragment : Fragment() {
                 val todayDateIndex = dateList.indexOf(currentDate)
                 val selectedDateTodoIndex = viewModel.todoIndex.value
                 val selectedCategoryIndex = viewModel.selectedCategoryIndex.value
+                val progressBar = viewModel.progressBarVisibility.value
                 Box(
                     modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.BottomEnd
                 ) {
-                    Column(modifier = Modifier
-                        .fillMaxSize()
-                        .background(
-                            brush = Brush.verticalGradient(
-                                colors = listOf(PrimaryColor1, PrimaryColor2)
-                            )
-                        )
-                    ) {
-                        HeaderComponent(
-                            headerText = "All Tasks",
-                            onEventClick = {
-                                scope.launch(Dispatchers.Main) {
-                                    viewModel.onEvent(HomeEvents.OnIndexSelected(todayDateIndex))
-                                    listState.scrollToItem(todayDateIndex)
-                                    viewModel.onEvent(HomeEvents.HighlightTodoByDate(todayDateIndex))
-                                    todoListState.scrollToItem(viewModel.todoIndex.value)
-                                }
-                            },
-                            currentDate = Date(System.currentTimeMillis()),
-                        )
-                        Spacer(modifier = Modifier.height(40.dp))
-                        DateComponent(
-                            listState = listState,
-                            currentDate = currentDate,
-                            currentMonth = currentMonth,
-                            currentYear = currentYear,
-                            dateList = dateList,
-                            onEventClick = {
-                                viewModel.onEvent(HomeEvents.OnIndexSelected(it))
-                                viewModel.onEvent(HomeEvents.HighlightTodoByDate(it))
-                                scope.launch(Dispatchers.Main) {
-                                    scrollToRollCurrentDate(viewModel.todoIndex.value,todoListState)
-                                }
-
-                            },
-                            onChangeVisibleDate = {
-                                viewModel.onYearChange(it)
-                                viewModel.onMonthChange(it)
-                            },
-                            loadPreviousTrigger = {
-                                scope.launch(Dispatchers.Main) {
-                                    viewModel.loadPreviousMonth()
-                                    scrollToRollCurrentDate(viewModel.currentDateIndex.value,listState)
-                                }
-                            },
-                            loadNextTrigger = {
-                                scope.launch(Dispatchers.Main) {
-                                    viewModel.loadNextMonth()
-                                    scrollToRollCurrentDate(viewModel.currentDateIndex.value,listState)
-                                }
-                            },
-                            selectedIndex = selectedIndex
-                        )
-                        Spacer(modifier = Modifier.height(40.dp))
-                        CategoryComponent(categoryList = categoryList, selectedCategoryIndex = selectedCategoryIndex){ categoryIndex ->
-                            viewModel.onEvent(HomeEvents.OnCategorySortSelected(categoryIndex))
-                        }
-                        Spacer(modifier = Modifier.height(20.dp))
-                        TodoItemList(
-                            listState = todoListState,
-                            todoList = todoList,
-                            colorMap = colorMap,
-                            onFirstIndexChangeEvent = {index ->
-                                 viewModel.onEvent(HomeEvents.HighlightDateByTodo(index))
-                                 scope.launch(Dispatchers.Main) {
-                                     scrollToRollCurrentDate(viewModel.currentDateIndex.value,listState)
-                                 }
-                            },
-                        ){
-
-                        }
-                    }
-                    FloatingActionButton(
+                    Box(
                         modifier = Modifier
-                            .padding(20.dp)
-                            .wrapContentSize(),
-                        onClick = {
-                            viewModel.updateSheetVisibility(true)
-                            scope.launch(Dispatchers.Main) {
-                                bottomSheetState.animateTo(ModalBottomSheetValue.Expanded)
-                            }
-                        },
-                        backgroundColor = ButtonPrimary
+                            .fillMaxSize()
+                            .alpha(if (viewModel.progressBarVisibility.value) 0.7F else 1F)
+                            .blur(radius = if (viewModel.progressBarVisibility.value) 7.dp else 0.dp),
+                        contentAlignment = Alignment.BottomEnd
                     ) {
-                        Icon(imageVector = Icons.Default.Add, contentDescription = "FAB", tint = PrimaryColor2)
-                    }
-                    if (sheetLayoutVisible){
-                        BottomSheetComponent(sheetState = bottomSheetState,sheetLayoutVisible, onSelectSheetItem = {
-                            when(it){
-                                BottomSheetItem.CATEGORY -> {
-                                    val bundle = bundleOf()
-                                    bundle.putBoolean(EDIT_MODE,true)
-                                    bundle.putInt(SCREEN_TYPE,ScreenType.CATEGORY.ordinal)
-                                    findNavController().navigate(
-                                        R.id.containerFragment,
-                                        bundle
-                                    )
-                                }
-                                BottomSheetItem.NOTE -> {}
-                                BottomSheetItem.TASK -> {
-                                    findNavController().navigate(R.id.taskFragment)
-                                }
+                        Column(modifier = Modifier
+                            .fillMaxSize()
+                            .background(
+                                brush = Brush.verticalGradient(
+                                    colors = listOf(PrimaryColorHome2,PrimaryColorHome1)
+                                )
+                            )
+                        ) {
+                            HeaderComponent(
+                                headerText = "All Tasks",
+                                onEventClick = {
+                                    scope.launch(Dispatchers.Main) {
+                                        viewModel.onEvent(HomeEvents.OnIndexSelected(todayDateIndex))
+                                        listState.scrollToItem(todayDateIndex)
+                                        viewModel.onEvent(HomeEvents.HighlightTodoByDate(todayDateIndex))
+                                        todoListState.scrollToItem(viewModel.todoIndex.value)
+                                    }
+                                },
+                                currentDate = Date(System.currentTimeMillis()),
+                            )
+                            Spacer(modifier = Modifier.height(40.dp))
+                            DateComponent(
+                                listState = listState,
+                                currentDate = currentDate,
+                                currentMonth = currentMonth,
+                                currentYear = currentYear,
+                                dateList = dateList,
+                                onEventClick = {
+                                    val index = dateList.get(it)!!
+                                    viewModel.onEvent(HomeEvents.OnIndexSelected(it))
+                                    viewModel.onEvent(HomeEvents.HighlightTodoByDate(it))
+                                    scope.launch(Dispatchers.Main) {
+                                        scrollToRollCurrentDate(viewModel.todoIndex.value,todoListState)
+                                    }
+
+                                },
+                                onChangeVisibleDate = {
+                                    viewModel.onYearChange(it)
+                                    viewModel.onMonthChange(it)
+                                },
+                                loadPreviousTrigger = {
+                                    scope.launch(Dispatchers.Main) {
+                                        viewModel.loadPreviousMonth()
+                                        scrollToRollCurrentDate(viewModel.currentDateIndex.value,listState)
+                                    }
+                                },
+                                loadNextTrigger = {
+                                    scope.launch(Dispatchers.Main) {
+                                        viewModel.loadNextMonth()
+                                        scrollToRollCurrentDate(viewModel.currentDateIndex.value,listState)
+                                    }
+                                },
+                                selectedIndex = selectedIndex
+                            )
+                            Spacer(modifier = Modifier.height(40.dp))
+                            CategoryComponent(categoryList = categoryList, selectedCategoryIndex = selectedCategoryIndex){ categoryIndex ->
+                                viewModel.onEvent(HomeEvents.OnCategorySortSelected(categoryIndex))
                             }
-                        }) {
-                            viewModel.updateSheetVisibility(false)
-                            scope.launch {
-                                bottomSheetState.hide()
+                            Spacer(modifier = Modifier.height(20.dp))
+                            TodoItemList(
+                                listState = todoListState,
+                                todoList = todoList,
+                                colorMap = colorMap,
+                                onFirstIndexChangeEvent = {date ->
+                                    viewModel.onEvent(HomeEvents.HighlightDateByTodo(date))
+                                    scope.launch(Dispatchers.Main) {
+                                        scrollToRollCurrentDate(viewModel.currentDateIndex.value,listState)
+                                    }
+                                },
+                            ){
+//                                    todoId ->
+//                                val bundle = bundleOf()
+//                                bundle.putBoolean(TASK_VIEW,true)
+//                                bundle.putInt(TASK_VIEW_ID,todoId)
+//                                findNavController().navigate(
+//                                    R.id.taskFragment,
+//                                    bundle
+//                                )
                             }
                         }
+                        FloatingActionButton(
+                            modifier = Modifier
+                                .padding(20.dp)
+                                .wrapContentSize(),
+                            onClick = {
+                                viewModel.updateSheetVisibility(true)
+                                scope.launch(Dispatchers.Main) {
+                                    bottomSheetState.animateTo(ModalBottomSheetValue.Expanded)
+                                }
+                            },
+                            backgroundColor = ButtonPrimary
+                        ) {
+                            Icon(imageVector = Icons.Default.Add, contentDescription = "FAB", tint = PrimaryColorHome2)
+                        }
+                        if (sheetLayoutVisible){
+                            BottomSheetComponent(sheetState = bottomSheetState,sheetLayoutVisible, onSelectSheetItem = {
+                                when(it){
+                                    BottomSheetItem.CATEGORY -> {
+                                        val bundle = bundleOf()
+                                        bundle.putBoolean(EDIT_MODE,true)
+                                        bundle.putInt(SCREEN_TYPE,ScreenType.CATEGORY.ordinal)
+                                        findNavController().navigate(
+                                            R.id.containerFragment,
+                                            bundle
+                                        )
+                                    }
+                                    BottomSheetItem.NOTE -> {}
+                                    BottomSheetItem.TASK -> {
+                                        val bundle = bundleOf()
+                                        bundle.putBoolean(TASK_VIEW,false)
+                                        findNavController().navigate(
+                                            R.id.taskFragment,
+                                            bundle
+                                        )
+                                    }
+                                }
+                            }) {
+                                viewModel.updateSheetVisibility(false)
+                                scope.launch {
+                                    bottomSheetState.hide()
+                                }
+                            }
+                        }
+                    }
+                    if (viewModel.progressBarVisibility.value){
+                        ProgressBar()
                     }
                 }
-
             }
         }
     }

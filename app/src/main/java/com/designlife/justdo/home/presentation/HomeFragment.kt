@@ -33,8 +33,10 @@ import androidx.compose.ui.unit.dp
 import androidx.core.os.bundleOf
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import com.designlife.justdo.R
 import com.designlife.justdo.common.domain.calendar.IDateGenerator
+import com.designlife.justdo.common.domain.repositories.appstore.AppStoreRepository
 import com.designlife.justdo.common.presentation.components.BottomSheetComponent
 import com.designlife.justdo.common.presentation.components.ProgressBar
 import com.designlife.justdo.common.utils.AppServiceLocator
@@ -44,8 +46,6 @@ import com.designlife.justdo.common.utils.constants.Constants.TASK_VIEW
 import com.designlife.justdo.common.utils.constants.Constants.TASK_VIEW_ID
 import com.designlife.justdo.common.utils.enums.BottomSheetItem
 import com.designlife.justdo.common.utils.enums.ScreenType
-import com.designlife.justdo.container.presentation.viewmodel.ContainerViewModel
-import com.designlife.justdo.container.presentation.viewmodel.ContainerViewModelFactory
 import com.designlife.justdo.home.domain.usecase.LoadIntialDatesUseCase
 import com.designlife.justdo.home.domain.usecase.LoadNextDatesSetUseCase
 import com.designlife.justdo.home.domain.usecase.LoadPreviousDatesSetUseCase
@@ -69,9 +69,9 @@ class HomeFragment : Fragment() {
     private lateinit var listState : LazyListState
     private lateinit var todoListState : LazyListState
     private lateinit var scope : CoroutineScope
+    private lateinit var appStoreRepository: AppStoreRepository
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         val dateGenerator = IDateGenerator()
         val loadDatesUseCase = LoadIntialDatesUseCase(dateGenerator)
         val loadNextDatesUseCase = LoadNextDatesSetUseCase(dateGenerator)
@@ -80,11 +80,22 @@ class HomeFragment : Fragment() {
         val categoryRepository = AppServiceLocator.provideCategoryRepository(requireActivity().applicationContext)
         val factory = HomeViewModelFactory(dateGenerator,todoRepository,categoryRepository,loadDatesUseCase,loadNextDatesUseCase,loadPreviousDatesUseCase)
         viewModel = ViewModelProvider(this,factory)[HomeViewModel::class.java]
+        appStoreRepository = AppServiceLocator.provideAppStoreRepository(requireContext())
+        checkNotificationView()
         viewModel.loadInitialDates()
         viewModel.fetchAllTodo()
         viewModel.fetchAllCategory()
         initialSlide()
+    }
 
+    private fun checkNotificationView() {
+        CoroutineScope(Dispatchers.IO).launch {
+            val todoId = appStoreRepository.getTodoId()
+            if (todoId != -1){
+                navigateToTaskViewById(todoId)
+                appStoreRepository.updateTodoId(-1)
+            }
+        }
     }
 
     private fun initialSlide() {
@@ -93,8 +104,8 @@ class HomeFragment : Fragment() {
             scope.launch(Dispatchers.Main) {
                 val index = viewModel.dateList.value.indexOf(viewModel.currentDate.value)
                 viewModel.onEvent(HomeEvents.OnIndexSelected(index))
-                scrollToRollCurrentDate(viewModel.todoIndex.value+1 ,todoListState)
-                scrollToRollCurrentDate(index,listState)
+                scrollToRollItem(viewModel.todoIndex.value+1 ,todoListState)
+                scrollToRollItem(index,listState)
             }
         }
     }
@@ -164,13 +175,11 @@ class HomeFragment : Fragment() {
                                 currentYear = currentYear,
                                 dateList = dateList,
                                 onEventClick = {
-                                    val index = dateList.get(it)!!
-                                    viewModel.onEvent(HomeEvents.OnIndexSelected(it))
                                     viewModel.onEvent(HomeEvents.HighlightTodoByDate(it))
                                     scope.launch(Dispatchers.Main) {
-                                        scrollToRollCurrentDate(viewModel.todoIndex.value,todoListState)
+                                        scrollToRollItem(viewModel.todoIndex.value,todoListState)
+                                        viewModel.onEvent(HomeEvents.OnIndexSelected(it))
                                     }
-
                                 },
                                 onChangeVisibleDate = {
                                     viewModel.onYearChange(it)
@@ -179,13 +188,13 @@ class HomeFragment : Fragment() {
                                 loadPreviousTrigger = {
                                     scope.launch(Dispatchers.Main) {
                                         viewModel.loadPreviousMonth()
-                                        scrollToRollCurrentDate(viewModel.currentDateIndex.value,listState)
+                                        scrollToRollItem(viewModel.currentDateIndex.value,listState)
                                     }
                                 },
                                 loadNextTrigger = {
                                     scope.launch(Dispatchers.Main) {
                                         viewModel.loadNextMonth()
-                                        scrollToRollCurrentDate(viewModel.currentDateIndex.value,listState)
+                                        scrollToRollItem(viewModel.currentDateIndex.value,listState)
                                     }
                                 },
                                 selectedIndex = selectedIndex
@@ -202,18 +211,11 @@ class HomeFragment : Fragment() {
                                 onFirstIndexChangeEvent = {date ->
                                     viewModel.onEvent(HomeEvents.HighlightDateByTodo(date))
                                     scope.launch(Dispatchers.Main) {
-                                        scrollToRollCurrentDate(viewModel.currentDateIndex.value,listState)
+                                        scrollToRollItem(viewModel.currentDateIndex.value,listState)
                                     }
                                 },
-                            ){
-//                                    todoId ->
-//                                val bundle = bundleOf()
-//                                bundle.putBoolean(TASK_VIEW,true)
-//                                bundle.putInt(TASK_VIEW_ID,todoId)
-//                                findNavController().navigate(
-//                                    R.id.taskFragment,
-//                                    bundle
-//                                )
+                            ){todoId ->
+                                navigateToTaskViewById(todoId)
                             }
                         }
                         FloatingActionButton(
@@ -268,7 +270,17 @@ class HomeFragment : Fragment() {
         }
     }
 
-    private suspend fun scrollToRollCurrentDate(currentDateIndex: Int,listState : LazyListState) {
+    private fun navigateToTaskViewById(todoId: Int) {
+        val bundle = bundleOf()
+        bundle.putBoolean(TASK_VIEW,true)
+        bundle.putInt(TASK_VIEW_ID,todoId)
+        findNavController().navigate(
+            R.id.taskFragment,
+            bundle
+        )
+    }
+
+    private suspend fun scrollToRollItem(currentDateIndex: Int, listState : LazyListState) {
         listState.animateScrollToItem(currentDateIndex)
     }
 }

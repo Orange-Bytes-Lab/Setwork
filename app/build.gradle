@@ -2,7 +2,7 @@ plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-kapt'
-
+    id 'kotlinx-serialization'
 }
 
 android {
@@ -75,7 +75,12 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.0"
 
     // orchestrator
-    implementation "com.setwork:orchestrator:1.0.0"
+    implementation "com.setwork:orchestrator:$orchestrator_version"
 
+    // Datastore
+    implementation "androidx.datastore:datastore-preferences:$datastore_Version"
+    implementation "org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.5"
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.1"
+    implementation "com.squareup.retrofit2:converter-gson:2.9.0"
 
 }

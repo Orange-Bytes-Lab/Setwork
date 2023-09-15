@@ -93,28 +93,29 @@ class HomeViewModel(
                 _todoIndex.value = event.index
             }
             is HomeEvents.HighlightTodoByDate -> {
-                viewModelScope.launch(Dispatchers.Default) {
-                    delay(500) // debounce
+                try{
                     val calendar = Calendar.getInstance()
                     calendar.time = _dateList.value[event.visibleIndex]
                     val index = getTodoIndexByDate(calendar.time)
-                    _todoIndex.value = if (index >= 0) index else 0
+                    if(index != -1){
+                        _todoIndex.value = index
+                    }
+                }catch (e : Exception){
+                    Log.e(TAG, "onEvent: $e")
                 }
             }
             is HomeEvents.HighlightDateByTodo -> {
-                viewModelScope.launch(Dispatchers.Default) {
-                    try{
-                        val date = _todoList.value[event.visibleIndex].date
-                        val dateEpoch = IDateGenerator.getEpochForDate(date)
-                        val index = _dateList.value.indexOf(IDateGenerator.getDateFromDate(date))
-                        if(index != -1){
-                            _selectedIndex.value = index
-                            _currentDateIndex.value = index
-                        }
-                        Log.d(TAG, "onEvent: Selected Index : ${_selectedIndex.value}")
-                    }catch (e : Exception){
-                        Log.e(TAG, "onEvent: $e")
+                try{
+                    val date = _todoList.value[event.visibleIndex].date
+                    val dateEpoch = IDateGenerator.getEpochForDate(date)
+                    val index = _dateList.value.indexOf(IDateGenerator.getDateFromDate(date))
+                    if(index != -1){
+                        _selectedIndex.value = index
+                        _currentDateIndex.value = index
                     }
+                    Log.d(TAG, "onEvent: Selected Index : ${_selectedIndex.value}")
+                }catch (e : Exception){
+                    Log.e(TAG, "onEvent: $e")
                 }
             }
             is HomeEvents.OnCategorySortSelected -> {

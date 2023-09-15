@@ -24,7 +24,7 @@ fun TodoItemList(
     todoList : List<Todo>,
     colorMap : Map<Long,Color>,
     onFirstIndexChangeEvent : (index : Int) -> Unit,
-    onTodoClickEvent : () -> Unit
+    onTodoClickEvent : (todoId : Int) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -41,7 +41,7 @@ fun TodoItemList(
                         color = color,
                         todo = item
                     ){
-                        onTodoClickEvent()
+                        onTodoClickEvent(todo.todoId)
                     }
                     LaunchedEffect(listState.firstVisibleItemIndex){
                         onFirstIndexChangeEvent(listState.firstVisibleItemIndex)

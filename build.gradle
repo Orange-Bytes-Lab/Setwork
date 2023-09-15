@@ -6,6 +6,11 @@ buildscript {
         nav_version = '2.5.3'
         lifecycle_version = '2.4.0'
         room_version = '2.4.3'
+        datastore_Version = '1.0.0'
+    }
+    // modules
+    ext{
+        orchestrator_version = '1.0.0'
     }
 }
 

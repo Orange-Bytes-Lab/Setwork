@@ -91,13 +91,13 @@ class HomeFragment : Fragment() {
         checkNotificationView()
         CoroutineScope(Dispatchers.Main).launch {
             viewModel.onEvent(HomeEvents.OnProgressBarToggle(true))
-            scope.launch {
+            this.launch {
                 viewModel.loadInitialDates()
             }
-            scope.launch {
+            this.launch {
                 viewModel.fetchAllTodo()
             }
-            scope.launch {
+            this.launch {
                 viewModel.fetchAllCategory()
             }
             initialSlide()

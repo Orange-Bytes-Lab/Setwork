@@ -10,6 +10,7 @@ import com.designlife.justdo.note.presentation.events.NoteEvents
 import com.designlife.justdo.task.presentation.events.TaskEvents
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.Date
 
 class NoteViewModel(
     private val noteRepository: NoteRepository
@@ -32,6 +33,13 @@ class NoteViewModel(
     private val _coverImage : MutableState<String> = mutableStateOf("")
     val coverImage = _coverImage
 
+    private val _createdTime : MutableState<Long> = mutableStateOf(0L)
+    val createdTime = _createdTime
+
+
+    private val _modifiedTime : MutableState<Long> = mutableStateOf(0L)
+    val modifiedTime = _modifiedTime
+
     fun onEvent(event : NoteEvents){
         when(event){
             is NoteEvents.OnTitleChange -> {
@@ -53,6 +61,20 @@ class NoteViewModel(
         }
     }
 
+    fun fetchNoteById(noteId : Long){
+        viewModelScope.launch(Dispatchers.IO) {
+            val note = noteRepository.getNoteById(noteId)
+            note.also {
+                _titleValue.value = it.title
+                _contentValue.value = it.content
+                _noteId.value = it.noteId
+                _categoryId.value = it.categoryId
+                _coverImage.value = it.coverImage
+                _emojiValue.value = it.emoji
+            }
+        }
+    }
+
     fun insertNote(){
         viewModelScope.launch(Dispatchers.IO) {
             if (_contentValue.value.isNotEmpty()){
@@ -61,9 +83,27 @@ class NoteViewModel(
                     content = _contentValue.value,
                     categoryId = _categoryId.value,
                     emoji = _emojiValue.value,
-                    coverImage = _coverImage.value
+                    coverImage = _coverImage.value,
+                    createdTime = Date(System.currentTimeMillis()),
+                    lastModified = Date(System.currentTimeMillis())
                 ))
             }
+        }
+    }
+
+    fun updateNote() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val note = Note(
+                noteId = _noteId.value,
+                title = _titleValue.value,
+                content = _contentValue.value,
+                emoji = _emojiValue.value,
+                categoryId = _categoryId.value,
+                coverImage = _coverImage.value,
+                createdTime = Date(_createdTime.value),
+                lastModified = Date(System.currentTimeMillis())
+            )
+            noteRepository.updateTodo(_noteId.value,note)
         }
     }
 

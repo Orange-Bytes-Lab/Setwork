@@ -95,3 +95,26 @@ val noteContentStyle =  TextStyle(
     fontWeight = FontWeight.Normal,
     textAlign = TextAlign.Start
 )
+
+val noteItemTitleStyle =  TextStyle(
+    color = Color.Black,
+    fontFamily = fontFamily,
+    fontSize = 15.sp,
+    fontWeight = FontWeight.SemiBold
+)
+
+val noteItemContentStyle =  TextStyle(
+    color = Color.Gray,
+    fontFamily = fontFamily,
+    fontSize = 12.sp,
+    fontWeight = FontWeight.Normal,
+    textAlign = TextAlign.Start
+)
+
+val folderTextStyle =  TextStyle(
+    color = Color.White,
+    fontFamily = fontFamily,
+    fontSize = 12.sp,
+    fontWeight = FontWeight.Normal,
+    textAlign = TextAlign.Start
+)

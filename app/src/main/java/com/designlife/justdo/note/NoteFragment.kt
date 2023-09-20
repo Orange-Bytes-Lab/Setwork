@@ -22,10 +22,12 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.designlife.justdo.common.domain.repositories.NoteRepository
 import com.designlife.justdo.common.presentation.components.CommonCustomHeader
 import com.designlife.justdo.common.utils.AppServiceLocator
 import com.designlife.justdo.note.presentation.components.NoteComponent
+import com.designlife.justdo.note.presentation.enums.NoteMode
 import com.designlife.justdo.note.presentation.events.NoteEvents
 import com.designlife.justdo.note.presentation.viewmodel.NoteViewModel
 import com.designlife.justdo.note.presentation.viewmodel.NoteViewModelFactory
@@ -33,6 +35,7 @@ import com.designlife.justdo.ui.theme.PrimaryBackgroundColor
 
 class NoteFragment : Fragment() {
     private lateinit var viewModel: NoteViewModel
+    private var noteMode = NoteMode.CREATE
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -41,7 +44,11 @@ class NoteFragment : Fragment() {
             object : OnBackPressedCallback(true){
                 override fun handleOnBackPressed() {
                     // save updates
-                    viewModel.insertNote()
+                    if (noteMode == NoteMode.CREATE){
+                        viewModel.insertNote()
+                    }else{
+                        viewModel.updateNote()
+                    }
                     Toast.makeText(requireContext(), "Saved", Toast.LENGTH_SHORT).show()
                     findNavController().navigateUp()
                 }
@@ -51,9 +58,14 @@ class NoteFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val noteId = arguments?.getLong("noteId") ?: -1L
         val noteRepository = AppServiceLocator.provideNoteRepository(requireContext())
         val factory = NoteViewModelFactory(noteRepository)
         viewModel =  ViewModelProvider(this,factory)[NoteViewModel::class.java]
+        if (noteId != -1L){
+            noteMode = NoteMode.UPDATE
+            viewModel.fetchNoteById(noteId)
+        }
     }
 
     override fun onCreateView(
@@ -74,7 +86,11 @@ class NoteFragment : Fragment() {
                         headerTitle = if(noteTitle.isEmpty()) "New Note" else noteTitle,
                         onCloseEvent = {
                             // save updates
-                            viewModel.insertNote()
+                            if (noteMode == NoteMode.CREATE){
+                                viewModel.insertNote()
+                            }else{
+                                viewModel.updateNote()
+                            }
                             Toast.makeText(requireContext(), "Saved", Toast.LENGTH_SHORT).show()
                             findNavController().navigateUp()
                         }

@@ -24,5 +24,10 @@
     <fragment
         android:id="@+id/noteFragment"
         android:name="com.designlife.justdo.note.NoteFragment"
-        android:label="NoteFragment" />
+        android:label="NoteFragment" >
+        <argument
+            android:name="NoteId"
+            app:argType="integer"
+            android:defaultValue="-1" />
+    </fragment>
 </navigation>

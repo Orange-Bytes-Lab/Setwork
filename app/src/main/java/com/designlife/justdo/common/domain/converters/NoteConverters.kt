@@ -4,6 +4,7 @@ import com.designlife.justdo.common.data.room.dao.TodoDao
 import com.designlife.justdo.common.domain.calendar.IDateGenerator
 import com.designlife.justdo.common.domain.entities.Note
 import com.designlife.justdo.common.domain.entities.Todo
+import java.util.Date
 
 object NoteConverters {
 
@@ -13,7 +14,9 @@ object NoteConverters {
             content = note.content,
             categoryId = note.categoryId,
             emoji = note.emoji,
-            coverImage = note.coverImage
+            coverImage = note.coverImage,
+            createdTime = note.createdTime.time,
+            lastModified = note.lastModified.time
         )
     }
 
@@ -24,7 +27,9 @@ object NoteConverters {
             content = note.content,
             categoryId = note.categoryId,
             emoji = note.emoji,
-            coverImage = note.coverImage
+            coverImage = note.coverImage,
+            createdTime = Date(note.createdTime),
+            lastModified = Date(note.lastModified),
         )
     }
 

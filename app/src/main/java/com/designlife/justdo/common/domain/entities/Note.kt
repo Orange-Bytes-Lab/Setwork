@@ -2,6 +2,7 @@ package com.designlife.justdo.common.domain.entities
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.util.Date
 
 data class Note(
     val noteId : Long = 0L,
@@ -9,5 +10,7 @@ data class Note(
     val content : String,
     val emoji : String = "📓",
     val categoryId : Long,
-    val coverImage : String = ""
+    val coverImage : String = "",
+    val createdTime: Date,
+    val lastModified : Date,
 )

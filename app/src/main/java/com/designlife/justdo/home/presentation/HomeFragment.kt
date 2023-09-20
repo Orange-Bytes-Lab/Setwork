@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,7 +16,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
@@ -56,6 +59,7 @@ import com.designlife.justdo.home.domain.usecase.LoadPreviousDatesSetUseCase
 import com.designlife.justdo.home.presentation.components.CategoryComponent
 import com.designlife.justdo.home.presentation.components.DateComponent
 import com.designlife.justdo.home.presentation.components.HeaderComponent
+import com.designlife.justdo.home.presentation.components.NoteItemList
 import com.designlife.justdo.home.presentation.components.SearchBarComponent
 import com.designlife.justdo.home.presentation.components.TodoItemList
 import com.designlife.justdo.home.presentation.events.HomeEvents
@@ -87,21 +91,25 @@ class HomeFragment : Fragment() {
         val loadPreviousDatesUseCase = LoadPreviousDatesSetUseCase(dateGenerator)
         val todoRepository = AppServiceLocator.provideTodoRepository(requireActivity().applicationContext)
         val categoryRepository = AppServiceLocator.provideCategoryRepository(requireActivity().applicationContext)
-        val factory = HomeViewModelFactory(dateGenerator,todoRepository,categoryRepository,loadDatesUseCase,loadNextDatesUseCase,loadPreviousDatesUseCase)
+        val noteRepository = AppServiceLocator.provideNoteRepository(requireActivity().applicationContext)
+        val factory = HomeViewModelFactory(dateGenerator,todoRepository,categoryRepository,noteRepository,loadDatesUseCase,loadNextDatesUseCase,loadPreviousDatesUseCase)
         viewModel = ViewModelProvider(this,factory)[HomeViewModel::class.java]
 
         appStoreRepository = AppServiceLocator.provideAppStoreRepository(requireContext())
         checkNotificationView()
         CoroutineScope(Dispatchers.Main).launch {
             viewModel.onEvent(HomeEvents.OnProgressBarToggle(true))
-            this.launch {
+            launch {
                 viewModel.loadInitialDates()
             }
-            this.launch {
+            launch {
                 viewModel.fetchAllTodo()
             }
-            this.launch {
+            launch {
                 viewModel.fetchAllCategory()
+            }
+            launch {
+                viewModel.fetchAllNotes()
             }
             initialSlide()
         }
@@ -132,7 +140,7 @@ class HomeFragment : Fragment() {
         viewModel.onEvent(HomeEvents.OnProgressBarToggle(false))
     }
 
-    @OptIn(ExperimentalMaterialApi::class)
+    @OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -151,6 +159,8 @@ class HomeFragment : Fragment() {
                 val categoryList = viewModel.categoryList.value
                 val todoList = viewModel.todoList.value
                 todoListState = rememberLazyListState()
+                val noteListState = rememberLazyStaggeredGridState()
+                val noteList = viewModel.noteList.value
                 val colorMap = viewModel.colorMap.value
                 val currentMonth = viewModel.currentMonth.value
                 val currentYear = viewModel.currentYear.value
@@ -254,22 +264,38 @@ class HomeFragment : Fragment() {
                                 )
                             }
                             Spacer(modifier = Modifier.height(40.dp))
-                            CategoryComponent(categoryList = categoryList, selectedCategoryIndex = selectedCategoryIndex){ categoryIndex ->
+                            CategoryComponent(viewType = viewType,categoryList = categoryList, selectedCategoryIndex = selectedCategoryIndex){ categoryIndex ->
                                 viewModel.onEvent(HomeEvents.OnCategorySortSelected(categoryIndex))
                             }
                             Spacer(modifier = Modifier.height(20.dp))
-                            TodoItemList(
-                                listState = todoListState,
-                                todoList = todoList,
-                                colorMap = colorMap,
-                                onFirstIndexChangeEvent = {date ->
-                                    viewModel.onEvent(HomeEvents.HighlightDateByTodo(date))
-                                    scope.launch(Dispatchers.Main) {
-                                        scrollToRollItem(viewModel.currentDateIndex.value,dateListState)
+                            AnimatedVisibility(visible = viewType == ViewType.TASK) {
+                                TodoItemList(
+                                    listState = todoListState,
+                                    todoList = todoList,
+                                    colorMap = colorMap,
+                                    onFirstIndexChangeEvent = {date ->
+                                        viewModel.onEvent(HomeEvents.HighlightDateByTodo(date))
+                                        scope.launch(Dispatchers.Main) {
+                                            scrollToRollItem(viewModel.currentDateIndex.value,dateListState)
+                                        }
+                                    },
+                                ){todoId ->
+                                    navigateToTaskViewById(todoId)
+                                }
+                            }
+                            AnimatedVisibility(visible = viewType == ViewType.NOTE) {
+                                NoteItemList(
+                                    listState = noteListState,
+                                    noteList = noteList,
+                                    onNoteClickEvent = {
+                                        val bundle = bundleOf()
+                                        bundle.putLong("noteId",noteList[it].noteId)
+                                        findNavController().navigate(
+                                            R.id.noteFragment,
+                                            bundle
+                                        )
                                     }
-                                },
-                            ){todoId ->
-                                navigateToTaskViewById(todoId)
+                                )
                             }
                         }
                         FloatingActionButton(
@@ -300,7 +326,12 @@ class HomeFragment : Fragment() {
                                     )
                                 },
                                 onNoteEvent = {
-                                    findNavController().navigate(R.id.noteFragment)
+                                    val bundle = bundleOf()
+                                    bundle.putLong("noteId",-1)
+                                    findNavController().navigate(
+                                        R.id.noteFragment,
+                                        bundle
+                                    )
                                 },
                                 onDeckEvent = {
 

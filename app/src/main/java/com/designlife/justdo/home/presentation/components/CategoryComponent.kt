@@ -40,6 +40,8 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.designlife.justdo.common.domain.entities.Category
+import com.designlife.justdo.common.presentation.components.FolderItem
+import com.designlife.justdo.common.utils.enums.ViewType
 import com.designlife.justdo.ui.theme.PrimaryBackgroundCategoryColor
 import com.designlife.justdo.ui.theme.*
 import com.designlife.justdo.ui.theme.contentStyle_One
@@ -48,9 +50,10 @@ import com.designlife.justdo.ui.theme.headerStyle
 
 @Composable
 fun CategoryComponent(
+    viewType : ViewType,
     selectedCategoryIndex : Int,
     categoryList : List<Category>,
-    newCategoryEvent : (categoryIndex : Int) -> Unit
+    onEventClick : (categoryIndex : Int) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -59,7 +62,7 @@ fun CategoryComponent(
     ) {
         Text(text = buildAnnotatedString {
             withStyle(style = SpanStyle(color = Color.Black, fontSize = 10.sp, fontFamily = fontFamily, fontWeight = FontWeight.Light)){
-                append("CATEGORIES ")
+                append(if(viewType == ViewType.TASK) "CATEGORIES " else "FOLDERS ")
             }
         })
 
@@ -73,8 +76,17 @@ fun CategoryComponent(
                 }
             ){index ->
                 val item = categoryList[index]
-                CategoryItem(totalTasks = item.totalTodo, categoryName = item.name , totalCompleted = item.totalCompleted, categoryTheme = item.color, isSelected = index == selectedCategoryIndex){
-                    newCategoryEvent(index)
+                if (viewType == ViewType.TASK){
+                    CategoryItem(totalTasks = item.totalTodo, categoryName = item.name , totalCompleted = item.totalCompleted, categoryTheme = item.color, isSelected = index == selectedCategoryIndex){
+                        onEventClick(index)
+                    }
+                }else{
+                    FolderItem(
+                        folderName = item.name,
+                        colorTheme = item.color,
+                        isSelected = index == selectedCategoryIndex) {
+                        onEventClick(index)
+                    }
                 }
             }
 //            item {
@@ -105,7 +117,10 @@ fun CategoryItem(
                 onCategoryEvent()
             }
             .alpha(if (isSelected) .8F else 1F)
-            .background(color = if (isSelected) categoryTheme else PrimaryColor1, shape = RoundedCornerShape(20))
+            .background(
+                color = if (isSelected) categoryTheme else PrimaryColor1,
+                shape = RoundedCornerShape(20)
+            )
             .padding(horizontal = 8.dp),
     ) {
         Spacer(modifier = Modifier.height(10.dp))

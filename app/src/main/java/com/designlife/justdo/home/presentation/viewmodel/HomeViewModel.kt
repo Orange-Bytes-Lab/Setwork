@@ -9,8 +9,10 @@ import androidx.lifecycle.viewModelScope
 import com.designlife.justdo.common.domain.calendar.DateGenerator
 import com.designlife.justdo.common.domain.calendar.IDateGenerator
 import com.designlife.justdo.common.domain.entities.Category
+import com.designlife.justdo.common.domain.entities.Note
 import com.designlife.justdo.common.domain.entities.Todo
 import com.designlife.justdo.common.domain.repositories.CategoryRepository
+import com.designlife.justdo.common.domain.repositories.NoteRepository
 import com.designlife.justdo.common.domain.repositories.TodoRepository
 import com.designlife.justdo.common.utils.enums.ViewType
 import com.designlife.justdo.home.domain.usecase.LoadIntialDatesUseCase
@@ -33,6 +35,7 @@ class HomeViewModel(
     private val dateGenerator: DateGenerator,
     private val todoRepository: TodoRepository,
     private val categoryRepository: CategoryRepository,
+    private val noteRepository: NoteRepository,
     private val loadInitialDateUseCase : LoadIntialDatesUseCase,
     private val loadNextDatesSetUseCase: LoadNextDatesSetUseCase,
     private val loadPreviousDatesSetUseCase: LoadPreviousDatesSetUseCase
@@ -47,6 +50,9 @@ class HomeViewModel(
 
     private val _todoList : MutableState<List<Todo>> = mutableStateOf(listOf());
     val todoList = _todoList
+
+    private val _noteList : MutableState<List<Note>> = mutableStateOf(listOf());
+    val noteList = _noteList
 
     private val _colorMap : MutableState<Map<Long, Color>> = mutableStateOf(mapOf());
     val colorMap = _colorMap
@@ -94,10 +100,13 @@ class HomeViewModel(
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            dateGenerator.getDateList().collect{
-                _dateList.value = it
+            launch {
+                dateGenerator.getDateList().collect{
+                    _dateList.value = it
+                }
             }
         }
+
     }
 
     fun onEvent(event : HomeEvents){
@@ -211,12 +220,10 @@ class HomeViewModel(
     }
 
     fun fetchAllCategory() {
-
         viewModelScope.launch(Dispatchers.IO) {
             categoryRepository.getAllCategory().collect{
                 _categoryList.value = it
                 fillColorMap(it)
-
             }
         }
     }
@@ -299,6 +306,14 @@ class HomeViewModel(
     private fun todoSort(todos: List<Todo>): List<Todo> {
         return todos.sortedBy {
             it.date
+        }
+    }
+
+    fun fetchAllNotes() {
+        viewModelScope.launch(Dispatchers.IO) {
+            noteRepository.getAllNotes().collect{
+                _noteList.value = it
+            }
         }
     }
 }

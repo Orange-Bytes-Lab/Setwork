@@ -6,6 +6,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,11 +23,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.lifecycle.ViewModelProvider
+import com.designlife.justdo.common.domain.entities.FlashCard
 import com.designlife.justdo.common.utils.AppServiceLocator
+import com.designlife.justdo.deck.presentation.components.CardEditComponent
 import com.designlife.justdo.deck.presentation.components.CreateCardListComponent
 import com.designlife.justdo.deck.presentation.components.CustomCardButton
 import com.designlife.justdo.deck.presentation.components.DeckBottomBarComponent
 import com.designlife.justdo.deck.presentation.components.DeckHeader
+import com.designlife.justdo.deck.presentation.components.EditCardListComponent
 import com.designlife.justdo.deck.presentation.events.DeckEvents
 import com.designlife.justdo.deck.presentation.viewmodel.DeckViewModel
 import com.designlife.justdo.deck.presentation.viewmodel.DeckViewModelFactory
@@ -39,6 +47,7 @@ class DeckFragment : Fragment() {
         viewModel = ViewModelProvider(requireActivity(),factory)[DeckViewModel::class.java]
     }
 
+    @OptIn(ExperimentalAnimationApi::class)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -47,9 +56,12 @@ class DeckFragment : Fragment() {
             setContent {
                 val scope = rememberCoroutineScope()
                 val listState = rememberLazyListState()
+                val editListState = rememberLazyListState()
                 val headerTitle = viewModel.headerTitle.value
                 val cardList = viewModel.cardList.value
+                val updateCardsQueue = viewModel.updateCardsQueue.value
                 val viewModeVisibility = viewModel.deckToggle.value
+                val editState = viewModel.editState.value
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.BottomEnd
@@ -65,9 +77,17 @@ class DeckFragment : Fragment() {
                             onTitleChange = {
                                 viewModel.onEvent(DeckEvents.OnHeaderChange(it))
                             },
-                            onCloseEvent = {}
+                            onCloseEvent = {},
+                            isEdit = editState,
+                            onButtonClickEvent = {
+                                viewModel.onEvent(DeckEvents.OnEditStateChange(false))
+                                viewModel.onEvent(DeckEvents.OnPersistCardChanges)
+                            }
                         )
-                        AnimatedVisibility(visible = !viewModeVisibility) {
+                        AnimatedVisibility(
+                            visible = !viewModeVisibility,
+                            enter = scaleIn() + expandVertically(expandFrom = Alignment.CenterVertically)
+                        ) {
                             CreateCardListComponent(
                                 scope = scope,
                                 listState = listState,
@@ -83,10 +103,25 @@ class DeckFragment : Fragment() {
                             )
 
                         }
-                        AnimatedVisibility(visible = viewModeVisibility) {
-                            Text(text = "Hello World")
+                        AnimatedVisibility(
+                            visible = viewModeVisibility,
+                            enter = scaleIn() + expandVertically(expandFrom = Alignment.CenterVertically),
+                            exit = scaleOut() + shrinkVertically(shrinkTowards = Alignment.CenterVertically)
+                        ) {
+                            EditCardListComponent(
+                                scope = scope,
+                                listState = editListState,
+                                deckTheme = Color.Blue,
+                                cards = cardList,
+                                editState = editState,
+                                onUpdateEvent = { index: Int, card: FlashCard ->
+                                    viewModel.onEvent(DeckEvents.OnUpdateCardChange(index,card))
+                                },
+                                onEditStateChange = {
+                                    viewModel.onEvent(DeckEvents.OnEditStateChange(it))
+                                }
+                            )
                         }
-
                         AnimatedVisibility(visible = !viewModeVisibility) {
                             CustomCardButton {
                                 viewModel.onEvent(DeckEvents.OnCreateCard)
@@ -100,6 +135,10 @@ class DeckFragment : Fragment() {
                         viewModeVisible = viewModeVisibility,
                         onShowStackEvent = {
                             viewModel.onEvent(DeckEvents.OnDeckToggle)
+                            if (it){
+                                viewModel.onEvent(DeckEvents.OnEditStateChange(false))
+                                viewModel.onEvent(DeckEvents.OnPersistCardChanges)
+                            }
                         },
                         onNextCardEvent = {},
                         onPreviousCardEvent = {}

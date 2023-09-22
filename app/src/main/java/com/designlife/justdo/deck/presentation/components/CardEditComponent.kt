@@ -32,6 +32,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.runtime.Composable
@@ -69,9 +70,9 @@ fun CardEditComponent(
         (LocalConfiguration.current.screenWidthDp * density).toInt()
     }
     val itemHeight = remember {
-        mutableStateOf(0.8F) // // Adjust this fraction as needed
+        mutableStateOf(0.9F) // // Adjust this fraction as needed
     }
-    val itemWidthFraction = 0.4f
+    val itemWidthFraction = 0.33f
     val cardExpandState = remember {
         mutableStateOf(false)
     }
@@ -80,12 +81,14 @@ fun CardEditComponent(
     val rotationState = animateFloatAsState(
         targetValue = if (cardExpandState.value) 180F else 0F
     )
+
+
     Box(
         modifier = Modifier
             .padding(horizontal = 5.dp)
             .width((screenWidth * itemWidthFraction).dp)
             .fillMaxHeight(itemHeight.value)
-            .clip(RoundedCornerShape(8.dp)),
+            .background(color = Color.Transparent, shape = RoundedCornerShape(8.dp)),
         contentAlignment = Alignment.BottomCenter
     ) {
         Card(
@@ -155,6 +158,9 @@ fun CardEditComponent(
                                 fontWeight = FontWeight.Normal
                             )
                         ) { innerField ->
+                            if (frontContent.isEmpty()){
+                                Text(text = "Front Content Text ...", color = TaskItemLabelColor)
+                            }
                             innerField()
                         }
                         Spacer(modifier = Modifier.height(10.dp))
@@ -175,13 +181,16 @@ fun CardEditComponent(
                                 fontWeight = FontWeight.Normal
                             )
                         ) { innerField ->
+                            if (backContent.isEmpty()){
+                                Text(text = "Back Content Text ...", color = TaskItemLabelColor)
+                            }
                             innerField()
                         }
                     }
                     if (!editState){
                         Text(
                             modifier = Modifier.verticalScroll(frontTextScrollState),
-                            text = frontContent,
+                            text = if(frontContent.isEmpty()) "Short Text ..." else frontContent,
                             style = cardTextStyle.copy(
                                 textAlign = TextAlign.Justify,
                                 fontWeight = FontWeight.SemiBold
@@ -192,7 +201,7 @@ fun CardEditComponent(
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
                             modifier = Modifier.verticalScroll(backTextScrollState),
-                            text = backContent,
+                            text = if(backContent.isEmpty()) "Full Content Text ..." else backContent,
                             style = cardTextStyle.copy(
                                 textAlign = TextAlign.Justify,
                                 fontWeight = FontWeight.Normal,
@@ -212,10 +221,10 @@ fun CardEditComponent(
                 onClick = {
                     if (!cardExpandState.value){
                         cardExpandState.value = true
-                        itemHeight.value = 0.9F
+                        itemHeight.value = 1F
                     }else{
                         cardExpandState.value = false
-                        itemHeight.value = 0.8F
+                        itemHeight.value = 0.9F
                     }
                 }
             ) {
@@ -226,6 +235,23 @@ fun CardEditComponent(
                 )
             }
         }
+
+
+//        else{
+//            IconButton(
+//                modifier = Modifier
+//                    .size(25.dp),
+//                onClick = {
+//                    onEditStateChange(false)
+//                }
+//            ) {
+//                Icon(
+//                    imageVector = Icons.Default.Done,
+//                    contentDescription = "Done Icon",
+//                    tint = Color.Green
+//                )
+//            }
+//        }
     }
 }
 

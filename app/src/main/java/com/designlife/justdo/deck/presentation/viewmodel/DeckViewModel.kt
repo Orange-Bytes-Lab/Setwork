@@ -20,12 +20,17 @@ class DeckViewModel(
     private val _modifiedTime : MutableState<Long> = mutableStateOf(0L)
     val modifiedTime = _modifiedTime
 
-    private val _cardList : MutableState<List<FlashCard>> = mutableStateOf(listOf());
+    private val _cardList : MutableState<MutableList<FlashCard>> = mutableStateOf(mutableListOf());
     val cardList = _cardList
 
     private var _deckToggle : MutableState<Boolean> = mutableStateOf(false)
     val deckToggle  = _deckToggle
 
+    private var _editState : MutableState<Boolean> = mutableStateOf(false)
+    val editState  = _editState
+
+    private val _updateCardsQueue : MutableState<MutableMap<Int,FlashCard>> = mutableStateOf(mutableMapOf());
+    val updateCardsQueue = _updateCardsQueue
 
     fun onEvent(event : DeckEvents){
         when(event){
@@ -33,14 +38,15 @@ class DeckViewModel(
                 _headerTitle.value = event.value
             }
             is DeckEvents.OnCreateCard -> {
-                val cardList = _cardList.value.toMutableList()
-                cardList.add(FlashCard())
-                _cardList.value = cardList
+//                val cardList = _cardList.value.toMutableList()
+//                cardList.add(FlashCard())
+                _cardList.value.add(FlashCard())
+                _deckToggle.value = true
             }
             is DeckEvents.OnCardRemove -> {
-                val cardList = _cardList.value.toMutableList()
-                cardList.removeAt(event.index)
-                _cardList.value = cardList
+//                val cardList = _cardList.value.toMutableList()
+//                cardList.removeAt(event.index)
+                _cardList.value.removeAt(event.index)
             }
             is DeckEvents.OnDeckToggle -> {
                 if (_cardList.value.isNotEmpty()){
@@ -48,6 +54,19 @@ class DeckViewModel(
                 }else{
                     _deckToggle.value = false
                 }
+            }
+            is DeckEvents.OnEditStateChange -> {
+                _editState.value = event.editState
+            }
+            is DeckEvents.OnUpdateCardChange -> {
+                _cardList.value.set(event.index,event.card)
+//                _updateCardsQueue.value.forEach { index, flashCard ->
+//                    _cardList.value.set(index,flashCard)
+//                }
+//                _updateCardsQueue.value.clear()
+            }
+            is DeckEvents.OnPersistCardChanges -> {
+
             }
         }
     }

@@ -1,5 +1,6 @@
 package com.designlife.justdo.deck.presentation.components
 
+import android.util.Log
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
@@ -50,8 +51,10 @@ fun EditCardListComponent(
     scope: CoroutineScope,
     listState: LazyListState,
     deckTheme: Color,
-    cards: List<FlashCard>,
-
+    editState : Boolean,
+    cards: MutableList<FlashCard>,
+    onUpdateEvent : (index : Int,card : FlashCard) -> Unit,
+    onEditStateChange : (editState : Boolean) -> Unit
 ) {
     LazyRow(
         modifier = Modifier
@@ -100,11 +103,30 @@ fun EditCardListComponent(
         items(
             cards.size
         ) { index ->
-//            CardEditComponent(
-//                modifier = Modifier,
-//                deckTheme = deckTheme,
-//                card = cards[index],
-//            )
+            val card = cards[index]
+            val frontCard = remember {
+                mutableStateOf(cards[index].frontContent)
+            }
+            val backCard = remember {
+                mutableStateOf(cards[index].backContent)
+            }
+            CardEditComponent(
+                deckTheme = deckTheme,
+                frontContent = frontCard.value,
+                backContent = backCard.value,
+                editState = editState,
+                onEditStateChange = {
+                    onEditStateChange(it)
+                },
+                onFrontContentChange = {
+                    frontCard.value = it
+                    onUpdateEvent(index,cards[index].copy(frontContent = frontCard.value))
+                },
+                onBackContentChange = {
+                    backCard.value = it
+                    onUpdateEvent(index,cards[index].copy(backContent = backCard.value))
+                }
+            )
         }
     }
 }

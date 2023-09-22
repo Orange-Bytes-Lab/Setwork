@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.designlife.justdo.common.presentation.components.CustomButton
 import com.designlife.justdo.ui.theme.Shapes
 import com.designlife.justdo.ui.theme.TaskItemLabelColor
 import com.designlife.justdo.ui.theme.cutBottomRoundedCorners
@@ -32,7 +33,9 @@ import com.designlife.justdo.ui.theme.headerStyle
 fun DeckHeader(
     headerTitle: String,
     onTitleChange: (newTitle: String) -> Unit,
-    onCloseEvent: () -> Unit
+    onCloseEvent: () -> Unit,
+    isEdit : Boolean,
+    onButtonClickEvent : () ->Unit
 ) {
     Row(
         modifier = Modifier
@@ -45,9 +48,10 @@ fun DeckHeader(
     ) {
         Row(
             modifier = Modifier.wrapContentWidth(),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Start
         ) {
-            Spacer(modifier = Modifier.width(12.dp))
+            Spacer(modifier = Modifier.width(10.dp))
             Column(
                 modifier = Modifier
                     .size(22.dp)
@@ -61,7 +65,7 @@ fun DeckHeader(
             BasicTextField(
                 modifier = Modifier
                     .padding(end = 10.dp)
-                    .fillMaxWidth()
+                    .fillMaxWidth(if (isEdit) .78F else 1F)
                     .background(color = Color.Transparent),
                 value = headerTitle,
                 onValueChange = {
@@ -74,6 +78,16 @@ fun DeckHeader(
                     Text(text = "Deck Name ...", color = TaskItemLabelColor)
                 }
                 innerField()
+            }
+            if (isEdit){
+                Row(
+                    modifier = Modifier.padding(end = 10.dp).fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Start
+                ) {
+                    CustomButton(buttonText = "Save",isDangerButton = false) {
+                        onButtonClickEvent()
+                    }
+                }
             }
         }
     }

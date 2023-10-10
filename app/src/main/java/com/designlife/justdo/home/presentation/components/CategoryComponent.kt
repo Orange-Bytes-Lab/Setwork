@@ -131,7 +131,7 @@ fun CategoryItem(
         )
         Spacer(modifier = Modifier.height(2.dp))
         Text(
-            text = categoryName.uppercase(),
+            text = (if (categoryName.length >= 10) "${categoryName.substring(0,8)}..." else categoryName).uppercase(),
             style = headerStyle.copy(
                 fontSize = 18.sp,
                 fontWeight = FontWeight.ExtraBold,

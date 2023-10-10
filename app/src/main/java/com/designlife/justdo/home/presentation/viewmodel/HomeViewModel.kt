@@ -9,9 +9,11 @@ import androidx.lifecycle.viewModelScope
 import com.designlife.justdo.common.domain.calendar.DateGenerator
 import com.designlife.justdo.common.domain.calendar.IDateGenerator
 import com.designlife.justdo.common.domain.entities.Category
+import com.designlife.justdo.common.domain.entities.Deck
 import com.designlife.justdo.common.domain.entities.Note
 import com.designlife.justdo.common.domain.entities.Todo
 import com.designlife.justdo.common.domain.repositories.CategoryRepository
+import com.designlife.justdo.common.domain.repositories.DeckRepository
 import com.designlife.justdo.common.domain.repositories.NoteRepository
 import com.designlife.justdo.common.domain.repositories.TodoRepository
 import com.designlife.justdo.common.utils.enums.ViewType
@@ -36,6 +38,7 @@ class HomeViewModel(
     private val todoRepository: TodoRepository,
     private val categoryRepository: CategoryRepository,
     private val noteRepository: NoteRepository,
+    private val deckRepository: DeckRepository,
     private val loadInitialDateUseCase : LoadIntialDatesUseCase,
     private val loadNextDatesSetUseCase: LoadNextDatesSetUseCase,
     private val loadPreviousDatesSetUseCase: LoadPreviousDatesSetUseCase
@@ -53,6 +56,9 @@ class HomeViewModel(
 
     private val _noteList : MutableState<List<Note>> = mutableStateOf(listOf());
     val noteList = _noteList
+
+    private val _deckList : MutableState<List<Deck>> = mutableStateOf(listOf());
+    val deckList = _deckList
 
     private val _colorMap : MutableState<Map<Long, Color>> = mutableStateOf(mapOf());
     val colorMap = _colorMap
@@ -313,6 +319,14 @@ class HomeViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             noteRepository.getAllNotes().collect{
                 _noteList.value = it
+            }
+        }
+    }
+
+    fun fetchAllDecks() {
+        viewModelScope.launch(Dispatchers.IO) {
+            deckRepository.getAllDecks().collect{
+                _deckList.value = it
             }
         }
     }

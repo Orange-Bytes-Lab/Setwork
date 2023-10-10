@@ -134,3 +134,16 @@ val highlightTextStyle = TextStyle(
     fontWeight = FontWeight.Normal,
     textAlign = TextAlign.Center
 )
+
+val deckItemTitleStyle =  TextStyle(
+    color = Color.Black,
+    fontFamily = fontFamily,
+    fontSize = 16.sp,
+    fontWeight = FontWeight.SemiBold
+)
+val deckItemContentStyle =  TextStyle(
+    color = Color.LightGray,
+    fontFamily = fontFamily,
+    fontSize = 12.sp,
+    fontWeight = FontWeight.SemiBold
+)

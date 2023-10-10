@@ -23,7 +23,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.Text
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,9 +30,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStore
 import com.designlife.justdo.common.domain.entities.FlashCard
 import com.designlife.justdo.common.utils.AppServiceLocator
-import com.designlife.justdo.deck.presentation.components.CardEditComponent
 import com.designlife.justdo.deck.presentation.components.CreateCardListComponent
 import com.designlife.justdo.deck.presentation.components.CustomCardButton
 import com.designlife.justdo.deck.presentation.components.DeckBottomBarComponent
@@ -43,18 +42,24 @@ import com.designlife.justdo.deck.presentation.components.PreviewCardListCompone
 import com.designlife.justdo.deck.presentation.events.DeckEvents
 import com.designlife.justdo.deck.presentation.viewmodel.DeckViewModel
 import com.designlife.justdo.deck.presentation.viewmodel.DeckViewModelFactory
+import com.designlife.justdo.note.presentation.enums.DeckMode
+import com.designlife.justdo.note.presentation.enums.NoteMode
 import com.designlife.justdo.ui.theme.PrimaryBackgroundColor
 import kotlinx.coroutines.launch
 
 class DeckFragment : Fragment() {
     private lateinit var viewModel: DeckViewModel
-
+    private var deckMode = DeckMode.CREATE
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         val deckRepository = AppServiceLocator.provideDeckRepository(requireActivity().applicationContext)
         val factory = DeckViewModelFactory(deckRepository)
-        viewModel = ViewModelProvider(requireActivity(),factory)[DeckViewModel::class.java]
+        viewModel = ViewModelProvider(this,factory)[DeckViewModel::class.java]
+        val deckId = arguments?.getLong("deckId") ?: -1L
+        if (deckId != -1L){
+            deckMode = DeckMode.UPDATE
+            viewModel.fetchDeckById(deckId)
+        }
     }
 
     @OptIn(ExperimentalAnimationApi::class)
@@ -196,7 +201,13 @@ class DeckFragment : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-        viewModel.updateDeck()
-        Toast.makeText(requireActivity(), "Card's Saved", Toast.LENGTH_SHORT).show()
+        if (deckMode == DeckMode.CREATE){
+            viewModel.insertDeck()
+        }else if (deckMode == DeckMode.UPDATE){
+            viewModel.updateDeck()
+        }
+        if (viewModel.hasDeckModified.value){
+            Toast.makeText(requireActivity(), "Card's Saved", Toast.LENGTH_SHORT).show()
+        }
     }
 }

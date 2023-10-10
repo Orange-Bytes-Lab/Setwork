@@ -46,6 +46,7 @@ import com.designlife.justdo.common.domain.repositories.appstore.AppStoreReposit
 import com.designlife.justdo.common.presentation.components.BottomSheet
 import com.designlife.justdo.common.presentation.components.ProgressBar
 import com.designlife.justdo.common.utils.AppServiceLocator
+import com.designlife.justdo.common.utils.constants.Constants.DECK_VIEW
 import com.designlife.justdo.common.utils.constants.Constants.EDIT_MODE
 import com.designlife.justdo.common.utils.constants.Constants.SCREEN_TYPE
 import com.designlife.justdo.common.utils.constants.Constants.TASK_VIEW
@@ -58,6 +59,7 @@ import com.designlife.justdo.home.domain.usecase.LoadNextDatesSetUseCase
 import com.designlife.justdo.home.domain.usecase.LoadPreviousDatesSetUseCase
 import com.designlife.justdo.home.presentation.components.CategoryComponent
 import com.designlife.justdo.home.presentation.components.DateComponent
+import com.designlife.justdo.home.presentation.components.DeckItemList
 import com.designlife.justdo.home.presentation.components.HeaderComponent
 import com.designlife.justdo.home.presentation.components.NoteItemList
 import com.designlife.justdo.home.presentation.components.SearchBarComponent
@@ -92,7 +94,8 @@ class HomeFragment : Fragment() {
         val todoRepository = AppServiceLocator.provideTodoRepository(requireActivity().applicationContext)
         val categoryRepository = AppServiceLocator.provideCategoryRepository(requireActivity().applicationContext)
         val noteRepository = AppServiceLocator.provideNoteRepository(requireActivity().applicationContext)
-        val factory = HomeViewModelFactory(dateGenerator,todoRepository,categoryRepository,noteRepository,loadDatesUseCase,loadNextDatesUseCase,loadPreviousDatesUseCase)
+        val deckRepository = AppServiceLocator.provideDeckRepository(requireActivity().applicationContext)
+        val factory = HomeViewModelFactory(dateGenerator,todoRepository,categoryRepository,noteRepository,deckRepository,loadDatesUseCase,loadNextDatesUseCase,loadPreviousDatesUseCase)
         viewModel = ViewModelProvider(this,factory)[HomeViewModel::class.java]
 
         appStoreRepository = AppServiceLocator.provideAppStoreRepository(requireContext())
@@ -110,6 +113,9 @@ class HomeFragment : Fragment() {
             }
             launch {
                 viewModel.fetchAllNotes()
+            }
+            launch {
+                viewModel.fetchAllDecks()
             }
             initialSlide()
         }
@@ -160,7 +166,9 @@ class HomeFragment : Fragment() {
                 val todoList = viewModel.todoList.value
                 todoListState = rememberLazyListState()
                 val noteListState = rememberLazyStaggeredGridState()
+                val deckListState = rememberLazyListState()
                 val noteList = viewModel.noteList.value
+                val deckList = viewModel.deckList.value
                 val colorMap = viewModel.colorMap.value
                 val currentMonth = viewModel.currentMonth.value
                 val currentYear = viewModel.currentYear.value
@@ -297,6 +305,21 @@ class HomeFragment : Fragment() {
                                     }
                                 )
                             }
+                            AnimatedVisibility(visible = viewType == ViewType.DECK) {
+                                DeckItemList(
+                                    listState = deckListState,
+                                    deckList = deckList,
+                                    colorMap = colorMap,
+                                    onDeckClickEvent = { index ->
+                                        val bundle = bundleOf()
+                                        bundle.putLong("deckId",deckList[index].deckId)
+                                        findNavController().navigate(
+                                            R.id.deckFragment,
+                                            bundle
+                                        )
+                                    }
+                                )
+                            }
                         }
                         FloatingActionButton(
                             modifier = Modifier
@@ -317,7 +340,6 @@ class HomeFragment : Fragment() {
                                     viewModel.updateSheetVisibility(false)
                                 },
                                 onTaskEvent = {
-
                                     val bundle = bundleOf()
                                     bundle.putBoolean(TASK_VIEW,false)
                                     findNavController().navigate(
@@ -334,7 +356,12 @@ class HomeFragment : Fragment() {
                                     )
                                 },
                                 onDeckEvent = {
-                                    findNavController().navigate(R.id.deckFragment)
+                                    val bundle = bundleOf()
+                                    bundle.putLong("deckId",-1)
+                                    findNavController().navigate(
+                                        R.id.deckFragment,
+                                        bundle
+                                    )
                                 }
                             )
                             if (!isBottomSheetToggled.value){

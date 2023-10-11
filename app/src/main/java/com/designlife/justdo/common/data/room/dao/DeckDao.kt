@@ -24,8 +24,8 @@ interface DeckDao {
     suspend fun getDeckById(deckId : Long) : Deck
 
     @Transaction
-    @Query("UPDATE DECK SET deckName=:deckName ,totalCards=:totalCards, modifiedDate=:modifiedDate, cards=:cards  WHERE deckId=:deckId")
-    suspend fun updateDeckById(deckId : Long,deckName : String,totalCards : Int,modifiedDate : Long,cards : List<FlashCard>)
+    @Query("UPDATE DECK SET deckName=:deckName ,totalCards=:totalCards, modifiedDate=:modifiedDate, categoryId=:categoryId, cards=:cards  WHERE deckId=:deckId")
+    suspend fun updateDeckById(deckId : Long,deckName : String,totalCards : Int,categoryId : Long,modifiedDate : Long,cards : List<FlashCard>)
 
     @Transaction
     @Query("DELETE FROM DECK WHERE deckId=:deckId")

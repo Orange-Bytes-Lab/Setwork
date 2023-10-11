@@ -40,6 +40,7 @@ import java.util.Date
 
 @Composable
 fun NoteItem(
+    noteTheme : Color,
     note : Note,
     onClick : () -> Unit
 ) {
@@ -113,7 +114,7 @@ fun NoteItem(
                         .size(30.dp)
                         .clip(RoundedCornerShape(100)),
                         elevation = 15.dp,
-                        backgroundColor = ButtonPrimary
+                        backgroundColor = noteTheme
                     ) {
                         Box(
                             modifier = Modifier.size(30.dp),
@@ -158,27 +159,6 @@ fun NoteItem(
                     )
                 )
             }
-
         }
     }
 }
-
-//@Preview
-//@Composable
-//fun NoteItemPrev() {
-//    Column(modifier = Modifier.padding(20.dp).fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-//
-//        val note = Note(
-//            noteId = 10L,
-//            title = "Kotlin Flow - Demistfy",
-//            content = "A flow is a type that can emit multiple values sequentially, as opposed to suspend functions that return only a single value. By unwrapping the exception and examining that, of course. You can always throw it yourself, and catch it that way if you must",
-//            categoryId = 1L,
-//            coverImage = "",
-//            createdTime = Date(System.currentTimeMillis()),
-//            lastModified = Date(System.currentTimeMillis())
-//        )
-//        NoteItem(note = note) {
-//
-//        }
-//    }
-//}

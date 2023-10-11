@@ -29,10 +29,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.unit.dp
+import androidx.core.os.bundleOf
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
+import androidx.navigation.findNavController
+import com.designlife.justdo.R
 import com.designlife.justdo.common.domain.entities.FlashCard
 import com.designlife.justdo.common.utils.AppServiceLocator
+import com.designlife.justdo.common.utils.constants.Constants
+import com.designlife.justdo.common.utils.enums.ScreenType
 import com.designlife.justdo.deck.presentation.components.CreateCardListComponent
 import com.designlife.justdo.deck.presentation.components.CustomCardButton
 import com.designlife.justdo.deck.presentation.components.DeckBottomBarComponent
@@ -44,7 +49,11 @@ import com.designlife.justdo.deck.presentation.viewmodel.DeckViewModel
 import com.designlife.justdo.deck.presentation.viewmodel.DeckViewModelFactory
 import com.designlife.justdo.note.presentation.enums.DeckMode
 import com.designlife.justdo.note.presentation.enums.NoteMode
+import com.designlife.justdo.note.presentation.events.NoteEvents
 import com.designlife.justdo.ui.theme.PrimaryBackgroundColor
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
 class DeckFragment : Fragment() {
@@ -53,12 +62,22 @@ class DeckFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val deckRepository = AppServiceLocator.provideDeckRepository(requireActivity().applicationContext)
-        val factory = DeckViewModelFactory(deckRepository)
+        val categoryRepository = AppServiceLocator.provideCategoryRepository(requireActivity().applicationContext)
+        val factory = DeckViewModelFactory(deckRepository,categoryRepository)
         viewModel = ViewModelProvider(this,factory)[DeckViewModel::class.java]
-        val deckId = arguments?.getLong("deckId") ?: -1L
-        if (deckId != -1L){
-            deckMode = DeckMode.UPDATE
-            viewModel.fetchDeckById(deckId)
+        CoroutineScope(Dispatchers.IO).launch {
+            async {
+                viewModel.fetchCategories()
+            }.await()
+            val deckId = arguments?.getLong("deckId") ?: -1L
+            val index = arguments?.getInt("categoryIndex") ?: -1
+            if (index != -1) {
+                viewModel.onEvent(DeckEvents.OnCategoryIndexChange(index))
+            }
+            if (deckId != -1L){
+                deckMode = DeckMode.UPDATE
+                viewModel.fetchDeckById(deckId)
+            }
         }
     }
 
@@ -75,9 +94,10 @@ class DeckFragment : Fragment() {
                 val previewListState = rememberLazyListState()
                 val headerTitle = viewModel.headerTitle.value
                 val cardList = viewModel.cardList.value
-                val updateCardsQueue = viewModel.updateCardsQueue.value
                 val viewModeVisibility = viewModel.deckToggle.value
                 val editState = viewModel.editState.value
+                val categoryList = viewModel.categoryList.value
+                val selectedCategoryIndex = viewModel.selectedCategoryIndex.value
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.BottomEnd
@@ -93,11 +113,26 @@ class DeckFragment : Fragment() {
                             onTitleChange = {
                                 viewModel.onEvent(DeckEvents.OnHeaderChange(it))
                             },
-                            onCloseEvent = {},
+                            onCloseEvent = {
+                                findNavController().navigateUp()
+                            },
                             isEdit = editState,
                             onButtonClickEvent = {
                                 viewModel.onEvent(DeckEvents.OnEditStateChange(false))
                                 viewModel.onEvent(DeckEvents.OnPersistCardChanges)
+                            },
+                            categoryList = categoryList,
+                            selectedCategoryIndex = selectedCategoryIndex,
+                            onCategoryIndexChange = {
+                                viewModel.onEvent(DeckEvents.OnCategoryIndexChange(it))
+                            },
+                            addNewCategory = {
+                                val bundle = bundleOf()
+                                bundle.putInt(Constants.SCREEN_TYPE, ScreenType.CATEGORY.ordinal)
+                                findNavController().navigate(
+                                    R.id.containerFragment,
+                                    bundle
+                                )
                             }
                         )
                         // Create Card Section
@@ -199,8 +234,8 @@ class DeckFragment : Fragment() {
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    override fun onStop() {
+        super.onStop()
         if (deckMode == DeckMode.CREATE){
             viewModel.insertDeck()
         }else if (deckMode == DeckMode.UPDATE){
@@ -209,5 +244,9 @@ class DeckFragment : Fragment() {
         if (viewModel.hasDeckModified.value){
             Toast.makeText(requireActivity(), "Card's Saved", Toast.LENGTH_SHORT).show()
         }
+    }
+    override fun onDestroy() {
+        super.onDestroy()
+
     }
 }

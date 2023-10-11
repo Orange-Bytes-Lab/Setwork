@@ -147,3 +147,11 @@ val deckItemContentStyle =  TextStyle(
     fontSize = 12.sp,
     fontWeight = FontWeight.SemiBold
 )
+
+val AttachmentTabItemTextStyle = TextStyle(
+    color = Color.Gray,
+    fontFamily = fontFamily,
+    fontSize = 13.sp,
+    fontWeight = FontWeight.Normal,
+    textAlign = TextAlign.Center
+)

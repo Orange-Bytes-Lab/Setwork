@@ -42,6 +42,8 @@ import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import com.designlife.justdo.R
 import com.designlife.justdo.common.domain.calendar.IDateGenerator
+import com.designlife.justdo.common.domain.entities.Deck
+import com.designlife.justdo.common.domain.entities.Note
 import com.designlife.justdo.common.domain.repositories.appstore.AppStoreRepository
 import com.designlife.justdo.common.presentation.components.BottomSheet
 import com.designlife.justdo.common.presentation.components.ProgressBar
@@ -295,9 +297,11 @@ class HomeFragment : Fragment() {
                                 NoteItemList(
                                     listState = noteListState,
                                     noteList = noteList,
+                                    colorMap = colorMap,
                                     onNoteClickEvent = {
                                         val bundle = bundleOf()
                                         bundle.putLong("noteId",noteList[it].noteId)
+                                        bundle.putInt("categoryIndex",getCategoryIndexFromNote(noteList[it]))
                                         findNavController().navigate(
                                             R.id.noteFragment,
                                             bundle
@@ -312,6 +316,7 @@ class HomeFragment : Fragment() {
                                     colorMap = colorMap,
                                     onDeckClickEvent = { index ->
                                         val bundle = bundleOf()
+                                        bundle.putInt("categoryIndex",getCategoryIndexFromDeck(deckList[index]))
                                         bundle.putLong("deckId",deckList[index].deckId)
                                         findNavController().navigate(
                                             R.id.deckFragment,
@@ -349,7 +354,8 @@ class HomeFragment : Fragment() {
                                 },
                                 onNoteEvent = {
                                     val bundle = bundleOf()
-                                    bundle.putLong("noteId",-1)
+                                    bundle.putLong("noteId",-1L)
+                                    bundle.putInt("categoryIndex",0)
                                     findNavController().navigate(
                                         R.id.noteFragment,
                                         bundle
@@ -357,7 +363,8 @@ class HomeFragment : Fragment() {
                                 },
                                 onDeckEvent = {
                                     val bundle = bundleOf()
-                                    bundle.putLong("deckId",-1)
+                                    bundle.putLong("deckId",-1L)
+                                    bundle.putInt("categoryIndex",0)
                                     findNavController().navigate(
                                         R.id.deckFragment,
                                         bundle
@@ -376,6 +383,20 @@ class HomeFragment : Fragment() {
                 }
             }
         }
+    }
+
+    private fun getCategoryIndexFromNote(note: Note): Int {
+        return getIndexFromId(note.categoryId)
+    }
+
+    private fun getCategoryIndexFromDeck(deck: Deck): Int {
+        return getIndexFromId(deck.categoryId)
+    }
+
+    private fun getIndexFromId(categoryId: Long): Int {
+       val categoryList = viewModel.categoryList.value
+       val categoryInstance = categoryList.find { it.id == categoryId }
+       return categoryList.indexOf(categoryInstance)
     }
 
     override fun onResume() {

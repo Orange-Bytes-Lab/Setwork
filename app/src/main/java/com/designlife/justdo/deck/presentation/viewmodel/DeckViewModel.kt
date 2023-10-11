@@ -1,20 +1,25 @@
 package com.designlife.justdo.deck.presentation.viewmodel
 
+import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.designlife.justdo.common.domain.calendar.IDateGenerator
+import com.designlife.justdo.common.domain.entities.Category
 import com.designlife.justdo.common.domain.entities.Deck
 import com.designlife.justdo.common.domain.entities.FlashCard
+import com.designlife.justdo.common.domain.repositories.CategoryRepository
 import com.designlife.justdo.common.domain.repositories.DeckRepository
 import com.designlife.justdo.deck.presentation.events.DeckEvents
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import java.util.Date
 
 class DeckViewModel(
-    private val deckRepository: DeckRepository
+    private val deckRepository: DeckRepository,
+    private val categoryRepository: CategoryRepository
 ) : ViewModel() {
 
     private val _deckId : MutableState<Long> = mutableStateOf(0L)
@@ -28,6 +33,8 @@ class DeckViewModel(
     private val _cardList : MutableState<MutableList<FlashCard>> = mutableStateOf(mutableListOf());
     val cardList = _cardList
 
+    private var _decPrevState = Triple<List<FlashCard>,String,Int>(emptyList(),"",-1)
+
     private var _deckToggle : MutableState<Boolean> = mutableStateOf(false)
     val deckToggle  = _deckToggle
 
@@ -39,6 +46,12 @@ class DeckViewModel(
 
     private var _hasDeckModified : MutableState<Boolean> = mutableStateOf(false)
     val hasDeckModified  = _hasDeckModified
+
+    private val _categoryList : MutableState<List<Category>> = mutableStateOf(listOf());
+    val categoryList = _categoryList
+
+    private val _selectedCategoryIndex : MutableState<Int> = mutableStateOf(-1);
+    val selectedCategoryIndex = _selectedCategoryIndex
 
     fun onEvent(event : DeckEvents){
         when(event){
@@ -74,18 +87,22 @@ class DeckViewModel(
             is DeckEvents.OnPersistCardChanges -> {
 
             }
+            is DeckEvents.OnCategoryIndexChange -> {
+                _selectedCategoryIndex.value = event.value
+            }
         }
     }
 
     fun fetchDeckById(deckId : Long){
         _deckId.value = deckId
         viewModelScope.launch(Dispatchers.IO) {
-            val deck = deckRepository.getDeckById(deckId)
+            val deck = deckRepository.getDeckById(_deckId.value)
             deck.also {
                 _headerTitle.value = it.deckName
                 _cardList.value.addAll(it.cards)
                 _modifiedTime.value = it.modifiedDate.time
             }
+            _decPrevState = Triple(deck.cards,deck.deckName,_selectedCategoryIndex.value)
         }
     }
 
@@ -93,17 +110,17 @@ class DeckViewModel(
         if (_cardList.value.isNotEmpty()){
             _hasDeckModified.value = true
             viewModelScope.launch(Dispatchers.IO) {
-                deckRepository.insertDeck(Deck(
+                val newDeck = Deck(
                     deckName = if (_headerTitle.value.isEmpty()) getFormattedTitle() else _headerTitle.value,
                     totalCards = _cardList.value.size,
                     modifiedDate = Date(System.currentTimeMillis()),
                     cards = _cardList.value,
-                    categoryId = 1L
-                ))
+                    categoryId = _categoryList.value[_selectedCategoryIndex.value].id
+                )
+                deckRepository.insertDeck(newDeck)
                 _hasDeckModified.value = false
             }
         }
-
     }
 
     private fun getFormattedTitle(): String {
@@ -111,7 +128,9 @@ class DeckViewModel(
     }
 
     fun updateDeck() {
-        if (_cardList.value.isNotEmpty()){
+        Log.i("UPDATE_FLOW", "updateDeck: Before isDeckUpdated")
+        if (isDeckUpdated()){
+            Log.i("UPDATE_FLOW", "updateDeck: After isDeckUpdated")
             _hasDeckModified.value = true
             val newDeck = Deck(
                 deckId = _deckId.value,
@@ -119,8 +138,9 @@ class DeckViewModel(
                 totalCards = _cardList.value.size,
                 modifiedDate = Date(System.currentTimeMillis()),
                 cards = _cardList.value,
-                categoryId = 2L
+                categoryId = _categoryList.value[_selectedCategoryIndex.value].id
             )
+            Log.i("UPDATE_FLOW", "updateDeck: deck category id : ${newDeck.categoryId}")
             viewModelScope.launch(Dispatchers.IO) {
                 deckRepository.updateDeck(
                     deckId = _deckId.value,
@@ -128,6 +148,22 @@ class DeckViewModel(
                 )
                 _hasDeckModified.value = false
             }
+        }
+    }
+
+    private fun isDeckUpdated(): Boolean {
+        if (_cardList.value != _decPrevState.first)
+            return true
+        if (_headerTitle.value != _decPrevState.second)
+            return true
+        if (_selectedCategoryIndex.value != _decPrevState.third)
+            return true
+        return false
+    }
+
+    suspend fun fetchCategories(){
+        categoryRepository.getAllCategory().firstOrNull()?.let {
+            _categoryList.value = it
         }
     }
 

@@ -11,14 +11,17 @@ import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.designlife.justdo.common.domain.entities.Note
+import com.designlife.justdo.ui.theme.TaskItemLabelColor
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun NoteItemList(
     listState : LazyStaggeredGridState,
     noteList : List<Note>,
+    colorMap: Map<Long, Color>,
     onNoteClickEvent : (index : Int) -> Unit
 ) {
     LazyVerticalStaggeredGrid(
@@ -30,8 +33,12 @@ fun NoteItemList(
         state = listState
     ){
         items(noteList.size){ index: Int ->
-            NoteItem(note = noteList[index]) {
-                onNoteClickEvent(index)
+            val item = noteList[index]
+            if (colorMap.containsKey(item.categoryId)) {
+                val color: Color = colorMap.get(item.categoryId) ?: TaskItemLabelColor
+                NoteItem(note = noteList[index], noteTheme = color) {
+                    onNoteClickEvent(index)
+                }
             }
         }
     }

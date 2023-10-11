@@ -46,7 +46,7 @@ fun DeckItem(
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
-                .background(color = deckTheme.copy(alpha = 0.4F), shape = RoundedCornerShape(20)),
+                .background(color = deckTheme.copy(alpha = 0.3F), shape = RoundedCornerShape(20)),
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically
         ) {

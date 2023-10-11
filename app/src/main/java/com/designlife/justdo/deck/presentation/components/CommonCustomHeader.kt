@@ -23,6 +23,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.designlife.justdo.common.domain.entities.Category
+import com.designlife.justdo.common.presentation.components.CustomAttachementsTab
 import com.designlife.justdo.common.presentation.components.CustomButton
 import com.designlife.justdo.ui.theme.Shapes
 import com.designlife.justdo.ui.theme.TaskItemLabelColor
@@ -35,7 +37,11 @@ fun DeckHeader(
     onTitleChange: (newTitle: String) -> Unit,
     onCloseEvent: () -> Unit,
     isEdit : Boolean,
-    onButtonClickEvent : () ->Unit
+    onButtonClickEvent : () -> Unit,
+    categoryList : List<Category>,
+    selectedCategoryIndex : Int,
+    onCategoryIndexChange : (index : Int) -> Unit,
+    addNewCategory : () -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -43,7 +49,7 @@ fun DeckHeader(
             .height(50.dp)
             .clip(Shapes.cutBottomRoundedCorners(15.dp))
             .background(Color.White),
-        horizontalArrangement = Arrangement.Center,
+        horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Row(
@@ -65,7 +71,7 @@ fun DeckHeader(
             BasicTextField(
                 modifier = Modifier
                     .padding(end = 10.dp)
-                    .fillMaxWidth(if (isEdit) .78F else 1F)
+                    .fillMaxWidth(if (isEdit) .78F else .78F)
                     .background(color = Color.Transparent),
                 value = headerTitle,
                 onValueChange = {
@@ -81,13 +87,26 @@ fun DeckHeader(
             }
             if (isEdit){
                 Row(
-                    modifier = Modifier.padding(end = 10.dp).fillMaxWidth(),
+                    modifier = Modifier
+                        .padding(end = 10.dp)
+                        .fillMaxWidth(),
                     horizontalArrangement = Arrangement.Start
                 ) {
                     CustomButton(buttonText = "Save",isDangerButton = false) {
                         onButtonClickEvent()
                     }
                 }
+            }
+        }
+        if (!isEdit){
+            CustomAttachementsTab(
+                hasCover = false,
+                onGalleryEvent = { /*TODO*/ },
+                categoryList = categoryList,
+                selectedCategoryIndex = selectedCategoryIndex,
+                onCategoryEvent = onCategoryIndexChange
+            ) {
+                addNewCategory()
             }
         }
     }

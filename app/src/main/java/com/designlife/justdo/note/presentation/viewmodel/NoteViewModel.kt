@@ -4,15 +4,19 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.designlife.justdo.common.domain.entities.Category
 import com.designlife.justdo.common.domain.entities.Note
+import com.designlife.justdo.common.domain.repositories.CategoryRepository
 import com.designlife.justdo.common.domain.repositories.NoteRepository
 import com.designlife.justdo.note.presentation.events.NoteEvents
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import java.util.Date
 
 class NoteViewModel(
-    private val noteRepository: NoteRepository
+    private val noteRepository: NoteRepository,
+    private val categoryRepository: CategoryRepository
 ) : ViewModel() {
 
     private val _noteId : MutableState<Long> = mutableStateOf(0L)
@@ -26,18 +30,20 @@ class NoteViewModel(
     private val _categoryId : MutableState<Long> = mutableStateOf(0L)
     val categoryId = _categoryId
 
-    private val _emojiValue : MutableState<String> = mutableStateOf("📓")
-    val emojiValue = _emojiValue
-
     private val _coverImage : MutableState<String> = mutableStateOf("")
     val coverImage = _coverImage
 
     private val _createdTime : MutableState<Long> = mutableStateOf(0L)
     val createdTime = _createdTime
 
+    private val _categoryList : MutableState<List<Category>> = mutableStateOf(listOf());
+    val categoryList = _categoryList
 
     private val _modifiedTime : MutableState<Long> = mutableStateOf(0L)
     val modifiedTime = _modifiedTime
+
+    private val _selectedCategoryIndex : MutableState<Int> = mutableStateOf(-1);
+    val selectedCategoryIndex = _selectedCategoryIndex
 
     fun onEvent(event : NoteEvents){
         when(event){
@@ -53,9 +59,8 @@ class NoteViewModel(
             is NoteEvents.OnCoverChange -> {
                 _coverImage.value = event.value
             }
-            is NoteEvents.OnEmojiChange -> {
-                if (!event.value.equals("📓"))
-                    _emojiValue.value = event.value
+            is NoteEvents.OnCategoryIndexChange -> {
+                _selectedCategoryIndex.value = event.value
             }
         }
     }
@@ -69,7 +74,7 @@ class NoteViewModel(
                 _noteId.value = it.noteId
                 _categoryId.value = it.categoryId
                 _coverImage.value = it.coverImage
-                _emojiValue.value = it.emoji
+//                _emojiValue.value = it.emoji
             }
         }
     }
@@ -80,8 +85,8 @@ class NoteViewModel(
                 noteRepository.insertTodo(Note(
                     title = _titleValue.value,
                     content = _contentValue.value,
-                    categoryId = _categoryId.value,
-                    emoji = _emojiValue.value,
+                    categoryId = _categoryList.value[_selectedCategoryIndex.value].id,
+                    emoji = _categoryList.value[_selectedCategoryIndex.value].emoji,
                     coverImage = _coverImage.value,
                     createdTime = Date(System.currentTimeMillis()),
                     lastModified = Date(System.currentTimeMillis())
@@ -96,8 +101,8 @@ class NoteViewModel(
                 noteId = _noteId.value,
                 title = _titleValue.value,
                 content = _contentValue.value,
-                emoji = _emojiValue.value,
-                categoryId = _categoryId.value,
+                emoji =_categoryList.value[_selectedCategoryIndex.value].emoji,
+                categoryId = _categoryList.value[_selectedCategoryIndex.value].id,
                 coverImage = _coverImage.value,
                 createdTime = Date(_createdTime.value),
                 lastModified = Date(System.currentTimeMillis())
@@ -106,4 +111,9 @@ class NoteViewModel(
         }
     }
 
+    suspend fun fetchCategories(){
+        categoryRepository.getAllCategory().firstOrNull()?.let {
+            _categoryList.value = it
+        }
+    }
 }

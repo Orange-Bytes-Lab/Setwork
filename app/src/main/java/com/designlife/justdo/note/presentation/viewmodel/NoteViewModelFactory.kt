@@ -10,9 +10,11 @@ import com.designlife.justdo.container.presentation.viewmodel.ContainerViewModel
 import com.designlife.orchestrator.notification.repository.TaskNotificationRepository
 
 class NoteViewModelFactory(
-    private val noteRepository: NoteRepository
+    private val noteRepository: NoteRepository,
+    private val categoryRepository: CategoryRepository,
+
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        return NoteViewModel(noteRepository) as T
+        return NoteViewModel(noteRepository,categoryRepository) as T
     }
 }

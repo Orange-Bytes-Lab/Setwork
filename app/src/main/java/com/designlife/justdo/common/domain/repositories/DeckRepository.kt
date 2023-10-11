@@ -31,7 +31,8 @@ class DeckRepository(private val deckDao: DeckDao) {
             deckName = deck.deckName,
             totalCards = deck.totalCards,
             modifiedDate = deck.modifiedDate.time,
-            cards = CardConverters.getFlashCardEntity(deck.cards)
+            categoryId = deck.categoryId,
+            cards = CardConverters.getFlashCardEntity(deck.cards),
         )
     }
 

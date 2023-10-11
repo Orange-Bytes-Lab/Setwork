@@ -128,9 +128,7 @@ class DeckViewModel(
     }
 
     fun updateDeck() {
-        Log.i("UPDATE_FLOW", "updateDeck: Before isDeckUpdated")
         if (isDeckUpdated()){
-            Log.i("UPDATE_FLOW", "updateDeck: After isDeckUpdated")
             _hasDeckModified.value = true
             val newDeck = Deck(
                 deckId = _deckId.value,
@@ -140,7 +138,6 @@ class DeckViewModel(
                 cards = _cardList.value,
                 categoryId = _categoryList.value[_selectedCategoryIndex.value].id
             )
-            Log.i("UPDATE_FLOW", "updateDeck: deck category id : ${newDeck.categoryId}")
             viewModelScope.launch(Dispatchers.IO) {
                 deckRepository.updateDeck(
                     deckId = _deckId.value,

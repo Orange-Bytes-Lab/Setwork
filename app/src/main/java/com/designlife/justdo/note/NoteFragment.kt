@@ -56,12 +56,12 @@ class NoteFragment : Fragment() {
         viewModel =  ViewModelProvider(this,factory)[NoteViewModel::class.java]
         CoroutineScope(Dispatchers.IO).launch {
             async { viewModel.fetchCategories() }.await()
+            if (index != -1){
+                viewModel.onEvent(NoteEvents.OnCategoryIndexChange(index))
+            }
             if (noteId != -1L){
                 noteMode = NoteMode.UPDATE
                 viewModel.fetchNoteById(noteId)
-            }
-            if (index != -1){
-                viewModel.onEvent(NoteEvents.OnCategoryIndexChange(index))
             }
         }
     }
@@ -135,7 +135,9 @@ class NoteFragment : Fragment() {
         }else{
             viewModel.updateNote()
         }
-        Toast.makeText(requireContext(), "Saved", Toast.LENGTH_SHORT).show()
+        if (viewModel.hasDeckModified.value){
+            Toast.makeText(requireContext(), "Saved", Toast.LENGTH_SHORT).show()
+        }
     }
 
 }

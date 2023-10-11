@@ -87,8 +87,9 @@ class HomeViewModel(
     private var _selectedCategoryIndex : MutableState<Int> = mutableStateOf(-1)
     val selectedCategoryIndex  = _selectedCategoryIndex
 
-    private var todoSortedList = listOf<Todo>()
     private var todoUnSortedList =  listOf<Todo>()
+    private var deckUnSortedList =  listOf<Deck>()
+    private var noteUnSortedList =  listOf<Note>()
 
     private var _isSorted : Boolean = false
 
@@ -173,8 +174,24 @@ class HomeViewModel(
 
     private fun applySortByCategory() {
         todoList.value = todoUnSortedList
-        if (_isSorted){
-            todoList.value = todoList.value.filter { it.categoryId == _categoryList.value[_selectedCategoryIndex.value].id}
+        deckList.value = deckUnSortedList
+        noteList.value = noteUnSortedList
+        when(viewType.value){
+            ViewType.TASK -> {
+                if (_isSorted){
+                    todoList.value = todoList.value.filter { it.categoryId == _categoryList.value[_selectedCategoryIndex.value].id}
+                }
+            }
+            ViewType.DECK -> {
+                if (_isSorted){
+                    deckList.value = deckList.value.filter { it.categoryId == _categoryList.value[_selectedCategoryIndex.value].id}
+                }
+            }
+            ViewType.NOTE -> {
+                if (_isSorted){
+                    noteList.value = noteList.value.filter { it.categoryId == _categoryList.value[_selectedCategoryIndex.value].id}
+                }
+            }
         }
     }
 
@@ -319,6 +336,7 @@ class HomeViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             noteRepository.getAllNotes().collect{
                 _noteList.value = it
+                noteUnSortedList = it
             }
         }
     }
@@ -327,6 +345,7 @@ class HomeViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             deckRepository.getAllDecks().collect{
                 _deckList.value = it
+                deckUnSortedList = it
             }
         }
     }

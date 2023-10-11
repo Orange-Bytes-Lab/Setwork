@@ -239,7 +239,7 @@ class HomeFragment : Fragment() {
                                     }
                                 )
                             }
-                            Spacer(modifier = Modifier.height(if (viewType == ViewType.TASK) 40.dp else 0.dp))
+                            Spacer(modifier = Modifier.height(if (viewType == ViewType.TASK) 20.dp else 0.dp))
                             AnimatedVisibility(visible = viewType == ViewType.TASK) {
                                 DateComponent(
                                     listState = dateListState,
@@ -273,7 +273,7 @@ class HomeFragment : Fragment() {
                                     selectedIndex = selectedIndex
                                 )
                             }
-                            Spacer(modifier = Modifier.height(40.dp))
+                            Spacer(modifier = Modifier.height(20.dp))
                             CategoryComponent(viewType = viewType,categoryList = categoryList, selectedCategoryIndex = selectedCategoryIndex){ categoryIndex ->
                                 viewModel.onEvent(HomeEvents.OnCategorySortSelected(categoryIndex))
                             }

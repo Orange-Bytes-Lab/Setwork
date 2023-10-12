@@ -169,8 +169,10 @@ class HomeFragment : Fragment() {
                 todoListState = rememberLazyListState()
                 val noteListState = rememberLazyStaggeredGridState()
                 val deckListState = rememberLazyListState()
-                val noteList = viewModel.noteList.value
-                val deckList = viewModel.deckList.value
+                val searchToggle = viewModel.searchToggle.value
+                val searchText = viewModel.searchText.value
+                val noteList = if (searchText.isNotEmpty()) viewModel.searchList.value as List<Note> else viewModel.noteList.value
+                val deckList = if (searchText.isNotEmpty()) viewModel.searchList.value as List<Deck> else viewModel.deckList.value
                 val colorMap = viewModel.colorMap.value
                 val currentMonth = viewModel.currentMonth.value
                 val currentYear = viewModel.currentYear.value
@@ -180,8 +182,7 @@ class HomeFragment : Fragment() {
                 val selectedCategoryIndex = viewModel.selectedCategoryIndex.value
                 val progressBar = viewModel.progressBarVisibility.value
                 val sheetVisibility = viewModel.sheetVisibility.value
-                val searchToggle = viewModel.searchToggle.value
-                val searchText = viewModel.searchText.value
+
                 val isBottomSheetToggled = remember {
                     mutableStateOf(false)
                 }

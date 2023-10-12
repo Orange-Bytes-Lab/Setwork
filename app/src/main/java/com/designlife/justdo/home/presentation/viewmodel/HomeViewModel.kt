@@ -57,6 +57,9 @@ class HomeViewModel(
     private val _noteList : MutableState<List<Note>> = mutableStateOf(listOf());
     val noteList = _noteList
 
+    private val _searchList : MutableState<List<Any>> = mutableStateOf(listOf());
+    val searchList = _searchList
+
     private val _deckList : MutableState<List<Deck>> = mutableStateOf(listOf());
     val deckList = _deckList
 
@@ -104,6 +107,8 @@ class HomeViewModel(
 
     private val _searchText : MutableState<String> = mutableStateOf("")
     val searchText = _searchText
+
+
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
@@ -168,9 +173,25 @@ class HomeViewModel(
             }
             is HomeEvents.OnSearchUpdate -> {
                 _searchText.value = event.searchText
+                sortContentByText(event.searchText)
             }
             is HomeEvents.OnClearSearch -> {
                 _searchText.value = ""
+                _searchList.value = emptyList()
+            }
+        }
+    }
+
+    private fun sortContentByText(searchText: String) {
+        when(_viewType.value){
+            ViewType.TASK -> return
+            ViewType.NOTE -> {
+                _searchList.value = _noteList.value.filter { it.title.lowercase().startsWith(searchText.lowercase()) }
+                Log.i("SEARCH", "sortContentByText: Note ${_searchList.value}")
+            }
+            ViewType.DECK -> {
+                _searchList.value = _deckList.value.filter { it.deckName.lowercase().startsWith(searchText.lowercase()) }
+                Log.i("SEARCH", "sortContentByText: Deck ${_searchList.value}")
             }
         }
     }

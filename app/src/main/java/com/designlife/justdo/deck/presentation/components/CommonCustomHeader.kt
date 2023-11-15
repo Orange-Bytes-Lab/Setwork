@@ -49,24 +49,24 @@ fun DeckHeader(
             .height(50.dp)
             .clip(Shapes.cutBottomRoundedCorners(15.dp))
             .background(Color.White),
-        horizontalArrangement = Arrangement.SpaceEvenly,
+        horizontalArrangement = Arrangement.Start,
         verticalAlignment = Alignment.CenterVertically
     ) {
+        Spacer(modifier = Modifier.width(10.dp))
+        Column(
+            modifier = Modifier
+                .size(22.dp)
+                .clickable { onCloseEvent() },
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Icon(imageVector = Icons.Default.Close, contentDescription = "Close Icon")
+        }
         Row(
-            modifier = Modifier.wrapContentWidth(),
+            modifier = Modifier.fillMaxWidth(.75F),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start
         ) {
-            Spacer(modifier = Modifier.width(10.dp))
-            Column(
-                modifier = Modifier
-                    .size(22.dp)
-                    .clickable { onCloseEvent() },
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                Icon(imageVector = Icons.Default.Close, contentDescription = "Close Icon")
-            }
             Spacer(modifier = Modifier.width(10.dp))
             BasicTextField(
                 modifier = Modifier
@@ -85,19 +85,21 @@ fun DeckHeader(
                 }
                 innerField()
             }
-            if (isEdit){
-                Row(
-                    modifier = Modifier
-                        .padding(end = 10.dp)
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Start
-                ) {
-                    CustomButton(buttonText = "Save",isDangerButton = false) {
-                        onButtonClickEvent()
-                    }
+        }
+
+        if (isEdit){
+            Row(
+                modifier = Modifier
+                    .padding(end = 10.dp)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.Start
+            ) {
+                CustomButton(buttonText = "Save",isDangerButton = false) {
+                    onButtonClickEvent()
                 }
             }
         }
+
         if (!isEdit){
             CustomAttachementsTab(
                 hasCover = false,

@@ -61,10 +61,12 @@ class DeckFragment : Fragment() {
     private var deckMode = DeckMode.CREATE
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val deckRepository = AppServiceLocator.provideDeckRepository(requireActivity().applicationContext)
-        val categoryRepository = AppServiceLocator.provideCategoryRepository(requireActivity().applicationContext)
-        val factory = DeckViewModelFactory(deckRepository,categoryRepository)
-        viewModel = ViewModelProvider(this,factory)[DeckViewModel::class.java]
+        val deckRepository =
+            AppServiceLocator.provideDeckRepository(requireActivity().applicationContext)
+        val categoryRepository =
+            AppServiceLocator.provideCategoryRepository(requireActivity().applicationContext)
+        val factory = DeckViewModelFactory(deckRepository, categoryRepository)
+        viewModel = ViewModelProvider(this, factory)[DeckViewModel::class.java]
         CoroutineScope(Dispatchers.IO).launch {
             async {
                 viewModel.fetchCategories()
@@ -74,7 +76,7 @@ class DeckFragment : Fragment() {
             if (index != -1) {
                 viewModel.onEvent(DeckEvents.OnCategoryIndexChange(index))
             }
-            if (deckId != -1L){
+            if (deckId != -1L) {
                 deckMode = DeckMode.UPDATE
                 viewModel.fetchDeckById(deckId)
             }
@@ -98,6 +100,7 @@ class DeckFragment : Fragment() {
                 val editState = viewModel.editState.value
                 val categoryList = viewModel.categoryList.value
                 val selectedCategoryIndex = viewModel.selectedCategoryIndex.value
+                val themeColor = viewModel.themeColor.value
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.BottomEnd
@@ -145,12 +148,12 @@ class DeckFragment : Fragment() {
                                     .fillMaxHeight(.7F)
                                     .fillMaxWidth(),
                                 listState = listState,
-                                deckTheme = Color.Blue,
+                                deckTheme = themeColor,
                                 cards = cardList,
                                 onDeleteEvent = { index ->
                                     viewModel.onEvent(DeckEvents.OnCardRemove(index))
                                     scope.launch {
-                                        listState.animateScrollToItem(if(index+1 == cardList.size) 0 else index+1)
+                                        listState.animateScrollToItem(if (index + 1 == cardList.size) 0 else index + 1)
                                     }
                                 },
                                 onExpandEvent = { index ->
@@ -172,7 +175,7 @@ class DeckFragment : Fragment() {
                                 visibleItemIndex = listState.firstVisibleItemIndex,
                                 onPreviewCardEvent = { index ->
                                     scope.launch {
-                                        listState.animateScrollToItem(index+1)
+                                        listState.animateScrollToItem(index + 1)
                                     }
                                 }
                             )
@@ -186,18 +189,17 @@ class DeckFragment : Fragment() {
                             EditCardListComponent(
                                 scope = scope,
                                 listState = editListState,
-                                deckTheme = Color.Blue,
+                                deckTheme = themeColor,
                                 cards = cardList,
                                 editState = editState,
                                 onUpdateEvent = { index: Int, card: FlashCard ->
-                                    viewModel.onEvent(DeckEvents.OnUpdateCardChange(index,card))
+                                    viewModel.onEvent(DeckEvents.OnUpdateCardChange(index, card))
                                 },
                                 onEditStateChange = {
                                     viewModel.onEvent(DeckEvents.OnEditStateChange(it))
                                 }
                             )
                         }
-
                     }
                     Column(
                         modifier = Modifier
@@ -217,16 +219,31 @@ class DeckFragment : Fragment() {
                         }
                         Spacer(modifier = Modifier.height(if (!viewModeVisibility) 15.dp else 0.dp))
                         DeckBottomBarComponent(
+                            listState = editListState,
                             viewModeVisible = viewModeVisibility,
                             onShowStackEvent = {
                                 viewModel.onEvent(DeckEvents.OnDeckToggle)
-                                if (it){
+                                if (it) {
                                     viewModel.onEvent(DeckEvents.OnEditStateChange(false))
                                     viewModel.onEvent(DeckEvents.OnPersistCardChanges)
                                 }
                             },
-                            onNextCardEvent = {},
-                            onPreviousCardEvent = {}
+                            onNextCardEvent = {
+                                val nextIndex = getNextIndex(cardList, it)
+                                scope.launch(Dispatchers.Main) {
+                                    editListState.animateScrollToItem(nextIndex)
+                                    previewListState.scrollToItem(nextIndex)
+                                    listState.scrollToItem(nextIndex)
+                                }
+                            },
+                            onPreviousCardEvent = {
+                                val previousIndex = getPreviousIndex(cardList, it)
+                                scope.launch(Dispatchers.Main) {
+                                    editListState.animateScrollToItem(previousIndex)
+                                    previewListState.scrollToItem(previousIndex)
+                                    listState.scrollToItem(previousIndex)
+                                }
+                            }
                         )
                     }
                 }
@@ -234,19 +251,29 @@ class DeckFragment : Fragment() {
         }
     }
 
+    private fun getPreviousIndex(cardList: MutableList<FlashCard>, index: Int): Int {
+        return if (index - 1 == -1) 0
+        else index - 1
+    }
+
+    private fun getNextIndex(cardList: MutableList<FlashCard>, index: Int): Int {
+        return if (index + 1 == cardList.size+1) cardList.lastIndex
+        else index + 1
+    }
+
     override fun onStop() {
         super.onStop()
-        if (deckMode == DeckMode.CREATE){
+        if (deckMode == DeckMode.CREATE) {
             viewModel.insertDeck()
-        }else if (deckMode == DeckMode.UPDATE){
+        } else if (deckMode == DeckMode.UPDATE) {
             viewModel.updateDeck()
         }
-        if (viewModel.hasDeckModified.value){
+        if (viewModel.hasDeckModified.value) {
             Toast.makeText(requireActivity(), "Card's Saved", Toast.LENGTH_SHORT).show()
         }
     }
+
     override fun onDestroy() {
         super.onDestroy()
-
     }
 }

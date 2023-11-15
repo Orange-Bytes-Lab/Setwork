@@ -1,6 +1,8 @@
 package com.designlife.justdo.home.presentation.components
 
+import android.graphics.BitmapFactory
 import android.graphics.Paint.Align
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -24,13 +26,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
+import coil.ImageLoader
 import coil.compose.rememberAsyncImagePainter
+import coil.request.CachePolicy
+import coil.request.ImageRequest
 import com.designlife.justdo.common.domain.calendar.IDateGenerator.Companion.getFormattedDate
 import com.designlife.justdo.common.domain.calendar.IDateGenerator.Companion.getGracefullyTimeFromEpoch
 import com.designlife.justdo.common.domain.entities.Note
@@ -45,7 +53,7 @@ fun NoteItem(
     note : Note,
     onClick : () -> Unit
 ) {
-    val hasCover = note.coverImage.isNotEmpty() && note.coverImage.isNotBlank()
+    val hasCover = note.coverImage != null
     val modifier = if (hasCover) Modifier
         .fillMaxWidth(1F)
         .wrapContentHeight() else Modifier
@@ -67,19 +75,21 @@ fun NoteItem(
                 .wrapContentSize()
         ) {
             if (hasCover){
+                val painter = rememberAsyncImagePainter(
+                    note.coverImage
+                )
                 Box(modifier = Modifier.wrapContentSize(), contentAlignment = Alignment.TopStart) {
-                    val painter = rememberAsyncImagePainter(note.coverImage)
                     Image(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(100.dp),
                         painter = painter,
-                        contentScale = ContentScale.FillBounds,
+                        contentScale = ContentScale.Crop,
                         contentDescription = "Cover Image"
                     )
                     Column(
                         modifier = Modifier
-                            .padding(top = 85.dp)
+                            .padding(top = (85).dp)
                             .fillMaxWidth()
                             .height(30.dp),
                         horizontalAlignment = Alignment.CenterHorizontally

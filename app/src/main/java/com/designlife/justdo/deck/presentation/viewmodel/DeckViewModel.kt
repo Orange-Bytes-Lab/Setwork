@@ -3,6 +3,7 @@ package com.designlife.justdo.deck.presentation.viewmodel
 import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.designlife.justdo.common.domain.calendar.IDateGenerator
@@ -12,6 +13,8 @@ import com.designlife.justdo.common.domain.entities.FlashCard
 import com.designlife.justdo.common.domain.repositories.CategoryRepository
 import com.designlife.justdo.common.domain.repositories.DeckRepository
 import com.designlife.justdo.deck.presentation.events.DeckEvents
+import com.designlife.justdo.ui.theme.ButtonPrimary
+import com.designlife.justdo.ui.theme.PrimaryColor1
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
@@ -53,6 +56,10 @@ class DeckViewModel(
     private val _selectedCategoryIndex : MutableState<Int> = mutableStateOf(-1);
     val selectedCategoryIndex = _selectedCategoryIndex
 
+    private val _colorMap : MutableState<Map<Long, Color>> = mutableStateOf(mapOf());
+    private val _themeColor : MutableState<Color> = mutableStateOf(ButtonPrimary);
+    val themeColor = _themeColor
+
     fun onEvent(event : DeckEvents){
         when(event){
             is DeckEvents.OnHeaderChange -> {
@@ -89,7 +96,14 @@ class DeckViewModel(
             }
             is DeckEvents.OnCategoryIndexChange -> {
                 _selectedCategoryIndex.value = event.value
+                setupColor(event.value)
             }
+        }
+    }
+
+    private fun setupColor(index: Int) {
+        _colorMap.value.get(_categoryList.value[index].id)?.let {
+            _themeColor.value = it
         }
     }
 
@@ -161,7 +175,16 @@ class DeckViewModel(
     suspend fun fetchCategories(){
         categoryRepository.getAllCategory().firstOrNull()?.let {
             _categoryList.value = it
+            fillColorMap(it)
         }
+    }
+
+    private fun fillColorMap(categories: List<Category>) {
+        val colorMap = mutableMapOf<Long,Color>()
+        categories.forEach {
+            colorMap.put(it.id,it.color)
+        }
+        _colorMap.value = colorMap
     }
 
 }

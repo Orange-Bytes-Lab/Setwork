@@ -10,6 +10,8 @@ import com.designlife.justdo.common.domain.repositories.NoteRepository
 import com.designlife.justdo.common.domain.repositories.TodoRepository
 import com.designlife.justdo.common.domain.repositories.WidgetRepository
 import com.designlife.justdo.common.domain.repositories.appstore.IAppStoreRepository
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import java.util.Date
 
 object AppServiceLocator {

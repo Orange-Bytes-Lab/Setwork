@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.runtime.Composable
@@ -21,10 +22,11 @@ import com.designlife.justdo.ui.theme.cutTopRoundedCorners
 
 @Composable
 fun DeckBottomBarComponent(
+    listState: LazyListState,
     viewModeVisible: Boolean,
     onShowStackEvent: (value : Boolean) -> Unit,
-    onNextCardEvent: () -> Unit,
-    onPreviousCardEvent: () -> Unit,
+    onNextCardEvent: (index : Int) -> Unit,
+    onPreviousCardEvent: (index : Int) -> Unit,
 ) {
     Row(
         modifier = Modifier
@@ -38,7 +40,7 @@ fun DeckBottomBarComponent(
         if (viewModeVisible) {
             IconButton(
                 modifier = Modifier.weight(1F),
-                onClick = { onPreviousCardEvent() }) {
+                onClick = { onPreviousCardEvent(listState.firstVisibleItemIndex) }) {
                 Icon(
                     modifier = Modifier.size(16.dp),
                     painter = painterResource(id = R.drawable.ic_bottom_arrow_left),
@@ -60,7 +62,9 @@ fun DeckBottomBarComponent(
         if (viewModeVisible) {
             IconButton(
                 modifier = Modifier.weight(1F),
-                onClick = { onNextCardEvent() }
+                onClick = {
+                    onNextCardEvent(listState.firstVisibleItemIndex)
+                }
             ) {
                 Icon(
                     modifier = Modifier.size(16.dp),

@@ -58,7 +58,7 @@ fun EditCardListComponent(
 ) {
     LazyRow(
         modifier = Modifier
-            .fillMaxHeight(.8F)
+            .fillMaxHeight(.9F)
             .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center,

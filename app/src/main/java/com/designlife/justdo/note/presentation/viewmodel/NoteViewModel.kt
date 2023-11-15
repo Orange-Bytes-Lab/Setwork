@@ -1,17 +1,20 @@
 package com.designlife.justdo.note.presentation.viewmodel
 
+import android.graphics.Bitmap
 import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.designlife.justdo.common.domain.entities.Category
-import com.designlife.justdo.common.domain.entities.FlashCard
 import com.designlife.justdo.common.domain.entities.Note
 import com.designlife.justdo.common.domain.repositories.CategoryRepository
 import com.designlife.justdo.common.domain.repositories.NoteRepository
+import com.designlife.justdo.common.utils.ImageConverter
 import com.designlife.justdo.note.presentation.events.NoteEvents
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import java.util.Date
@@ -20,6 +23,7 @@ class NoteViewModel(
     private val noteRepository: NoteRepository,
     private val categoryRepository: CategoryRepository
 ) : ViewModel() {
+    private val TAG : String = this.javaClass.simpleName
 
     private val _noteId : MutableState<Long> = mutableStateOf(0L)
 
@@ -32,7 +36,7 @@ class NoteViewModel(
     private val _categoryId : MutableState<Long> = mutableStateOf(0L)
     val categoryId = _categoryId
 
-    private val _coverImage : MutableState<String> = mutableStateOf("")
+    private val _coverImage : MutableState<Bitmap?> = mutableStateOf(null)
     val coverImage = _coverImage
 
     private val _createdTime : MutableState<Long> = mutableStateOf(0L)
@@ -47,10 +51,15 @@ class NoteViewModel(
     private val _selectedCategoryIndex : MutableState<Int> = mutableStateOf(-1);
     val selectedCategoryIndex = _selectedCategoryIndex
 
-    private var _hasDeckModified : MutableState<Boolean> = mutableStateOf(false)
-    val hasDeckModified  = _hasDeckModified
+    private var _hasNoteModified : MutableState<Boolean> = mutableStateOf(false)
+    val hasNoteModified  = _hasNoteModified
 
-    private var _notePrevState = Pair<Note,Int>(Note(),0)
+    private var _notePrevState = Triple<Note,Int,Bitmap?>(Note(),0,null)
+
+    private val _progressBar : MutableState<Boolean> = mutableStateOf(false)
+    val progressBar = _progressBar
+
+    private val saveImageTimeMillis : Long = 200
 
     fun onEvent(event : NoteEvents){
         when(event){
@@ -64,7 +73,7 @@ class NoteViewModel(
                 _categoryId.value = event.value
             }
             is NoteEvents.OnCoverChange -> {
-                _coverImage.value = event.value
+               _coverImage.value = event.value
             }
             is NoteEvents.OnCategoryIndexChange -> {
                 _selectedCategoryIndex.value = event.value
@@ -73,6 +82,7 @@ class NoteViewModel(
     }
 
     fun fetchNoteById(noteId : Long){
+        _progressBar.value = true
         viewModelScope.launch(Dispatchers.IO) {
             val note = noteRepository.getNoteById(noteId)
             note.also {
@@ -80,30 +90,38 @@ class NoteViewModel(
                 _contentValue.value = it.content
                 _noteId.value = it.noteId
                 _categoryId.value = it.categoryId
-                _coverImage.value = it.coverImage
             }
+            _coverImage.value = async { ImageConverter.getBitMapFromByteArray(note.coverImage) }.await()
             setNoteState(note)
+            _progressBar.value = false
         }
     }
 
     private fun setNoteState(note: Note) {
-        _notePrevState = Pair(note.copy(),_selectedCategoryIndex.value)
+        _notePrevState = Triple(note.copy(),_selectedCategoryIndex.value,_coverImage.value)
     }
 
     fun insertNote(){
         if (_contentValue.value.isNotEmpty()){
-            _hasDeckModified.value = true
-            viewModelScope.launch(Dispatchers.IO) {
-                noteRepository.insertTodo(Note(
+            Log.i(TAG, "insertNote: Condition Check True")
+            _hasNoteModified.value = true
+            _progressBar.value = true
+            CoroutineScope((Dispatchers.IO)).launch {
+                Log.i(TAG, "insertNote: Context Change")
+                val coverImage = async { ImageConverter.getByteArrayFromBitMap(_coverImage.value) }.await()
+                Log.i(TAG, "insertNote: Cover Image Converted ${coverImage}")
+                noteRepository.insertNote(Note(
                     title = _titleValue.value,
                     content = _contentValue.value,
                     categoryId = _categoryList.value[_selectedCategoryIndex.value].id,
                     emoji = _categoryList.value[_selectedCategoryIndex.value].emoji,
-                    coverImage = _coverImage.value,
+                    coverImage = coverImage,
                     createdTime = Date(System.currentTimeMillis()),
                     lastModified = Date(System.currentTimeMillis())
                 ))
-                _hasDeckModified.value = false
+                Log.i(TAG, "insertNote: Note Inserted")
+                _progressBar.value = false
+                _hasNoteModified.value = false
             }
         }
     }
@@ -112,20 +130,26 @@ class NoteViewModel(
         Log.i("UPDATE_FLOW", "updateNote: Before isNoteUpdated")
         if (isNoteUpdated()){
             Log.i("UPDATE_FLOW", "updateNote: After isNoteUpdated")
-            _hasDeckModified.value = true
-            viewModelScope.launch(Dispatchers.IO) {
+            _hasNoteModified.value = true
+            _progressBar.value = true
+            CoroutineScope((Dispatchers.IO)).launch {
+                val coverImage = async { ImageConverter.getByteArrayFromBitMap(_coverImage.value) }.await()
                 val note = Note(
                     noteId = _noteId.value,
                     title = _titleValue.value,
                     content = _contentValue.value,
                     emoji =_categoryList.value[_selectedCategoryIndex.value].emoji,
                     categoryId = _categoryList.value[_selectedCategoryIndex.value].id,
-                    coverImage = _coverImage.value,
+                    coverImage = coverImage,
                     createdTime = Date(_createdTime.value),
                     lastModified = Date(System.currentTimeMillis())
                 )
-                noteRepository.updateNote(_noteId.value,note)
-                _hasDeckModified.value = false
+                noteRepository.updateNote(
+                    _noteId.value,
+                    note
+                )
+                _progressBar.value = false
+                _hasNoteModified.value = false
             }
         }
 
@@ -136,13 +160,13 @@ class NoteViewModel(
         if (_selectedCategoryIndex.value != _notePrevState.second)
             return true
         _notePrevState.first.also {
-            if (_coverImage.value != it.coverImage)
-                return true
             if (_titleValue.value != it.title)
                 return true
             if (_contentValue.value != it.content)
                 return true
         }
+        if (_coverImage.value != _notePrevState.third)
+            return true
 
         return false
     }

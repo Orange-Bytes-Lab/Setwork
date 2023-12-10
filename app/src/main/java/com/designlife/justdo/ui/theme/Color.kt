@@ -22,7 +22,7 @@ val SelectedCategoryBackground = Color(0xFF4053BE)
 val PrimaryColorHome1 = Color(0xFF46DCF0)
 val PrimaryColorHome2 = Color(0xFFFFFFFF)
 val PrimaryDark = Color(0xFF1A1B1B)
-val LightWhite = Color(0xFFCDCDCE)
+val CustomGrey = Color(0xFFD9D9D9)
 
 
 val ColorPaletteItem1 = Color(0xFFFB9494)

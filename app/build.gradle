@@ -77,6 +77,8 @@ dependencies {
 
     // orchestrator
     implementation "com.setwork:orchestrator:$orchestrator_version"
+    // provider
+    implementation "com.setwork:provider:$provider_version"
 
     // Datastore
     implementation "androidx.datastore:datastore-preferences:$datastore_Version"

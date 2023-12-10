@@ -193,6 +193,7 @@ class HomeViewModel(
                 _searchList.value = _deckList.value.filter { it.deckName.lowercase().startsWith(searchText.lowercase()) }
                 Log.i("SEARCH", "sortContentByText: Deck ${_searchList.value}")
             }
+            else -> {}
         }
     }
 
@@ -231,6 +232,7 @@ class HomeViewModel(
                     noteList.value = noteList.value.filter { it.categoryId == _categoryList.value[_selectedCategoryIndex.value].id}
                 }
             }
+            else -> {}
         }
     }
 

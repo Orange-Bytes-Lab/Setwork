@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
@@ -25,7 +24,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.designlife.justdo.R
@@ -33,7 +31,6 @@ import com.designlife.justdo.common.utils.enums.ViewType
 import com.designlife.justdo.ui.theme.ButtonPrimary
 import com.designlife.justdo.ui.theme.Shapes
 import com.designlife.justdo.ui.theme.cutBottomRoundedCorners
-import com.designlife.justdo.ui.theme.headerStyle
 import java.util.Calendar
 import java.util.Date
 
@@ -83,14 +80,8 @@ fun HeaderComponent(
                 )
             }
             Spacer(modifier = Modifier.width(12.dp))
-//            Text(
-//                text = headerText,
-//                style = headerStyle,
-//                modifier = Modifier.fillMaxWidth()
-//            )
-            HeaderDropDownComponent(
-                viewType = viewType,
-                onViewChange = {onViewChange(it)}
+            SelectedHeaderTitle(
+                viewType = viewType
             )
             if (searchIconVisibility){
                 Row(

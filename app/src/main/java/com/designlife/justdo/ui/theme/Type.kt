@@ -9,7 +9,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import com.designlife.justdo.R
-import com.designlife.justdo.home.presentation.events.HomeEvents
 
 
 // Set of Material typography styles to start with
@@ -141,6 +140,7 @@ val deckItemTitleStyle =  TextStyle(
     fontSize = 16.sp,
     fontWeight = FontWeight.SemiBold
 )
+
 val deckItemContentStyle =  TextStyle(
     color = Color.LightGray,
     fontFamily = fontFamily,
@@ -154,4 +154,32 @@ val AttachmentTabItemTextStyle = TextStyle(
     fontSize = 13.sp,
     fontWeight = FontWeight.Normal,
     textAlign = TextAlign.Center
+)
+
+val SettingPageHeaderStyle = TextStyle(
+    color = Color.Black,
+    fontFamily = fontFamily,
+    fontSize = 26.sp,
+    fontWeight = FontWeight.Bold
+)
+
+val SettingHeaderStyle = TextStyle(
+    color = ButtonHighLightPrimary,
+    fontFamily = fontFamily,
+    fontSize = 8.sp,
+    fontWeight = FontWeight.SemiBold
+)
+
+val SettingItemStyle = TextStyle(
+    color = ButtonHighLightPrimary,
+    fontFamily = fontFamily,
+    fontSize = 14.sp,
+    fontWeight = FontWeight.Light
+)
+
+val PickerItemStyle = TextStyle(
+    color = ButtonPrimary,
+    fontFamily = fontFamily,
+    fontSize = 14.sp,
+    fontWeight = FontWeight.Light
 )

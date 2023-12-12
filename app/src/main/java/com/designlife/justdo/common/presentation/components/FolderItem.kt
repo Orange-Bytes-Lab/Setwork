@@ -25,7 +25,9 @@ import com.designlife.justdo.common.utils.camelCase
 import com.designlife.justdo.ui.theme.ButtonHighLightPrimary
 import com.designlife.justdo.ui.theme.ButtonPrimary
 import com.designlife.justdo.ui.theme.TaskItemLabelColor
+import com.designlife.justdo.ui.theme.UIComponentBackground
 import com.designlife.justdo.ui.theme.folderTextStyle
+import com.designlife.justdo.ui.theme.folderTextStyleSize
 
 
 @Composable
@@ -45,7 +47,7 @@ fun FolderItem(
                 onFolderEvent()
             }
             .clip(RoundedCornerShape(100))
-            .background(if (isSelected) ButtonPrimary else Color.White)
+            .background(if (isSelected) ButtonPrimary.value else UIComponentBackground.value)
             .padding(horizontal = 8.dp),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
@@ -71,7 +73,7 @@ fun FolderItem(
         Spacer(modifier = Modifier.width(4.dp))
         Text(
             text = (if(folderName.length > 14)"${folderName.substring(0,12)} ..." else folderName).camelCase(),
-            style = folderTextStyle.copy(color = if (isSelected) Color.White else TaskItemLabelColor)
+            style = folderTextStyle.value.copy(color = if (isSelected) Color.White else TaskItemLabelColor.value, fontSize = folderTextStyleSize.value)
         )
     }
 }

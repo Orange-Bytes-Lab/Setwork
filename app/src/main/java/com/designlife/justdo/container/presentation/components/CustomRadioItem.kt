@@ -43,9 +43,12 @@ import com.designlife.justdo.ui.theme.ColorPaletteItem5
 import com.designlife.justdo.ui.theme.ColorPaletteItem6
 import com.designlife.justdo.ui.theme.ColorPaletteItem7
 import com.designlife.justdo.ui.theme.ColorPaletteItem8
+import com.designlife.justdo.ui.theme.IconColor
 import com.designlife.justdo.ui.theme.PrimaryBackgroundColor
 import com.designlife.justdo.ui.theme.TaskItemLabelColor
+import com.designlife.justdo.ui.theme.TypographyColor
 import com.designlife.justdo.ui.theme.taskItemStyle
+import com.designlife.justdo.ui.theme.taskItemStyleSize
 
 @Composable
 fun CustomRadioItem(
@@ -55,9 +58,9 @@ fun CustomRadioItem(
     isDummyCategory : Boolean = false,
     categoryName : String = "",
     onCategoryNameChange : (value : String) -> Unit = {},
-    colorCode : Color = PrimaryBackgroundColor,
+    colorCode : Color = PrimaryBackgroundColor.value,
     colorPickerEvent : () -> Unit = {},
-    colorPickerSelectedColor : Color = TaskItemLabelColor,
+    colorPickerSelectedColor : Color = TaskItemLabelColor.value,
     onCategoryInsertEvent : () -> Unit = {},
     onSelectedEvent : () -> Unit
 ) {
@@ -105,20 +108,22 @@ fun CustomRadioItem(
                     .size(20.dp)
                     .clickable {
                         onCategoryInsertEvent()
-                    })
+                    }
+                , tint = IconColor.value)
             }else{
                 Text(
                     modifier = Modifier.padding(end = 10.dp),
                     text = title,
-                    style = taskItemStyle
+                    style = taskItemStyle.value.copy(color = TypographyColor.value),
+                    fontSize = taskItemStyleSize.value
                 )
                 RadioButton(
                     modifier = Modifier
                         .padding(end = 10.dp)
                         .size(20.dp),
                     colors = RadioButtonDefaults.colors(
-                        selectedColor = ButtonPrimary,
-                        unselectedColor = TaskItemLabelColor
+                        selectedColor = ButtonPrimary.value,
+                        unselectedColor = TaskItemLabelColor.value
                     ),
                     selected = isSelected,
                     onClick = {

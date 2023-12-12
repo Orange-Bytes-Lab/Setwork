@@ -1,4 +1,4 @@
-package com.designlife.justdo.common.utils.enums
+package com.designlife.justdo.settings.presentation.enums
 
 enum class AppListHeight {
     SMALL,

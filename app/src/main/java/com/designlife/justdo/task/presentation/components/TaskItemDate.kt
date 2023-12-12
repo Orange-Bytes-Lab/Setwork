@@ -29,8 +29,12 @@ import androidx.compose.ui.unit.dp
 import com.designlife.justdo.R
 import com.designlife.justdo.common.presentation.components.CustomTaskInput
 import com.designlife.justdo.ui.theme.TaskItemLabelColor
+import com.designlife.justdo.ui.theme.TypographyColor
+import com.designlife.justdo.ui.theme.buttonStyleSize
 import com.designlife.justdo.ui.theme.taskItemLabelStyle
+import com.designlife.justdo.ui.theme.taskItemLabelStyleSize
 import com.designlife.justdo.ui.theme.taskItemStyle
+import com.designlife.justdo.ui.theme.taskItemStyleSize
 
 @Composable
 fun TaskItemDate(
@@ -51,7 +55,7 @@ fun TaskItemDate(
         horizontalArrangement = Arrangement.Start
     ) {
         Spacer(modifier = Modifier.width(10.dp))
-        Icon(painter = painterResource(id = icon), contentDescription = "Item Icon", modifier = Modifier.size(14.dp,height=18.dp), tint = TaskItemLabelColor)
+        Icon(painter = painterResource(id = icon), contentDescription = "Item Icon", modifier = Modifier.size(14.dp,height=18.dp), tint = TaskItemLabelColor.value)
         Spacer(modifier = Modifier.width(10.dp))
         Column(
             modifier = Modifier.fillMaxHeight()
@@ -62,7 +66,8 @@ fun TaskItemDate(
                     .padding(start = 6.dp)
                     .fillMaxWidth(),
                 text =  labelText,
-                style = taskItemLabelStyle
+                style = taskItemLabelStyle.value,
+                fontSize = taskItemLabelStyleSize.value
             )
             Row(
                 modifier = Modifier.padding(start = 6.dp).fillMaxSize(),
@@ -74,7 +79,8 @@ fun TaskItemDate(
                             onDateChange()
                     },
                     text = dateText,
-                    style = taskItemStyle
+                    style = taskItemStyle.value.copy(color = TypographyColor.value),
+                    fontSize = taskItemStyleSize.value
                 )
                 Text(
                     modifier = Modifier.padding(end = 4.dp).wrapContentWidth().clickable {
@@ -82,7 +88,8 @@ fun TaskItemDate(
                             onTimeChange()
                     },
                     text = timeText,
-                    style = taskItemStyle
+                    style = taskItemStyle.value.copy(color = TypographyColor.value),
+                    fontSize = taskItemStyleSize.value
                 )
             }
         }

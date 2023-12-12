@@ -1,6 +1,5 @@
 package com.designlife.justdo.home.presentation.components
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -25,10 +24,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.designlife.justdo.common.domain.entities.Todo
-import com.designlife.justdo.ui.theme.PrimaryColor1
+import com.designlife.justdo.ui.theme.TypographyColor
+import com.designlife.justdo.ui.theme.UIComponentBackground
 import com.designlife.justdo.ui.theme.taskItemStyle
+import com.designlife.justdo.ui.theme.taskItemStyleSize
+import com.designlife.justdo.ui.theme.todoListHeight
 
 @Composable
 fun TodoItem(
@@ -38,20 +39,20 @@ fun TodoItem(
 ) {
     Card(
         modifier = Modifier
-            .padding(horizontal = 15.dp, vertical = 10.dp)
+            .padding(horizontal = 15.dp, vertical = todoListHeight.value)
             .fillMaxWidth()
             .clickable {
                 onTodoEvent()
             }
             .height(50.dp),
         shape = RoundedCornerShape(40),
-        backgroundColor = PrimaryColor1,
+        backgroundColor = UIComponentBackground.value,
         elevation = 5.dp
     ) {
         Row(
             modifier = Modifier
                 .fillMaxSize()
-                .background(color = PrimaryColor1, shape = RoundedCornerShape(20)),
+                .background(color = UIComponentBackground.value, shape = RoundedCornerShape(20)),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
@@ -71,8 +72,9 @@ fun TodoItem(
             }
             Text(
                 text = if (todo.title.length > 40) "${todo.title.substring(0,38)} ..." else todo.title,
-                style = taskItemStyle.copy(
-                    fontSize = 14.sp
+                style = taskItemStyle.value.copy(
+                    fontSize = taskItemStyleSize.value,
+                    color = TypographyColor.value
                 ),
                 overflow = TextOverflow.Ellipsis,
                 textDecoration = if (todo.isCompleted) TextDecoration.LineThrough else TextDecoration.None

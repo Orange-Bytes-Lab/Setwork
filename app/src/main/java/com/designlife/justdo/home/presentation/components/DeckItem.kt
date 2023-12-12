@@ -25,7 +25,10 @@ import com.designlife.justdo.common.domain.calendar.IDateGenerator
 import com.designlife.justdo.common.domain.entities.Deck
 import com.designlife.justdo.ui.theme.Shapes
 import com.designlife.justdo.ui.theme.deckItemContentStyle
+import com.designlife.justdo.ui.theme.deckItemContentStyleSize
 import com.designlife.justdo.ui.theme.deckItemTitleStyle
+import com.designlife.justdo.ui.theme.deckItemTitleStyleSize
+import com.designlife.justdo.ui.theme.deckListHeight
 import com.designlife.justdo.ui.theme.rightRoundedCorners
 
 @Composable
@@ -36,7 +39,7 @@ fun DeckItem(
 ) {
     Card(
         modifier = Modifier
-            .padding(horizontal = 15.dp, vertical = 10.dp)
+            .padding(horizontal = 15.dp, vertical = deckListHeight.value)
             .fillMaxWidth()
             .height(80.dp)
             .clickable { onDeckClickEvent() },
@@ -64,7 +67,8 @@ fun DeckItem(
             ) {
                 Text(
                     text = deck.deckName,
-                    style = deckItemTitleStyle
+                    style = deckItemTitleStyle.value,
+                    fontSize = deckItemTitleStyleSize.value
                 )
                 Spacer(modifier = Modifier.height(10.dp))
                 Row(
@@ -75,11 +79,13 @@ fun DeckItem(
                 ) {
                     Text(
                         text = "${deck.cards.size} Cards",
-                        style = deckItemContentStyle
+                        style = deckItemContentStyle.value,
+                        fontSize = deckItemContentStyleSize.value
                     )
                     Text(
                         text = getDateFromDeck(deck),
-                        style = deckItemContentStyle
+                        style = deckItemContentStyle.value,
+                        fontSize = deckItemContentStyleSize.value
                     )
                 }
             }

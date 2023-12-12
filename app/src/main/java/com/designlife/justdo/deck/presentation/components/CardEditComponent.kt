@@ -61,6 +61,7 @@ import com.designlife.justdo.ui.theme.TaskItemLabelColor
 import com.designlife.justdo.ui.theme.cardTextStyle
 import com.designlife.justdo.ui.theme.headerStyle
 import com.designlife.justdo.ui.theme.highlightTextStyle
+import com.designlife.justdo.ui.theme.highlightTextStyleSize
 
 @Composable
 fun CardEditComponent(
@@ -193,12 +194,12 @@ fun CardEditComponent(
                                     onFrontContentChange(it)
                                 }
                             },
-                            textStyle = headerStyle.copy(
+                            textStyle = headerStyle.value.copy(
                                 fontWeight = FontWeight.Normal
                             )
                         ) { innerField ->
                             if (frontContent.isEmpty()){
-                                Text(text = "Front Content Text ...", color = TaskItemLabelColor)
+                                Text(text = "Front Content Text ...", color = TaskItemLabelColor.value)
                             }
                             innerField()
                         }
@@ -207,7 +208,8 @@ fun CardEditComponent(
                             .fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                             Text(
                                 text = "${frontContent.length}/300",
-                                style = highlightTextStyle
+                                style = highlightTextStyle.value,
+                                fontSize = highlightTextStyleSize.value
                             )
                         }
                         BasicTextField(
@@ -221,12 +223,12 @@ fun CardEditComponent(
                                     onBackContentChange(it)
                                 }
                             },
-                            textStyle = headerStyle.copy(
+                            textStyle = headerStyle.value.copy(
                                 fontWeight = FontWeight.Normal
                             )
                         ) { innerField ->
                             if (backContent.isEmpty()){
-                                Text(text = "Back Content Text ...", color = TaskItemLabelColor)
+                                Text(text = "Back Content Text ...", color = TaskItemLabelColor.value)
                             }
                             innerField()
                         }
@@ -240,7 +242,7 @@ fun CardEditComponent(
                                     rotationY = rotationState
                                 },
                             text = if (!rotated){if(frontContent.isEmpty()) "Short Text ..." else frontContent} else { if(backContent.isEmpty()) "Full Content Text ..." else backContent},
-                            style = cardTextStyle.copy(
+                            style = cardTextStyle.value.copy(
                                 textAlign = TextAlign.Justify,
                                 fontWeight = FontWeight.SemiBold,
                                 color = if (!rotated) Color.Black else Color.White,

@@ -78,7 +78,7 @@ class ContainerFragment : Fragment() {
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(PrimaryBackgroundColor)
+                            .background(PrimaryBackgroundColor.value)
                             .alpha(if (colorPickerState) .8F else 1F)
                     ) {
                         CommonCustomHeader(

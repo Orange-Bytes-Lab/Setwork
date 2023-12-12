@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.designlife.justdo.common.utils.enums.ViewType
+import com.designlife.justdo.ui.theme.TypographyColor
 
 @Composable
 fun SelectedHeaderTitle(
@@ -20,7 +21,7 @@ fun SelectedHeaderTitle(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start
     ) {
-        Text(text = getViewTypeText(viewType, typeList))
+        Text(text = getViewTypeText(viewType, typeList), color = TypographyColor.value)
     }
 }
 

@@ -48,6 +48,9 @@ import com.designlife.justdo.common.domain.entities.Category
 import com.designlife.justdo.common.utils.Logs
 import com.designlife.justdo.common.utils.camelCase
 import com.designlife.justdo.ui.theme.AttachmentTabItemTextStyle
+import com.designlife.justdo.ui.theme.IconColor
+import com.designlife.justdo.ui.theme.TypographyColor
+import com.designlife.justdo.ui.theme.attachmentTabItemTextStyleSize
 
 @Composable
 fun CustomAttachementsTab(
@@ -174,15 +177,16 @@ fun AttachementTabItem(
         verticalAlignment = Alignment.CenterVertically
     ) {
         if (!isDeckCategory){
-            Icon(modifier = Modifier.size(width = 10.dp, height = 20.dp), painter = painterResource(id = icon), contentDescription = "Tab Icon")
+            Icon(modifier = Modifier.size(width = 10.dp, height = 20.dp), painter = painterResource(id = icon), contentDescription = "Tab Icon", tint = IconColor.value)
             Spacer(modifier = Modifier.width(4.dp))
         }
         Text(
             text = itemTitle,
-            style = AttachmentTabItemTextStyle
+            style = AttachmentTabItemTextStyle.value.copy(color = TypographyColor.value),
+            fontSize = attachmentTabItemTextStyleSize.value
         )
         if (isCategory){
-            Icon(imageVector = Icons.Default.ArrowDropDown, contentDescription = "Drop Down")
+            Icon(imageVector = Icons.Default.ArrowDropDown, contentDescription = "Drop Down", tint = IconColor.value)
         }
     }
 }

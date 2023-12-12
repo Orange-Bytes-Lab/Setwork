@@ -18,6 +18,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.designlife.justdo.R
 import com.designlife.justdo.ui.theme.Shapes
+import com.designlife.justdo.ui.theme.UIComponentBackground
 import com.designlife.justdo.ui.theme.cutTopRoundedCorners
 
 @Composable
@@ -33,7 +34,7 @@ fun DeckBottomBarComponent(
             .fillMaxWidth()
             .height(50.dp)
             .clip(Shapes.cutTopRoundedCorners(15.dp))
-            .background(Color.White),
+            .background(UIComponentBackground.value),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {

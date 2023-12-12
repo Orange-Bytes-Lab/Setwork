@@ -13,10 +13,16 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.unit.dp
 import com.designlife.justdo.ui.theme.ButtonHighLightPrimary
+import com.designlife.justdo.ui.theme.ButtonPrimary
+import com.designlife.justdo.ui.theme.PrimaryBackgroundColor
+import com.designlife.justdo.ui.theme.TypographyColor
 import com.designlife.justdo.ui.theme.noteContentStyle
+import com.designlife.justdo.ui.theme.noteContentStyleSize
 import com.designlife.justdo.ui.theme.noteTitleStyle
+import com.designlife.justdo.ui.theme.noteTitleStyleSize
 
 @Composable
 fun NoteComponent(
@@ -26,7 +32,7 @@ fun NoteComponent(
     onNoteUpdate : (noteData : String) -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxSize()){
-        Divider(modifier = Modifier, color = ButtonHighLightPrimary, thickness = .7.dp)
+        Divider(modifier = Modifier, color = ButtonHighLightPrimary.value, thickness = .7.dp)
         BasicTextField(
             modifier = Modifier
                 .padding(start = 5.dp, top = 2.dp, bottom = 2.dp)
@@ -34,20 +40,21 @@ fun NoteComponent(
                 .background(color = Color.Transparent),
             value = title,
             singleLine = true,
-            textStyle = noteTitleStyle,
+            textStyle = noteTitleStyle.value.copy(color = TypographyColor.value, fontSize = noteTitleStyleSize.value),
             onValueChange = {onTitleUpdate(it)},
+            cursorBrush = SolidColor(ButtonPrimary.value)
         ){ innerTextField ->
             if (title.isEmpty()){
-                Text(text = "Untitled", style = noteTitleStyle.copy(color = Color.Gray))
+                Text(text = "Untitled", style = noteTitleStyle.value.copy(color = Color.Gray, fontSize = noteTitleStyleSize.value))
             }
             innerTextField()
         }
-        Divider(modifier = Modifier, color = ButtonHighLightPrimary, thickness = .7.dp)
+        Divider(modifier = Modifier, color = ButtonHighLightPrimary.value, thickness = .7.dp)
         Box(
             modifier = Modifier.fillMaxSize()
         ) {
             for(i in 1..40){
-                Divider(modifier = Modifier.padding(top = (i*26).dp), color = ButtonHighLightPrimary, thickness = .5.dp)
+                Divider(modifier = Modifier.padding(top = (i*26).dp), color = ButtonHighLightPrimary.value, thickness = .5.dp)
             }
             Row(
                 modifier = Modifier
@@ -59,8 +66,9 @@ fun NoteComponent(
                         .background(color = Color.Transparent),
                     value = noteText,
                     singleLine = false,
-                    textStyle = noteContentStyle,
+                    textStyle = noteContentStyle.value.copy(color = TypographyColor.value, fontSize = noteContentStyleSize.value),
                     onValueChange = {onNoteUpdate(it)},
+                    cursorBrush = SolidColor(ButtonPrimary.value)
                 ){ innerTextField ->
                     innerTextField()
                 }

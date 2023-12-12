@@ -26,6 +26,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.designlife.justdo.common.domain.entities.FlashCard
 import com.designlife.justdo.ui.theme.cardTextStyle
+import com.designlife.justdo.ui.theme.cardTextStyleSize
 
 @Composable
 fun PreviewCardComponent(
@@ -60,9 +61,10 @@ fun PreviewCardComponent(
             ) {
                 Text(
                     text = "...",
-                    style = cardTextStyle,
+                    style = cardTextStyle.value,
                     textAlign = TextAlign.Center,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
+                    fontSize = cardTextStyleSize.value
                 )
             }
         }

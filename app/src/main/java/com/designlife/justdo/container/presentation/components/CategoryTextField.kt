@@ -13,8 +13,12 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.input.KeyboardType
+import com.designlife.justdo.ui.theme.ButtonPrimary
 import com.designlife.justdo.ui.theme.TaskItemLabelColor
+import com.designlife.justdo.ui.theme.TypographyColor
+import com.designlife.justdo.ui.theme.headerStyle
 
 @Composable
 fun CategoryTextField(
@@ -31,7 +35,9 @@ fun CategoryTextField(
         readOnly = false,
         keyboardOptions = KeyboardOptions.Default.copy(
             keyboardType = KeyboardType.Text
-        )
+        ),
+        textStyle = headerStyle.value.copy(color = TypographyColor.value),
+        cursorBrush = SolidColor(ButtonPrimary.value)
     ){ basicField ->
         Row(
             modifier = Modifier.fillMaxSize(),
@@ -41,7 +47,7 @@ fun CategoryTextField(
             if (textValue.isBlank() && textValue.isEmpty()){
                 Text(
                     text = "Add Category Name",
-                    color = TaskItemLabelColor
+                    color = TaskItemLabelColor.value
                 )
             }else
                 basicField()

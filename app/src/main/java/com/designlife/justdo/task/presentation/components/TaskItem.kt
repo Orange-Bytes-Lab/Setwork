@@ -27,8 +27,12 @@ import androidx.compose.ui.unit.dp
 import com.designlife.justdo.R
 import com.designlife.justdo.common.presentation.components.CustomTaskInput
 import com.designlife.justdo.ui.theme.TaskItemLabelColor
+import com.designlife.justdo.ui.theme.TypographyColor
+import com.designlife.justdo.ui.theme.buttonStyleSize
 import com.designlife.justdo.ui.theme.taskItemLabelStyle
+import com.designlife.justdo.ui.theme.taskItemLabelStyleSize
 import com.designlife.justdo.ui.theme.taskItemStyle
+import com.designlife.justdo.ui.theme.taskItemStyleSize
 
 @Composable
 fun TaskItemView(
@@ -59,7 +63,7 @@ fun TaskItemView(
     ) {
         Spacer(modifier = Modifier.width(10.dp))
         if (hasIcon){
-            Icon(painter = painterResource(id = icon), contentDescription = "Item Icon", modifier = Modifier.size(14.dp,height=18.dp), tint = TaskItemLabelColor)
+            Icon(painter = painterResource(id = icon), contentDescription = "Item Icon", modifier = Modifier.size(14.dp,height=18.dp), tint = TaskItemLabelColor.value)
         }else{
             Card(
                 modifier = Modifier.size(15.dp),
@@ -80,14 +84,16 @@ fun TaskItemView(
                     .padding(start = 6.dp)
                     .fillMaxWidth(),
                 text =  labelText,
-                style = taskItemLabelStyle
+                style = taskItemLabelStyle.value,
+                fontSize = taskItemLabelStyleSize.value
             )
             if (isClickable){
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     modifier = Modifier.padding(start = 6.dp),
                     text = inputText,
-                    style = taskItemStyle
+                    style = taskItemStyle.value.copy(color = TypographyColor.value),
+                    fontSize = taskItemStyleSize.value
                 )
             }else{
                 CustomTaskInput(
@@ -99,7 +105,7 @@ fun TaskItemView(
             }
         }
         if (isClickable && !isOverview){
-            Icon(painter = painterResource(id = R.drawable.ic_arrow_right), contentDescription = "Item Icon", modifier = Modifier.size(15.dp), tint = TaskItemLabelColor)
+            Icon(painter = painterResource(id = R.drawable.ic_arrow_right), contentDescription = "Item Icon", modifier = Modifier.size(15.dp), tint = TaskItemLabelColor.value)
         }
     }
 }

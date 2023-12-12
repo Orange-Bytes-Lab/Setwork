@@ -1,22 +1,18 @@
 package com.designlife.justdo.home.presentation
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.DrawableRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.expandIn
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
-import androidx.compose.animation.shrinkOut
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -25,7 +21,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.material.ExperimentalMaterialApi
@@ -47,7 +42,6 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.unit.dp
 import androidx.core.os.bundleOf
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelStore
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import com.designlife.justdo.R
@@ -62,9 +56,7 @@ import com.designlife.justdo.common.utils.constants.Constants.TASK_VIEW
 import com.designlife.justdo.common.utils.constants.Constants.TASK_VIEW_ID
 import com.designlife.justdo.common.utils.entity.BottomNavItem
 import com.designlife.justdo.common.utils.entity.SettingItem
-import com.designlife.justdo.common.utils.enums.BottomSheetItem
-import com.designlife.justdo.common.utils.enums.GeneralSettingView
-import com.designlife.justdo.common.utils.enums.ScreenType
+import com.designlife.justdo.settings.presentation.enums.GeneralSettingView
 import com.designlife.justdo.common.utils.enums.ViewType
 import com.designlife.justdo.home.domain.usecase.LoadIntialDatesUseCase
 import com.designlife.justdo.home.domain.usecase.LoadNextDatesSetUseCase
@@ -81,19 +73,19 @@ import com.designlife.justdo.home.presentation.components.TodoItemList
 import com.designlife.justdo.home.presentation.events.HomeEvents
 import com.designlife.justdo.home.presentation.viewmodel.HomeViewModel
 import com.designlife.justdo.home.presentation.viewmodel.HomeViewModelFactory
+import com.designlife.justdo.settings.presentation.components.CustomLoaderComponent
 import com.designlife.justdo.settings.presentation.components.CustomPickerComponent
+import com.designlife.justdo.settings.presentation.enums.AppBackup
+import com.designlife.justdo.settings.presentation.enums.LoaderState
 import com.designlife.justdo.settings.presentation.events.SettingEvents
 import com.designlife.justdo.settings.presentation.viewmodel.SettingViewModel
 import com.designlife.justdo.settings.presentation.viewmodel.SettingViewModelFactory
 import com.designlife.justdo.ui.theme.*
-import com.google.android.material.bottomsheet.BottomSheetDialog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import java.util.Date
 
 class HomeFragment : Fragment() {
@@ -135,12 +127,14 @@ class HomeFragment : Fragment() {
         appStoreRepository = AppServiceLocator.provideAppStoreRepository(requireContext())
         val settingFactory = SettingViewModelFactory(appStoreRepository)
         settingViewModel = ViewModelProvider(this, settingFactory)[SettingViewModel::class.java]
-
         checkNotificationView()
         CoroutineScope(Dispatchers.Main).launch {
             viewModel.onEvent(HomeEvents.OnProgressBarToggle(true))
             launch {
                 viewModel.loadInitialDates()
+            }
+            launch {
+                settingViewModel.initSettingPreferences()
             }
             launch {
                 viewModel.fetchAllTodo()
@@ -154,8 +148,12 @@ class HomeFragment : Fragment() {
             launch {
                 viewModel.fetchAllDecks()
             }
+
             initialSlide()
+            Log.i("SCREEN", "onCreate: Default Screen ${settingViewModel.defaultScreen.value}")
+            viewModel.onEvent(HomeEvents.OnViewChange(settingViewModel.defaultScreen.value))
         }
+
     }
 
     private fun initBottomNavItems() {
@@ -251,6 +249,8 @@ class HomeFragment : Fragment() {
                 // Setting Config
                 val pickerState = settingViewModel.pickerVisibility.value
                 val pickerListState = settingViewModel.pickerItemList.value
+                val loaderState = settingViewModel.loaderVisibility.value
+                val loaderStatus = settingViewModel.loaderStatus.value
 
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -272,10 +272,13 @@ class HomeFragment : Fragment() {
                                     .background(
                                         brush = Brush.verticalGradient(
                                             colors = if (viewType == ViewType.SETTING) listOf(
-                                                PrimaryBackgroundColor,
-                                                PrimaryBackgroundColor
+                                                PrimaryBackgroundColor.value,
+                                                PrimaryBackgroundColor.value
                                             )
-                                            else listOf(PrimaryColorHome2, PrimaryColorHome1)
+                                            else listOf(
+                                                PrimaryColorHome2.value,
+                                                PrimaryColorHome1.value
+                                            )
                                         )
                                     )
                             ) {
@@ -304,9 +307,7 @@ class HomeFragment : Fragment() {
                                         onSearchIconClick = {
                                             viewModel.onEvent(HomeEvents.OnSearchToggle(true))
                                         },
-                                        onViewChange = {
-
-                                        }
+                                        onViewChange = {}
                                     )
                                 }
                                 AnimatedVisibility(visible = viewType != ViewType.SETTING) {
@@ -367,7 +368,9 @@ class HomeFragment : Fragment() {
                                         selectedIndex = selectedIndex
                                     )
                                 }
-                                Spacer(modifier = Modifier.height(20.dp))
+                                AnimatedVisibility(visible = viewType != ViewType.SETTING) {
+                                    Spacer(modifier = Modifier.height(20.dp))
+                                }
                                 AnimatedVisibility(visible = viewType != ViewType.SETTING) {
                                     CategoryComponent(
                                         viewType = viewType,
@@ -381,7 +384,9 @@ class HomeFragment : Fragment() {
                                         )
                                     }
                                 }
-                                Spacer(modifier = Modifier.height(20.dp))
+                                AnimatedVisibility(visible = viewType != ViewType.SETTING) {
+                                    Spacer(modifier = Modifier.height(20.dp))
+                                }
                                 AnimatedVisibility(visible = viewType == ViewType.TASK) {
                                     TodoItemList(
                                         listState = todoListState,
@@ -442,6 +447,7 @@ class HomeFragment : Fragment() {
                                     Settings(
                                         iconList = settingIcons,
                                         pickerState = pickerState,
+                                        loaderState = loaderState,
                                         onDefaultScreenEvent = {
                                             settingViewModel.onEvent(
                                                 SettingEvents.OnGeneralSettingViewChange(
@@ -470,12 +476,27 @@ class HomeFragment : Fragment() {
                                                 )
                                             )
                                         },
-                                        onImportEvent = {},
-                                        onExportEvent = {},
+                                        onImportEvent = {
+                                            settingViewModel.onEvent(
+                                                SettingEvents.OnBackupSettingViewChange(
+                                                    AppBackup.IMPORT
+                                                )
+                                            )
+                                        },
+                                        onExportEvent = {
+                                            settingViewModel.onEvent(
+                                                SettingEvents.OnBackupSettingViewChange(
+                                                    AppBackup.EXPORT
+                                                )
+                                            )
+                                        },
                                         onHelpEvent = {},
                                         onFeedbackEvent = {},
-                                        onSettingItemClick = {
+                                        onGeneralSettingItemClick = {
                                             settingViewModel.onEvent(SettingEvents.OnPickerToggle(true))
+                                        },
+                                        onBackupSettingItemClick = {
+                                            settingViewModel.onEvent(SettingEvents.OnLoaderToggle(true))
                                         }
                                     )
                                 }
@@ -492,18 +513,19 @@ class HomeFragment : Fragment() {
                                     onClick = {
                                         viewModel.updateSheetVisibility(true)
                                     },
-                                    backgroundColor = ButtonPrimary
+                                    backgroundColor = ButtonPrimary.value
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.Add,
                                         contentDescription = "FAB",
-                                        tint = PrimaryColorHome2
+                                        tint = PrimaryColorHome2.value
                                     )
                                 }
                             }
                             if (sheetVisibility) {
                                 val dialog = BottomSheet.dialog(
                                     context = requireActivity(),
+                                    isDarkMode = isSystemInDarkTheme(),
                                     onCloseEvent = {
                                         isBottomSheetToggled.value = false
                                         viewModel.updateSheetVisibility(false)
@@ -588,6 +610,13 @@ class HomeFragment : Fragment() {
                                                 )
                                             )
                                         })
+                                }
+                                AnimatedVisibility(
+                                    visible = loaderState,
+                                    enter = scaleIn(),
+                                    exit = scaleOut()
+                                ) {
+                                    CustomLoaderComponent(loaderData = loaderStatus)
                                 }
                             }
                         }

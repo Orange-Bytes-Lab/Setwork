@@ -43,8 +43,13 @@ import com.designlife.justdo.common.domain.calendar.IDateGenerator.Companion.get
 import com.designlife.justdo.common.domain.calendar.IDateGenerator.Companion.getGracefullyTimeFromEpoch
 import com.designlife.justdo.common.domain.entities.Note
 import com.designlife.justdo.ui.theme.ButtonPrimary
+import com.designlife.justdo.ui.theme.TypographyColor
+import com.designlife.justdo.ui.theme.UIComponentBackground
 import com.designlife.justdo.ui.theme.noteItemContentStyle
+import com.designlife.justdo.ui.theme.noteItemContentStyleSize
 import com.designlife.justdo.ui.theme.noteItemTitleStyle
+import com.designlife.justdo.ui.theme.noteItemTitleStyleSize
+import com.designlife.justdo.ui.theme.noteListHeight
 import java.util.Date
 
 @Composable
@@ -57,11 +62,11 @@ fun NoteItem(
     val modifier = if (hasCover) Modifier
         .fillMaxWidth(1F)
         .wrapContentHeight() else Modifier
-        .padding(horizontal = 10.dp, vertical = 10.dp)
+        .padding(horizontal = 10.dp, vertical = noteListHeight.value)
         .fillMaxWidth(1F)
         .height(180.dp)
     Card(
-        backgroundColor = Color.White,
+        backgroundColor = UIComponentBackground.value,
         modifier = modifier
             .padding(horizontal = if (!hasCover) 5.dp else 12.dp, vertical = if (!hasCover) 0.dp else 4.dp)
             .clickable {
@@ -148,16 +153,19 @@ fun NoteItem(
                 Text(
                     modifier = Modifier.fillMaxWidth(),
                     text = if (note.title.length > 28) "${note.title.substring(0,25)} ..." else note.title,
-                    style = noteItemTitleStyle.copy(
-                        textAlign = TextAlign.Center
+                    style = noteItemTitleStyle.value.copy(
+                        textAlign = TextAlign.Center,
+                        color = TypographyColor.value,
+                        fontSize = noteItemTitleStyleSize.value
                     )
                 )
                 Spacer(modifier = Modifier.height(10.dp))
                 Text(
                     modifier = Modifier.fillMaxWidth().height(35.dp),
                     text = if (note.content.length > 90) "${note.content.substring(0,80)} ..." else note.content,
-                    style = noteItemContentStyle.copy(
-                        textAlign = TextAlign.Center
+                    style = noteItemContentStyle.value.copy(
+                        textAlign = TextAlign.Center,
+                        fontSize = noteItemContentStyleSize.value
                     ),
                     overflow = TextOverflow.Ellipsis
                 )
@@ -165,8 +173,8 @@ fun NoteItem(
                 Text(
                     modifier = Modifier.fillMaxWidth(),
                     text = getGracefullyTimeFromEpoch(note.lastModified.time),
-                    style = noteItemContentStyle.copy(
-                        fontSize = 12.sp,
+                    style = noteItemContentStyle.value.copy(
+                        fontSize = noteItemContentStyleSize.value,
                         textAlign = TextAlign.Center
                     )
                 )

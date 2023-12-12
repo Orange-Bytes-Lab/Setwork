@@ -22,12 +22,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.unit.dp
 import com.designlife.justdo.common.domain.entities.Category
 import com.designlife.justdo.common.presentation.components.CustomAttachementsTab
 import com.designlife.justdo.common.presentation.components.CustomButton
+import com.designlife.justdo.ui.theme.ButtonPrimary
+import com.designlife.justdo.ui.theme.ComponentBackground
+import com.designlife.justdo.ui.theme.IconColor
 import com.designlife.justdo.ui.theme.Shapes
 import com.designlife.justdo.ui.theme.TaskItemLabelColor
+import com.designlife.justdo.ui.theme.TypographyColor
 import com.designlife.justdo.ui.theme.cutBottomRoundedCorners
 import com.designlife.justdo.ui.theme.headerStyle
 
@@ -48,7 +53,7 @@ fun DeckHeader(
             .fillMaxWidth()
             .height(50.dp)
             .clip(Shapes.cutBottomRoundedCorners(15.dp))
-            .background(Color.White),
+            .background(ComponentBackground.value),
         horizontalArrangement = Arrangement.Start,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -60,7 +65,7 @@ fun DeckHeader(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Icon(imageVector = Icons.Default.Close, contentDescription = "Close Icon")
+            Icon(imageVector = Icons.Default.Close, contentDescription = "Close Icon", tint = IconColor.value)
         }
         Row(
             modifier = Modifier.fillMaxWidth(.75F),
@@ -78,10 +83,11 @@ fun DeckHeader(
                     onTitleChange(it)
                 },
                 singleLine = true,
-                textStyle = headerStyle
+                textStyle = headerStyle.value.copy(color = TypographyColor.value),
+                cursorBrush = SolidColor(ButtonPrimary.value)
             ) { innerField ->
                 if (headerTitle.isEmpty()) {
-                    Text(text = "Deck Name ...", color = TaskItemLabelColor)
+                    Text(text = "Deck Name ...", color = TaskItemLabelColor.value)
                 }
                 innerField()
             }

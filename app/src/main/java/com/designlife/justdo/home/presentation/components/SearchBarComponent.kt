@@ -27,6 +27,7 @@ import com.designlife.justdo.R
 import com.designlife.justdo.ui.theme.Shapes
 import com.designlife.justdo.ui.theme.cutBottomRoundedCorners
 import com.designlife.justdo.ui.theme.noteContentStyle
+import com.designlife.justdo.ui.theme.noteContentStyleSize
 
 @Composable
 fun SearchBarComponent(
@@ -47,8 +48,8 @@ fun SearchBarComponent(
         BasicTextField(
             value = searchText,
             singleLine = true,
-            textStyle = noteContentStyle.copy(
-                fontSize = 14.sp
+            textStyle = noteContentStyle.value.copy(
+                fontSize = noteContentStyleSize.value
             ),
             onValueChange = {onSearchUpdates(it)}
         ){ innerTextField ->

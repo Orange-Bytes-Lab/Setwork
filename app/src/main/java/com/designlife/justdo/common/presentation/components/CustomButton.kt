@@ -14,6 +14,7 @@ import com.designlife.justdo.ui.theme.ButtonPrimary
 import com.designlife.justdo.ui.theme.DangerButton
 import com.designlife.justdo.ui.theme.Purple500
 import com.designlife.justdo.ui.theme.buttonStyle
+import com.designlife.justdo.ui.theme.buttonStyleSize
 
 @Composable
 fun CustomButton(
@@ -27,11 +28,11 @@ fun CustomButton(
             .width(if (isDangerButton) 70.dp else 62.dp)
             .height(32.dp),
         colors = ButtonDefaults.buttonColors(
-            backgroundColor = if(isDangerButton) DangerButton else ButtonPrimary,
+            backgroundColor = if(isDangerButton) DangerButton.value else ButtonPrimary.value,
             disabledBackgroundColor = Purple500
         ),
         shape = RoundedCornerShape(20.dp),
     ) {
-        Text(text = buttonText, textAlign = TextAlign.Center, style = buttonStyle)
+        Text(text = buttonText, textAlign = TextAlign.Center, style = buttonStyle.value, fontSize = buttonStyleSize.value)
     }
 }

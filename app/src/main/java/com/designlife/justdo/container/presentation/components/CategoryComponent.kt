@@ -44,7 +44,7 @@ fun CategoryComponent(
                 },
                 onCategoryInsertEvent = {
                     // Add New Category
-                    if (categoryName.isNotBlank() && colorPickerSelectedColor != TaskItemLabelColor)
+                    if (categoryName.isNotBlank() && colorPickerSelectedColor != TaskItemLabelColor.value)
                         onNewCategoryEvent(Category(name = categoryName, totalTodo = 0, totalCompleted = 0, color = colorPickerSelectedColor, emoji = colorPickerSelectedEmoji))
                 }
             ){}

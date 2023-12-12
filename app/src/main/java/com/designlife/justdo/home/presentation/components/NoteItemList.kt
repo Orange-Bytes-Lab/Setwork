@@ -1,7 +1,9 @@
 package com.designlife.justdo.home.presentation.components
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
@@ -32,11 +34,15 @@ fun NoteItemList(
         items(noteList.size) { index: Int ->
             val item = noteList[index]
             if (colorMap.containsKey(item.categoryId)) {
-                val color: Color = colorMap.get(item.categoryId) ?: TaskItemLabelColor
+                val color: Color = colorMap.get(item.categoryId) ?: TaskItemLabelColor.value
                 NoteItem(note = noteList[index], noteTheme = color) {
                     onNoteClickEvent(index)
                 }
             }
+            if (index == noteList.lastIndex){
+                Spacer(modifier = Modifier.height(120.dp))
+            }
         }
+
     }
 }

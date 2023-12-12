@@ -51,6 +51,7 @@ import com.designlife.justdo.note.presentation.enums.DeckMode
 import com.designlife.justdo.note.presentation.enums.NoteMode
 import com.designlife.justdo.note.presentation.events.NoteEvents
 import com.designlife.justdo.ui.theme.PrimaryBackgroundColor
+import com.designlife.justdo.ui.theme.UIComponentBackground
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -108,7 +109,7 @@ class DeckFragment : Fragment() {
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(color = PrimaryBackgroundColor),
+                            .background(color = UIComponentBackground.value),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         DeckHeader(

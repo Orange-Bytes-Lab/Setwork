@@ -7,6 +7,7 @@
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
+        android:id="@+id/bottom_sheet_layout"
         android:background="@color/white"
         app:cardCornerRadius="20dp"
         android:layout_marginBottom="-30dp"
@@ -51,6 +52,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:text="+ Note"
+                        android:id="@+id/note_view"
                         android:textColor="@color/black"
                         android:fontFamily="@font/inter_regular"
                         android:layout_marginLeft="30dp"
@@ -77,6 +79,7 @@
                         android:layout_width="match_parent"
                         android:text="+ Task"
                         android:textColor="@color/black"
+                        android:id="@+id/task_view"
                         android:fontFamily="@font/inter_regular"
                         android:layout_marginLeft="30dp"
                         android:layout_height="wrap_content"/>
@@ -102,6 +105,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:text="+ Deck"
+                        android:id="@+id/deck_view"
                         android:textColor="@color/black"
                         android:fontFamily="@font/inter_regular"
                         android:layout_marginLeft="30dp"

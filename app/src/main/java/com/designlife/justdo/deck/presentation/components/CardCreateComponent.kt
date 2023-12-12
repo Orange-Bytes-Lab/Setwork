@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.designlife.justdo.common.domain.entities.FlashCard
 import com.designlife.justdo.ui.theme.cardTextStyle
+import com.designlife.justdo.ui.theme.cardTextStyleSize
 import com.designlife.justdo.ui.theme.headerStyle
 
 @Composable
@@ -77,7 +78,7 @@ fun CardCreateComponent(
                 Text(
                     modifier = Modifier.wrapContentWidth(),
                     text = "Start Card",
-                    style = headerStyle.copy(fontSize = 14.sp, color = Color.White),
+                    style = headerStyle.value.copy(fontSize = 14.sp, color = Color.White),
                     textAlign = TextAlign.Start
                 )
                 IconButton(
@@ -99,8 +100,9 @@ fun CardCreateComponent(
             ) {
                 Text(
                     text = if (card.frontContent.isEmpty()) "Sample Text" else card.frontContent,
-                    style = cardTextStyle,
-                    textAlign = TextAlign.Center
+                    style = cardTextStyle.value,
+                    textAlign = TextAlign.Center,
+                    fontSize = cardTextStyleSize.value
                 )
             }
         }

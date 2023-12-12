@@ -42,7 +42,7 @@ class ContainerViewModel(
     private val _editMode : MutableState<Boolean> = mutableStateOf(false)
     val editMode = _editMode
 
-    private val _selectedPaletteColor : MutableState<Color> = mutableStateOf(TaskItemLabelColor)
+    private val _selectedPaletteColor : MutableState<Color> = mutableStateOf(TaskItemLabelColor.value)
     val selectedPaletteColor = _selectedPaletteColor
 
     private val _selectedEmoji : MutableState<String> = mutableStateOf("👀")
@@ -100,7 +100,7 @@ class ContainerViewModel(
 
     private fun clearVariables(){
         _categoryName.value = ""
-        _selectedPaletteColor.value = TaskItemLabelColor
+        _selectedPaletteColor.value = TaskItemLabelColor.value
     }
 
     public fun initialSetup(screenType : ScreenType,editMode : Boolean){

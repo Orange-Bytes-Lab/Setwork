@@ -15,6 +15,7 @@ import com.designlife.justdo.common.utils.entity.BottomNavItem
 import com.designlife.justdo.common.utils.enums.ViewType
 import com.designlife.justdo.ui.theme.ButtonHighLightPrimary
 import com.designlife.justdo.ui.theme.ButtonPrimary
+import com.designlife.justdo.ui.theme.ComponentBackground
 
 @Composable
 fun BottomNavigationBar(
@@ -24,18 +25,18 @@ fun BottomNavigationBar(
 ) {
     BottomNavigation(
         modifier = Modifier.fillMaxWidth(),
-        backgroundColor = Color.White
+        backgroundColor = ComponentBackground.value
     ) {
         items.forEachIndexed {index,item ->
             val isSelected =  index == getItemIndex(selectedScreen)
             BottomNavigationItem(
                 icon = {
-                       Icon(modifier = Modifier.size(20.dp),painter = painterResource(id = item.icon), contentDescription = "icon", tint = if(isSelected) ButtonPrimary else ButtonHighLightPrimary)
+                       Icon(modifier = Modifier.size(20.dp),painter = painterResource(id = item.icon), contentDescription = "icon", tint = if(isSelected) ButtonPrimary.value else ButtonHighLightPrimary.value)
                 },
                 label = {
                         Text(
                             text = item.label,
-                            color = if(isSelected) ButtonPrimary else ButtonHighLightPrimary
+                            color = if(isSelected) ButtonPrimary.value else ButtonHighLightPrimary.value
                         )
                 },
                 selected = isSelected,

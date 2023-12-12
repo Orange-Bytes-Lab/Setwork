@@ -25,7 +25,7 @@ fun CustomCardButton(
         Card(
             modifier = Modifier
                 .size(50.dp),
-            backgroundColor = ButtonPrimary,
+            backgroundColor = ButtonPrimary.value,
             elevation = 2.dp,
             shape = RoundedCornerShape(12.dp)
         ) {

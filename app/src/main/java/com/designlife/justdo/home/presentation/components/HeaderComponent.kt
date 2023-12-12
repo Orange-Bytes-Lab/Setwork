@@ -29,7 +29,11 @@ import androidx.compose.ui.unit.sp
 import com.designlife.justdo.R
 import com.designlife.justdo.common.utils.enums.ViewType
 import com.designlife.justdo.ui.theme.ButtonPrimary
+import com.designlife.justdo.ui.theme.ComponentBackground
 import com.designlife.justdo.ui.theme.Shapes
+import com.designlife.justdo.ui.theme.TypographyColor
+import com.designlife.justdo.ui.theme.buttonStyleSize
+import com.designlife.justdo.ui.theme.commonStyleSize
 import com.designlife.justdo.ui.theme.cutBottomRoundedCorners
 import java.util.Calendar
 import java.util.Date
@@ -50,7 +54,7 @@ fun HeaderComponent(
             .fillMaxWidth()
             .wrapContentHeight()
             .clip(Shapes.cutBottomRoundedCorners(15.dp))
-            .background(Color.White),
+            .background(ComponentBackground.value),
         horizontalArrangement = Arrangement.Center
     ) {
         Row(
@@ -64,7 +68,7 @@ fun HeaderComponent(
             Column(
                 modifier = Modifier
                     .size(25.dp)
-                    .background(color = ButtonPrimary, RoundedCornerShape(100))
+                    .background(color = ButtonPrimary.value, RoundedCornerShape(100))
                     .clickable { onEventClick() },
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
@@ -73,7 +77,7 @@ fun HeaderComponent(
                     text = getDateInt(currentDate),
                     color = Color.White,
                     style = TextStyle(
-                        fontSize = 12.sp,
+                        fontSize = commonStyleSize.value,
                         fontWeight = FontWeight.ExtraBold
                     ),
                     textAlign = TextAlign.Center
@@ -91,7 +95,7 @@ fun HeaderComponent(
                     IconButton(onClick = {
                         onSearchIconClick()
                     }) {
-                        Icon(modifier = Modifier.size(20.dp), painter = painterResource(id = R.drawable.ic_search),contentDescription = "Search Icon", tint = ButtonPrimary)
+                        Icon(modifier = Modifier.size(20.dp), painter = painterResource(id = R.drawable.ic_search),contentDescription = "Search Icon", tint = ButtonPrimary.value)
                     }
                 }
             }

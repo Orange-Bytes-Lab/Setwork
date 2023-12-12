@@ -1,5 +1,6 @@
 package com.designlife.justdo.common.presentation.components
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -22,9 +23,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.designlife.justdo.ui.theme.ComponentBackground
+import com.designlife.justdo.ui.theme.IconColor
 import com.designlife.justdo.ui.theme.Shapes
+import com.designlife.justdo.ui.theme.TypographyColor
 import com.designlife.justdo.ui.theme.cutBottomRoundedCorners
 import com.designlife.justdo.ui.theme.headerStyle
 
@@ -42,7 +45,7 @@ fun CommonCustomHeader(
             .fillMaxWidth()
             .wrapContentHeight()
             .clip(Shapes.cutBottomRoundedCorners(15.dp))
-            .background(Color.White),
+            .background(ComponentBackground.value),
         horizontalArrangement = Arrangement.Center
     ) {
         Row(
@@ -62,16 +65,19 @@ fun CommonCustomHeader(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    Icon(imageVector = Icons.Default.Close, contentDescription = "Close Icon" )
+                    Icon(imageVector = Icons.Default.Close, contentDescription = "Close Icon", tint = IconColor.value)
                 }
                 Spacer(modifier = Modifier.width(10.dp))
                 Text(
                     text = headerTitle,
-                    style = headerStyle
+                    style = headerStyle.value.copy(color = TypographyColor.value)
                 )
+                Log.i("UPDATE", "CommonCustomHeader: Header Font Size ${headerStyle.value.fontSize}")
             }
             if (forTask){
-                Row(modifier = Modifier.padding(end = 10.dp).wrapContentWidth()) {
+                Row(modifier = Modifier
+                    .padding(end = 10.dp)
+                    .wrapContentWidth()) {
                     CustomButton(buttonText = if (isOverview || hasDone) "Delete" else "Save", isDangerButton = isOverview) {
                         onButtonClickEvent()
                     }

@@ -124,7 +124,7 @@ class TaskFragment : Fragment(), TaskListener {
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(color = PrimaryBackgroundColor),
+                            .background(color = PrimaryBackgroundColor.value),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         CommonCustomHeader(headerTitle = if (isOverview) "Task Overview" else "New Task", forTask = true, hasDone = viewmodel.isCompleted.value, onCloseEvent = { findNavController().navigateUp()}, isOverview = isOverview) {
@@ -162,7 +162,7 @@ class TaskFragment : Fragment(), TaskListener {
                                     Spacer(modifier = Modifier.height(14.dp))
                                     TaskItemView(
                                         hasIcon = true,
-                                        color = ButtonPrimary,
+                                        color = ButtonPrimary.value,
                                         icon = R.drawable.ic_note,
                                         labelText = "Note",
                                         isNote = true,
@@ -216,7 +216,7 @@ class TaskFragment : Fragment(), TaskListener {
                                 Spacer(modifier = Modifier.height(14.dp))
                                 TaskItemView(
                                     hasIcon = true,
-                                    color = ButtonPrimary,
+                                    color = ButtonPrimary.value,
                                     icon = R.drawable.ic_repeat,
                                     labelText = "Repeat",
                                     isNote = false,
@@ -239,7 +239,7 @@ class TaskFragment : Fragment(), TaskListener {
                                 Spacer(modifier = Modifier.height(14.dp))
                                 TaskItemView(
                                     hasIcon = true,
-                                    color = ButtonPrimary,
+                                    color = ButtonPrimary.value,
                                     icon = R.drawable.ic_category,
                                     labelText = "Category",
                                     isNote = false,

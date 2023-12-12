@@ -40,6 +40,7 @@ import com.designlife.justdo.R
 import com.designlife.justdo.common.domain.entities.FlashCard
 import com.designlife.justdo.ui.theme.ButtonPrimary
 import com.designlife.justdo.ui.theme.cardTextStyle
+import com.designlife.justdo.ui.theme.cardTextStyleSize
 import com.designlife.justdo.ui.theme.fontFamily
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
@@ -76,7 +77,7 @@ fun CreateCardListComponent(
                             append("Looks like deck is empty")
                             withStyle(
                                 style = SpanStyle(
-                                    color = ButtonPrimary,
+                                    color = ButtonPrimary.value,
                                     fontSize = 17.sp,
                                     fontFamily = fontFamily,
                                     fontWeight = FontWeight.SemiBold
@@ -85,7 +86,7 @@ fun CreateCardListComponent(
                                 append("\n\n\nCreate new card")
                             }
                         },
-                        style = cardTextStyle
+                        style = cardTextStyle.value.copy(fontSize = cardTextStyleSize.value)
                     )
                     Spacer(modifier = Modifier.height(40.dp))
                     Image(

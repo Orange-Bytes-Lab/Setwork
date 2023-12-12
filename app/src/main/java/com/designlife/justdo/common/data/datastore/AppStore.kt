@@ -6,13 +6,18 @@ import android.content.Context
 import androidx.annotation.Keep
 import androidx.datastore.core.DataStore
 import androidx.datastore.dataStore
+import com.designlife.justdo.settings.presentation.enums.AppTheme
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Keep
 @Serializable
 data class AppStore(
-    @SerialName("todoId") val todoId : Int = -1
+    @SerialName("todoId") val todoId : Int = -1,
+    @SerialName("selectedScreen") val selectedScreen : Int = 0,
+    @SerialName("appTheme") val selectedAppTheme: Int = 0,
+    @SerialName("fontSize") val selectedFontSize: Int = 0,
+    @SerialName("listItemHeight") val selectedListItemHeight: Int = 0
 ){
     @Keep
     companion object{

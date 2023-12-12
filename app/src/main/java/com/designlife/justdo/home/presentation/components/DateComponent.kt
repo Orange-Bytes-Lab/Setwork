@@ -51,6 +51,8 @@ import androidx.compose.ui.unit.sp
 import com.designlife.justdo.common.domain.calendar.IDateGenerator
 import com.designlife.justdo.ui.theme.ButtonHighLightPrimary
 import com.designlife.justdo.ui.theme.ButtonPrimary
+import com.designlife.justdo.ui.theme.TypographyColor
+import com.designlife.justdo.ui.theme.UIComponentBackground
 import com.designlife.justdo.ui.theme.fontFamily
 import com.designlife.justdo.ui.theme.headerStyle
 import kotlinx.coroutines.CoroutineScope
@@ -95,16 +97,16 @@ fun DateComponent(
             Spacer(modifier = Modifier.width(12.dp))
             Text(text = buildAnnotatedString {
 
-                withStyle(style = SpanStyle(color = Color.Black, fontSize = 10.sp, fontFamily = fontFamily, fontWeight = FontWeight.Light)){
+                withStyle(style = SpanStyle(color = TypographyColor.value, fontSize = 10.sp, fontFamily = fontFamily, fontWeight = FontWeight.Light)){
                     append("CALENDAR ")
                 }
 
 
-                withStyle(style = SpanStyle(color = Color.Black, fontSize = 12.sp, fontFamily = fontFamily, fontWeight = FontWeight.Bold)){
+                withStyle(style = SpanStyle(color = TypographyColor.value, fontSize = 12.sp, fontFamily = fontFamily, fontWeight = FontWeight.Bold)){
                     append("$currentMonth ")
                 }
 
-                withStyle(style = SpanStyle(color = Color.Black, fontSize = 10.sp, fontFamily = fontFamily, fontWeight = FontWeight.Bold)){
+                withStyle(style = SpanStyle(color = TypographyColor.value, fontSize = 10.sp, fontFamily = fontFamily, fontWeight = FontWeight.Bold)){
                     append(currentYear)
                 }
 
@@ -162,10 +164,10 @@ fun DateItem(
         .width(60.dp)
         .height(76.dp)
         .background(
-            color = if (isSelected) ButtonPrimary else Color.White,
+            color = if (isSelected) ButtonPrimary.value else UIComponentBackground.value,
             shape = RoundedCornerShape(12)
         )
-        .dashedBorder(strokeWidth = 1.dp, color = if (isCurrent && !isSelected) ButtonPrimary else Color.Transparent, cornerRadiusDp = 12.dp)
+        .dashedBorder(strokeWidth = 1.dp, color = if (isCurrent && !isSelected) ButtonPrimary.value else Color.Transparent, cornerRadiusDp = 12.dp)
         .clickable {
             onEventClick()
         },
@@ -175,8 +177,8 @@ fun DateItem(
 
         Text(
             text = "${pair.first}",
-            style = headerStyle.copy(
-                color = if (isCurrent && !isSelected) ButtonPrimary else if (isSelected) Color.White else Color.Black,
+            style = headerStyle.value.copy(
+                color = if (isCurrent && !isSelected) ButtonPrimary.value else if (isSelected) Color.White else TypographyColor.value,
                 fontWeight = FontWeight.Bold,
                 fontSize = 18.sp
             )
@@ -186,8 +188,8 @@ fun DateItem(
 
         Text(
             text = pair.second,
-            style = headerStyle.copy(
-                color = if (isCurrent && !isSelected) ButtonPrimary else if (isSelected) Color.White else Color.Black,
+            style = headerStyle.value.copy(
+                color = if (isCurrent && !isSelected) ButtonPrimary.value else if (isSelected) Color.White else TypographyColor.value,
                 fontWeight = FontWeight.Medium,
                 fontSize = 12.sp
             )

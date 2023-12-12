@@ -18,7 +18,7 @@ fun ProgressBar() {
     ) {
         CircularProgressIndicator(
             modifier = Modifier.size(30.dp),
-            color = ButtonPrimary,
+            color = ButtonPrimary.value,
             strokeWidth = 4.dp
         )
     }

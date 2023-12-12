@@ -18,6 +18,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.designlife.justdo.ui.theme.SettingItemStyle
+import com.designlife.justdo.ui.theme.TypographyColor
+import com.designlife.justdo.ui.theme.settingItemStyleSize
 
 @Composable
 fun SettingItemComponent(
@@ -34,8 +36,8 @@ fun SettingItemComponent(
         horizontalArrangement = Arrangement.Start
     ) {
         Spacer(modifier = Modifier.width(10.dp))
-        Icon(modifier = Modifier.size(13.dp), painter = painterResource(id = drawableIcon), contentDescription = "Feedback Icon", tint = SettingItemStyle.color)
+        Icon(modifier = Modifier.size(13.dp), painter = painterResource(id = drawableIcon), contentDescription = "Feedback Icon", tint = SettingItemStyle.value.color)
         Spacer(modifier = Modifier.width(14.dp))
-        Text(text = title, style = SettingItemStyle.copy(color = Color.Black))
+        Text(text = title, style = SettingItemStyle.value.copy(color = TypographyColor.value, fontSize = settingItemStyleSize.value))
     }
 }

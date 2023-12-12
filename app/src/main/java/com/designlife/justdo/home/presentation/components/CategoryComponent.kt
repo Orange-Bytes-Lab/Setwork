@@ -32,6 +32,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -61,7 +62,7 @@ fun CategoryComponent(
             .padding(horizontal = 12.dp)
     ) {
         Text(text = buildAnnotatedString {
-            withStyle(style = SpanStyle(color = Color.Black, fontSize = 10.sp, fontFamily = fontFamily, fontWeight = FontWeight.Light)){
+            withStyle(style = SpanStyle(color = TypographyColor.value, fontSize = 10.sp, fontFamily = fontFamily, fontWeight = FontWeight.Light)){
                 append(if(viewType == ViewType.TASK) "CATEGORIES " else "FOLDERS ")
             }
         })
@@ -119,7 +120,7 @@ fun CategoryItem(
             }
             .alpha(if (isSelected) .8F else 1F)
             .background(
-                color = if (isSelected) categoryTheme else PrimaryColor1,
+                color = if (isSelected) categoryTheme else UIComponentBackground.value,
                 shape = RoundedCornerShape(20)
             )
             .padding(horizontal = 8.dp),
@@ -127,15 +128,15 @@ fun CategoryItem(
         Spacer(modifier = Modifier.height(10.dp))
         Text(
             text = "${totalTasks} Task's",
-            style = contentStyle_One.copy(color = if (isSelected) Color.White else Color.Black)
+            style = contentStyle_One.value.copy(color = if (isSelected) Color.White else TypographyColor.value, fontSize = contentStyle_OneSize.value)
         )
         Spacer(modifier = Modifier.height(2.dp))
         Text(
             text = (if (categoryName.length >= 10) "${categoryName.substring(0,8)}..." else categoryName).uppercase(),
-            style = headerStyle.copy(
+            style = headerStyle.value.copy(
                 fontSize = 18.sp,
                 fontWeight = FontWeight.ExtraBold,
-                color = if (isSelected) Color.White else Color.Black
+                color = if (isSelected) Color.White else TypographyColor.value
             )
         )
         Spacer(modifier = Modifier.height(30.dp))
@@ -152,7 +153,7 @@ fun DummyCategoryItem(
             .padding(horizontal = 6.dp)
             .width(200.dp)
             .height(100.dp)
-            .background(color = PrimaryColorHome2, shape = RoundedCornerShape(20))
+            .background(color = PrimaryColorHome2.value, shape = RoundedCornerShape(20))
             .clickable { newCategoryEvent() }
             .border(width = 1.dp, color = Color.Gray, shape = RoundedCornerShape(20))
             .padding(horizontal = 8.dp),
@@ -160,10 +161,10 @@ fun DummyCategoryItem(
         Spacer(modifier = Modifier.height(10.dp))
         Text(
             text = "Add Category",
-            style = headerStyle.copy(
+            style = headerStyle.value.copy(
                 fontSize = 18.sp,
                 fontWeight = FontWeight.ExtraBold,
-                color = PrimaryBackgroundCategoryColor
+                color = PrimaryBackgroundCategoryColor.value
             )
         )
         Spacer(modifier = Modifier.height(5.dp))
@@ -176,7 +177,7 @@ fun DummyCategoryItem(
                 modifier = Modifier.size(220.dp),
                 imageVector = Icons.Default.Add,
                 contentDescription = "Add Icon",
-                tint = PrimaryBackgroundCategoryColor,
+                tint = PrimaryBackgroundCategoryColor.value,
             )
         }
     }
@@ -200,9 +201,10 @@ fun AnimatedCategoryBar(
     LinearProgressIndicator(
         modifier = Modifier
             .fillMaxWidth()
-            .height(5.dp),
+            .height(5.dp)
+            .clip(RoundedCornerShape(100)),
         color = color,
-        backgroundColor = PrimaryBackgroundCategoryColor,
+        backgroundColor = PrimaryBackgroundCategoryColor.value,
         progress = progressBarAnimation,
     )
 

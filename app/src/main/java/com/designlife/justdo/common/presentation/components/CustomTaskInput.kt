@@ -19,10 +19,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import com.designlife.justdo.ui.theme.ButtonPrimary
 import com.designlife.justdo.ui.theme.TaskItemLabelColor
+import com.designlife.justdo.ui.theme.TypographyColor
+import com.designlife.justdo.ui.theme.commonStyleSize
 import com.designlife.justdo.ui.theme.taskItemStyle
+import com.designlife.justdo.ui.theme.taskItemStyleSize
 
 @Composable
 fun CustomTaskInput(
@@ -34,10 +38,14 @@ fun CustomTaskInput(
     BasicTextField(
         value = value,
         maxLines = if (multiline) 5 else 1,
-        cursorBrush = SolidColor(ButtonPrimary),
+        cursorBrush = SolidColor(ButtonPrimary.value),
+        textStyle = TextStyle(
+            fontSize = commonStyleSize.value,
+            color = TypographyColor.value
+        ),
         onValueChange = {
             onValueChange(it)
-        }
+        },
     ){ innerTextField ->
 
         Column(
@@ -52,7 +60,8 @@ fun CustomTaskInput(
                 if (value.isBlank() || value.isEmpty()){
                     Text(
                         text = placeholder,
-                        style = taskItemStyle.copy(color = TaskItemLabelColor)
+                        style = taskItemStyle.value.copy(color = TypographyColor.value),
+                        fontSize = taskItemStyleSize.value
                     )
                 }
                 innerTextField()

@@ -57,7 +57,7 @@ class DeckViewModel(
     val selectedCategoryIndex = _selectedCategoryIndex
 
     private val _colorMap : MutableState<Map<Long, Color>> = mutableStateOf(mapOf());
-    private val _themeColor : MutableState<Color> = mutableStateOf(ButtonPrimary);
+    private val _themeColor : MutableState<Color> = mutableStateOf(ButtonPrimary.value);
     val themeColor = _themeColor
 
     fun onEvent(event : DeckEvents){

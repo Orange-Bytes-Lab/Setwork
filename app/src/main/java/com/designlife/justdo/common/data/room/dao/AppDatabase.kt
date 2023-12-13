@@ -23,7 +23,11 @@ abstract class AppDatabase : RoomDatabase() {
 
     abstract fun widgetDao() : WidgetDao
     companion object{
-        private val DB_NAME = "JUSTDO"
+        public val DB_NAME = "Setwork"
+        public val BACKUP_EN_TODO = "Todo.db.crypt"
+        public val BACKUP_EN_CATEGORY = "Category.db.crypt"
+        public val BACKUP_EN_NOTE = "Note.db.crypt"
+        public val BACKUP_EN_DECK = "Deck.db.crypt"
         @Volatile
         private var INSTANCE : AppDatabase? = null
 

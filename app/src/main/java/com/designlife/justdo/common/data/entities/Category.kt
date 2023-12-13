@@ -3,7 +3,9 @@ package com.designlife.justdo.common.data.entities
 import androidx.compose.ui.graphics.Color
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import kotlinx.serialization.Serializable
 
+@Serializable
 @Entity(tableName = "Category")
 data class Category(
     @PrimaryKey(autoGenerate = true)

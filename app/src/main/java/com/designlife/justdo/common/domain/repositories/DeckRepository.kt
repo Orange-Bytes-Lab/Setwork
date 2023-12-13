@@ -13,6 +13,13 @@ class DeckRepository(private val deckDao: DeckDao) {
         return deckDao.insertDeck(DeckConverters.getDeckEntity(deck))
     }
 
+    suspend fun insertAllImportedDeck(deckList: List<com.designlife.justdo.common.data.entities.Deck>){
+        return deckDao.insertAllDeck(deckList)
+    }
+
+    suspend fun getAllRawDecks(): Flow<List<com.designlife.justdo.common.data.entities.Deck>> {
+        return deckDao.getAllDecks()
+    }
     suspend fun getAllDecks(): Flow<List<Deck>> {
         return deckDao.getAllDecks().map { rawDeckList ->
             rawDeckList.map { rawDeck ->

@@ -2,11 +2,13 @@ package com.designlife.justdo.common.data.room.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import com.designlife.justdo.common.data.entities.Deck
 import com.designlife.justdo.common.data.entities.FlashCard
 import com.designlife.justdo.common.data.entities.Note
+import com.designlife.justdo.common.data.entities.Todo
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -14,6 +16,10 @@ interface DeckDao {
     @Transaction
     @Insert
     suspend fun insertDeck(deck: Deck) : Long
+
+    @Transaction
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAllDeck(decks: List<Deck>)
 
     @Transaction
     @Query("SELECT * FROM Deck")

@@ -251,7 +251,7 @@ class HomeFragment : Fragment() {
                 val pickerListState = settingViewModel.pickerItemList.value
                 val loaderState = settingViewModel.loaderVisibility.value
                 val loaderStatus = settingViewModel.loaderStatus.value
-
+                val isDarkMode = SettingViewModel.darkModeStatus.value
                 Box(
                     modifier = Modifier.fillMaxSize(),
                 ) {
@@ -479,14 +479,16 @@ class HomeFragment : Fragment() {
                                         onImportEvent = {
                                             settingViewModel.onEvent(
                                                 SettingEvents.OnBackupSettingViewChange(
-                                                    AppBackup.IMPORT
+                                                    AppBackup.IMPORT,
+                                                    requireContext()
                                                 )
                                             )
                                         },
                                         onExportEvent = {
                                             settingViewModel.onEvent(
                                                 SettingEvents.OnBackupSettingViewChange(
-                                                    AppBackup.EXPORT
+                                                    AppBackup.EXPORT,
+                                                    requireContext()
                                                 )
                                             )
                                         },
@@ -525,7 +527,7 @@ class HomeFragment : Fragment() {
                             if (sheetVisibility) {
                                 val dialog = BottomSheet.dialog(
                                     context = requireActivity(),
-                                    isDarkMode = isSystemInDarkTheme(),
+                                    isDarkMode = isDarkMode,
                                     onCloseEvent = {
                                         isBottomSheetToggled.value = false
                                         viewModel.updateSheetVisibility(false)

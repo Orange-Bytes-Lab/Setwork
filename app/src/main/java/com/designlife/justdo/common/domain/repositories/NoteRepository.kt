@@ -14,12 +14,20 @@ class NoteRepository(
         return noteDao.insertNote(NoteConverters.getNoteEntity(note))
     }
 
+    suspend fun insertAllImportedNote(noteList: List<com.designlife.justdo.common.data.entities.Note>){
+        return noteDao.insertAllNotes(noteList)
+    }
+
     suspend fun getAllNotes(): Flow<List<Note>> {
         return noteDao.getAllNotes().map { rawNoteList ->
             rawNoteList.map { rawNote ->
                 NoteConverters.getNote(rawNote)
             }
         }
+    }
+
+    suspend fun getAllRawNotes(): Flow<List<com.designlife.justdo.common.data.entities.Note>> {
+        return noteDao.getAllNotes()
     }
 
     suspend fun getNoteById(noteId: Long): Note {

@@ -41,7 +41,7 @@ class IAppStoreRepository(
         return null
     }
 
-    suspend fun observerSettingPreferences(): Flow<AppStore> {
+    override suspend fun observerSettingPreferences(): Flow<AppStore> {
         return appStore.data
     }
 

@@ -24,6 +24,13 @@ class TodoRepository(private val todoDao: TodoDao) {
         )
     }
 
+    suspend fun insertAllImportedTodo(todoList: List<com.designlife.justdo.common.data.entities.Todo>){
+        return todoDao.insertAllTodo(todoList)
+    }
+
+    suspend fun getAllRawTodo() : Flow<List<com.designlife.justdo.common.data.entities.Todo>> {
+        return todoDao.getAllTodos()
+    }
    suspend fun getAllTodo() : Flow<List<Todo>> {
        return todoDao.getAllTodos().map { rawTodoList ->
            rawTodoList.map{ rawTodo ->

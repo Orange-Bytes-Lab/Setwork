@@ -15,11 +15,13 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.navigation.fragment.NavHostFragment
 import com.designlife.justdo.common.utils.AppServiceLocator
 import com.designlife.justdo.settings.presentation.viewmodel.SettingViewModel
+import com.designlife.justdo.settings.presentation.viewmodel.SettingViewModel.Companion.getAppThemeFromOrdinal
 import com.designlife.justdo.settings.presentation.viewmodel.SettingViewModel.Companion.getFontSizeFromOrdinal
 import com.designlife.justdo.settings.presentation.viewmodel.SettingViewModel.Companion.getListItemHeightFromOrdinal
 import com.designlife.justdo.ui.theme.updateSystemColor
 import com.designlife.justdo.ui.theme.updateSystemFont
 import com.designlife.justdo.ui.theme.updateSystemListSize
+import com.designlife.justdo.ui.theme.updateSystemUIMode
 import com.designlife.justdo_provider.ServiceLocator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -49,6 +51,7 @@ class MainActivity : AppCompatActivity() {
                 Log.i("UPDATE", "observeSettingChanges: Font Update Received")
                 updateSystemFont(getFontSizeFromOrdinal(it.selectedFontSize))
                 updateSystemListSize(getListItemHeightFromOrdinal(it.selectedListItemHeight))
+                updateSystemUIMode(getAppThemeFromOrdinal(it.selectedAppTheme))
             }
         }
     }
@@ -63,6 +66,7 @@ class MainActivity : AppCompatActivity() {
         composeView.setContent {
             isDarkModeTheme.value = isSystemInDarkTheme()
             updateSystemColor(isDarkModeTheme.value)
+            SettingViewModel.updateDarkModeSetting(isDarkModeTheme.value)
         }
     }
 

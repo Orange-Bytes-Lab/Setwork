@@ -25,7 +25,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.DefaultShadowColor
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -65,6 +67,12 @@ fun NoteItem(
         .padding(horizontal = 10.dp, vertical = noteListHeight.value)
         .fillMaxWidth(1F)
         .height(180.dp)
+        .shadow(elevation = 7.dp, shape = RoundedCornerShape(12.dp), ambientColor = DefaultShadowColor.copy(
+            alpha = 0.3F,
+            red = .5F,
+            green = .5F,
+            blue = .7F,
+        ))
     Card(
         backgroundColor = UIComponentBackground.value,
         modifier = modifier

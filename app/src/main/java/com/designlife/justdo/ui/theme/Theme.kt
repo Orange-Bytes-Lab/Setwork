@@ -7,6 +7,9 @@ import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import com.designlife.justdo.settings.presentation.enums.AppFontSize
+import com.designlife.justdo.settings.presentation.enums.AppTheme
+import com.designlife.justdo.settings.presentation.viewmodel.SettingViewModel
 
 
 private val DarkColorPalette = darkColors(
@@ -46,4 +49,15 @@ fun SetworkComposeTheme(
         shapes = Shapes,
         content = content
     )
+}
+
+fun updateSystemUIMode(value: AppTheme) {
+    when(value){
+        AppTheme.LIGHT -> {
+            SettingViewModel.updateDarkModeSetting(false)
+        }
+        AppTheme.DARK -> {
+            SettingViewModel.updateDarkModeSetting(true)
+        }
+    }
 }

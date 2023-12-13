@@ -2,8 +2,12 @@ package com.designlife.justdo.common.data.entities
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.designlife.justdo.common.utils.serializer.LongSerializer
+import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.Serializable
 import java.util.Date
 
+@Serializable
 @Entity(tableName = "Note")
 data class Note(
     @PrimaryKey(autoGenerate = true)
@@ -13,7 +17,11 @@ data class Note(
     val emoji : String = "📓",
     val categoryId : Long,
     val coverImage : ByteArray? = null,
+    @Serializable(with = LongSerializer::class)
+    @SerializedName("createdTime")
     val createdTime: Long,
+    @Serializable(with = LongSerializer::class)
+    @SerializedName("lastModified")
     val lastModified : Long,
 ) {
     override fun equals(other: Any?): Boolean {

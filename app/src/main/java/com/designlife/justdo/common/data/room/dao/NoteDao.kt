@@ -2,9 +2,11 @@ package com.designlife.justdo.common.data.room.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import com.designlife.justdo.common.data.entities.Note
+import com.designlife.justdo.common.data.entities.Todo
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -12,6 +14,10 @@ interface NoteDao {
     @Transaction
     @Insert
     suspend fun insertNote(note: Note) : Long
+
+    @Transaction
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAllNotes(notes: List<Note>)
 
     @Transaction
     @Query("SELECT * FROM NOTE")

@@ -1,5 +1,6 @@
 package com.designlife.justdo.settings.presentation.viewmodel
 
+import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
@@ -10,6 +11,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.designlife.justdo.common.domain.entities.SettingPreference
 import com.designlife.justdo.common.domain.repositories.appstore.AppStoreRepository
+import com.designlife.justdo.common.utils.backupExport
+import com.designlife.justdo.common.utils.backupImport
 import com.designlife.justdo.settings.presentation.enums.AppFontSize
 import com.designlife.justdo.settings.presentation.enums.AppListHeight
 import com.designlife.justdo.settings.presentation.enums.AppTheme
@@ -144,10 +147,10 @@ class SettingViewModel(
 //                _appBackupSetting.value = event.backupSetting
                 when(event.backupSetting){
                     AppBackup.IMPORT -> {
-                        importData()
+                        importData(event.context)
                     }
                     AppBackup.EXPORT -> {
-                        exportData()
+                        exportData(event.context)
                     }
                     AppBackup.NONE -> {}
                 }
@@ -210,6 +213,12 @@ class SettingViewModel(
     }
 
     companion object{
+        private val _darkModeStatus : MutableState<Boolean> = mutableStateOf(false)
+        val darkModeStatus : State<Boolean> = _darkModeStatus
+
+        public fun updateDarkModeSetting(value : Boolean){
+            _darkModeStatus.value = value
+        }
         public fun getDefaultScreenFromOrdinal(ordinal : Int) : ViewType{
             return when(ordinal){
                 0 -> ViewType.TASK
@@ -276,7 +285,7 @@ class SettingViewModel(
         }
     }
 
-    private fun exportData() {
+    private fun exportData(context : Context) {
         viewModelScope.launch(Dispatchers.Default) {
             withContext(Dispatchers.Main){
                 _loaderStatus.value = _loaderStatus.value.copy(
@@ -284,7 +293,7 @@ class SettingViewModel(
                     message = "Pending"
                 )
             }
-            delay(6300)
+            async(Dispatchers.IO) { backupExport(context,this@launch) }.await()
             _loaderStatus.value = _loaderStatus.value.copy(
                 title = "Exported Data", loaderState = LoaderState.SUCCESS,
                 message = "Data Exported Successfully :)"
@@ -297,7 +306,7 @@ class SettingViewModel(
         _loaderStatus.value = initLoaderStatus()
     }
 
-    private fun importData() {
+    private fun importData(context : Context) {
         viewModelScope.launch(Dispatchers.Default) {
             withContext(Dispatchers.Main){
                 _loaderStatus.value = _loaderStatus.value.copy(
@@ -305,7 +314,7 @@ class SettingViewModel(
                     message = "Pending"
                 )
             }
-            delay(5000)
+            async(Dispatchers.IO) { backupImport(context,this@launch) }.await()
             _loaderStatus.value = _loaderStatus.value.copy(
                 title = "Imported Data", loaderState = LoaderState.SUCCESS,
                 message = "Data Imported Successfully :)"

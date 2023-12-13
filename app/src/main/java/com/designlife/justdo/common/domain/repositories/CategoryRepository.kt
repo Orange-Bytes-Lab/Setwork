@@ -18,8 +18,16 @@ class CategoryRepository(
         }
     }
 
+    fun getAllRawCategory() : Flow<List<com.designlife.justdo.common.data.entities.Category>>{
+        return categoryDao.getAllCategories()
+    }
+
     suspend fun insertCategory(category: Category) : Long{
         return categoryDao.insertCategory(CategoryConverter.getCategoryEntity(category))
+    }
+
+    suspend fun insertAllImportedCategories(categoryList: List<com.designlife.justdo.common.data.entities.Category>){
+        return categoryDao.insertAllCategories(categoryList)
     }
 
     suspend fun getCategoryById(categoryId : Long) : Category{

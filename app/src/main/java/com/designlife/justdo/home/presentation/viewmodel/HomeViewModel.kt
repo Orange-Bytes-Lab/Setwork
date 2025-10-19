@@ -114,7 +114,7 @@ class HomeViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             launch {
                 dateGenerator.getDateList().collect{
-                    _dateList.value = it
+                _dateList.value = it
                 }
             }
         }

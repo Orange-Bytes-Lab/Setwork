@@ -151,7 +151,6 @@ class HomeFragment : Fragment() {
             }
 
             initialSlide()
-            Log.i("SCREEN", "onCreate: Default Screen ${settingViewModel.defaultScreen.value}")
             viewModel.onEvent(HomeEvents.OnViewChange(settingViewModel.defaultScreen.value))
         }
 
@@ -191,15 +190,17 @@ class HomeFragment : Fragment() {
 
     private suspend fun initialSlide() {
         if (::scope.isInitialized) {
-            delay(800)
+            delay(200)
+            val index = viewModel.dateList.value.indexOf(viewModel.currentDate.value)
+            viewModel.onEvent(HomeEvents.OnIndexSelected(index))
             val job: Job = scope.launch(Dispatchers.Default) {
-                val index = viewModel.dateList.value.indexOf(viewModel.currentDate.value)
-                viewModel.onEvent(HomeEvents.OnIndexSelected(index))
                 scope.launch {
                     scrollToRollItem(viewModel.todoIndex.value + 1, todoListState)
                 }
             }
             job.join()
+            delay(100)
+            scope.launch { scrollToRollItem(index, dateListState) }
         }
         viewModel.onEvent(HomeEvents.OnProgressBarToggle(false))
     }
@@ -239,6 +240,7 @@ class HomeFragment : Fragment() {
                 val currentYear = viewModel.currentYear.value
                 val currentDate = viewModel.currentDate.value
                 val todayDateIndex = dateList.indexOf(currentDate)
+                Log.i("DateCheck", "onCreateView: ${todayDateIndex}")
                 val selectedDateTodoIndex = viewModel.todoIndex.value
                 val selectedCategoryIndex = viewModel.selectedCategoryIndex.value
                 val progressBar = viewModel.progressBarVisibility.value

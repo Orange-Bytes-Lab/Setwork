@@ -15,6 +15,7 @@ import com.designlife.justdo.common.utils.enums.ScreenType
 import com.designlife.justdo.container.presentation.events.ContainerEvents
 import com.designlife.justdo.ui.theme.TaskItemLabelColor
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.util.Date
 
@@ -26,7 +27,7 @@ class ContainerViewModel(
     private val _screenType : MutableState<ScreenType> = mutableStateOf(ScreenType.CATEGORY)
     val screenType = _screenType
 
-    private val _categoryList : MutableState<List<Category>> = mutableStateOf(listOf());
+    private val _categoryList : MutableState<List<Category>> = mutableStateOf(listOf(Category()));
     val categoryList = _categoryList
 
     private val _selectedCategory : MutableState<Int> = mutableStateOf(0)
@@ -56,7 +57,8 @@ class ContainerViewModel(
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            categoryRepository.getAllCategory().collect{
+            categoryRepository.getAllCategory().collectLatest{
+                Log.i("Observer", ": ${it.size}")
                 _categoryList.value = it
             }
         }

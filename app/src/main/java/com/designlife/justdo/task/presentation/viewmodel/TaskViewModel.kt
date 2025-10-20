@@ -14,6 +14,7 @@ import com.designlife.justdo.common.domain.repositories.TodoRepository
 import com.designlife.justdo.common.utils.enums.RepeatType
 import com.designlife.justdo.container.presentation.viewmodel.ContainerViewModel
 import com.designlife.justdo.task.presentation.events.TaskEvents
+import com.designlife.orchestrator.notification.data.NotificationInfo
 import com.designlife.orchestrator.notification.repository.TaskNotificationRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -159,13 +160,14 @@ class TaskViewModel(
 
     private fun setNotifications(taskList : List<Todo>){
         Log.i("ERROR_CHECK","setNotifications: setNotifications")
-        val triplets = taskList.map { todo: Todo -> Triple(
-            first = todo.date,
-            second = todo.title,
-            third = todo.todoId
+        val notificationInfoData = taskList.map { todo: Todo -> NotificationInfo(
+            taskTitle = todo.title,
+            taskSubTitle = (if (todo.note.isEmpty()) "" else if(todo.note.length > 25) "${todo.note.substring(0,25)} ..." else todo.note.length) as String,
+            date = todo.date ,
+            taskId = todo.todoId
         ) }
         Log.i("ERROR_CHECK","setNotifications: before taskNotificationRepository.scheduleNotification")
-        taskNotificationRepository.scheduleNotification(triplets)
+        taskNotificationRepository.scheduleNotification(notificationInfoData)
         Log.i("ERROR_CHECK","setNotifications: after taskNotificationRepository.scheduleNotification")
     }
 

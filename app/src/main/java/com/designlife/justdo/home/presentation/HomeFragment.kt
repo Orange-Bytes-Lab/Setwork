@@ -195,7 +195,7 @@ class HomeFragment : Fragment() {
             viewModel.onEvent(HomeEvents.OnIndexSelected(index))
             val job: Job = scope.launch(Dispatchers.Default) {
                 scope.launch {
-                    scrollToRollItem(viewModel.todoIndex.value + 1, todoListState)
+                    scrollToRollItem(viewModel.todoIndex.value, todoListState)
                 }
             }
             job.join()

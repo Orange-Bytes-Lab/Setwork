@@ -55,7 +55,7 @@ class TodoRepository(private val todoDao: TodoDao) {
 
     suspend fun getRawTodoById(todoId : Int) : RawTodo {
         val todo = todoDao.getTodoById(todoId.toLong())
-        return RawTodo(date = todo.date,createdOn = todo.createdOn)
+        return RawTodo(date = todo.date,createdOn = todo.createdOn, categoryId = todo.categoryId)
     }
 
     suspend fun updateTodo(todoId : Int) : Unit {

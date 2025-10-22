@@ -1,5 +1,6 @@
 package com.designlife.justdo.common.data.room.dao
 
+import androidx.compose.ui.graphics.Color
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -7,7 +8,6 @@ import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
 import com.designlife.justdo.common.data.entities.Category
-import com.designlife.justdo.common.data.entities.Todo
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -33,6 +33,13 @@ interface CategoryDao {
     suspend fun updateCategory(category: Category)
 
     @Transaction
+    @Query("UPDATE Category SET totalTodo=:totalTodo, totalCompleted=:totalCompleted WHERE categoryId=:categoryId ")
+    suspend fun updateCategoryById(
+        categoryId : Long,
+        totalTodo : Int,
+        totalCompleted : Int
+        ) : Unit
+
     @Query("UPDATE Category SET totalCompleted=:completedCount WHERE categoryId=:categoryId ")
     suspend fun updateCategoryCountById(categoryId : Long,completedCount : Int) : Unit
 }

@@ -21,6 +21,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun noteDao() : NoteDao
     abstract fun deckDao() : DeckDao
 
+    abstract fun todoCategoryJunctionDao() : TodoCategoryJunctionDao
+
     abstract fun widgetDao() : WidgetDao
     companion object{
         public val DB_NAME = "Setwork"

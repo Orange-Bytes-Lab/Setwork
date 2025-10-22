@@ -52,6 +52,7 @@ import com.designlife.orchestrator.notification.clickmanager.TaskListener
 import com.designlife.orchestrator.notification.repository.TaskNotificationRepository
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import java.util.Calendar
 
 class TaskFragment : Fragment(), TaskListener {
@@ -71,11 +72,12 @@ class TaskFragment : Fragment(), TaskListener {
         val repeatRepository = AppServiceLocator.provideRepeatRepository()
         val todoRepository = AppServiceLocator.provideTodoRepository(requireActivity().applicationContext)
         val categoryRepository = AppServiceLocator.provideCategoryRepository(requireActivity().applicationContext)
+        val todoCategoryRepository = AppServiceLocator.provideTodoCategoryRepository(requireActivity().applicationContext)
         taskNotificationRepository = NotificationServiceLocator.provideNotificationRepository(requireContext(),alarmManager)
         NotificationClickManager.setListener(this)
         val shareViewModelFactory = ContainerViewModelFactory(categoryRepository,repeatRepository)
         shareViewModel = ViewModelProvider(requireActivity(),shareViewModelFactory)[ContainerViewModel::class.java]
-        val factory = TaskViewModelFactory(repeatRepository,todoRepository,categoryRepository,taskNotificationRepository,shareViewModel)
+        val factory = TaskViewModelFactory(repeatRepository,todoRepository,categoryRepository,todoCategoryRepository,taskNotificationRepository,shareViewModel)
         viewmodel = ViewModelProvider(this,factory)[TaskViewModel::class.java]
         shareViewModel.setupRepeatList(IDateGenerator.getToday())
         navigationArgsDateSet()
@@ -118,156 +120,162 @@ class TaskFragment : Fragment(), TaskListener {
                         .fillMaxSize()
                         .alpha(if (progressBar) .4F else 1F)
                 ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(color = PrimaryBackgroundColor.value),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        CommonCustomHeader(headerTitle = if (isOverview) "Task Overview" else "New Task", forTask = true, hasDone = viewmodel.isCompleted.value, onCloseEvent = { findNavController().navigateUp()}, isOverview = isOverview) {
-                            if (isOverview){
+                    Box {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(color = PrimaryBackgroundColor.value),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            CommonCustomHeader(headerTitle = if (isOverview) "Task Overview" else "New Task", forTask = true, hasDone = viewmodel.isCompleted.value, onCloseEvent = { findNavController().navigateUp()}, isOverview = isOverview) {
+                                if (isOverview){
 //                                viewmodel.onEvent(TaskEvents.MarkTaskDone(taskId))
 //                                viewmodel.onEvent(TaskEvents.DeleteTaskEvent(taskId))
-                                viewmodel.onEvent(TaskEvents.DeleteTaskPopup(true))
-                            }else{
-                                Log.i("ERROR_CHECK", "onCreateView: Compose Click Create Task")
-                                viewmodel.onEvent(TaskEvents.CreateTask(getRepeatType(shareViewModel.selectedRepeatIndex.value),selectedCategory))
-                                findNavController().navigateUp()
+                                    viewmodel.onEvent(TaskEvents.DeleteTaskPopup(true))
+                                }else{
+                                    Log.i("ERROR_CHECK", "onCreateView: Compose Click Create Task")
+                                    viewmodel.onEvent(TaskEvents.CreateTask(getRepeatType(shareViewModel.selectedRepeatIndex.value),selectedCategory))
+                                    findNavController().navigateUp()
+                                }
                             }
-                        }
-                        Spacer(modifier = Modifier.height(20.dp))
-                        LazyColumn(
-                            modifier = Modifier.fillMaxSize()
-                        ){
-                            item{
-                                TaskItemView(
-                                    hasIcon = false,
-                                    color = selectedCategory.color,
-                                    icon = R.drawable.ic_launcher_background,
-                                    labelText = "Add Title",
-                                    isNote = false,
-                                    placeholder = "New Task Title",
-                                    isClickable = isOverview,
-                                    inputText = inputText,
-                                    isOverview = isOverview,
-                                    onInputChange = {
-                                        viewmodel.onEvent(TaskEvents.OnTitleChange(it))
+                            Spacer(modifier = Modifier.height(20.dp))
+                            LazyColumn(
+                                modifier = Modifier.fillMaxSize()
+                            ){
+                                item{
+                                    TaskItemView(
+                                        hasIcon = false,
+                                        color = selectedCategory.color,
+                                        icon = R.drawable.ic_launcher_background,
+                                        labelText = "Add Title",
+                                        isNote = false,
+                                        placeholder = "New Task Title",
+                                        isClickable = isOverview,
+                                        inputText = inputText,
+                                        isOverview = isOverview,
+                                        onInputChange = {
+                                            viewmodel.onEvent(TaskEvents.OnTitleChange(it))
+                                        }
+                                    )
+                                }
+                                item{
+                                    val conditionalVisibility = !(isOverview && noteText.isEmpty())
+                                    if (conditionalVisibility){
+                                        Spacer(modifier = Modifier.height(14.dp))
+                                        TaskItemView(
+                                            hasIcon = true,
+                                            color = ButtonPrimary.value,
+                                            icon = R.drawable.ic_note,
+                                            labelText = "Note",
+                                            isNote = true,
+                                            isClickable = isOverview,
+                                            placeholder = "Note to remember ...",
+                                            isOverview = isOverview,
+                                            inputText = noteText,
+                                            onInputChange = {
+                                                viewmodel.onEvent(TaskEvents.OnNoteChange(it))
+                                            }
+                                        )
                                     }
-                                )
-                            }
-                            item{
-                                val conditionalVisibility = !(isOverview && noteText.isEmpty())
-                                if (conditionalVisibility){
+                                }
+                                item{
+                                    Spacer(modifier = Modifier.height(14.dp))
+                                    TaskItemDate(
+                                        dateText = selectedDateText,
+                                        timeText = selectedTimeText,
+                                        icon = R.drawable.ic_schedule,
+                                        labelText = "Date",
+                                        isClickable = !isOverview,
+                                        onDateChange = {
+                                            val year = calendar[Calendar.YEAR]
+                                            val month = calendar[Calendar.MONTH]
+                                            val dayOfMonth = calendar[Calendar.DAY_OF_MONTH]
+                                            val datePicker = DatePickerDialog(
+                                                context,
+                                                R.style.CustomDatePickerTheme,
+                                                { _: DatePicker, selectedYear: Int, selectedMonth: Int, selectedDayOfMonth: Int ->
+                                                    viewmodel.onEvent(TaskEvents.OnDateChange("$selectedDayOfMonth/${selectedMonth + 1}/$selectedYear"))
+                                                }, year, month, dayOfMonth
+                                            )
+                                            datePicker.show()
+                                        },
+                                        onTimeChange = {
+                                            val hour = calendar[Calendar.HOUR_OF_DAY]
+                                            val minute = calendar[Calendar.MINUTE]
+
+                                            val timePicker = TimePickerDialog(
+                                                context,
+                                                R.style.CustomTimePickerTheme,
+                                                { _, selectedHour: Int, selectedMinute: Int ->
+                                                    viewmodel.onEvent(TaskEvents.OnTimeChange("$selectedHour:$selectedMinute"))
+                                                }, hour, minute, false
+                                            )
+                                            timePicker.show()
+                                        }
+                                    )
+                                }
+                                item{
                                     Spacer(modifier = Modifier.height(14.dp))
                                     TaskItemView(
                                         hasIcon = true,
                                         color = ButtonPrimary.value,
-                                        icon = R.drawable.ic_note,
-                                        labelText = "Note",
-                                        isNote = true,
-                                        isClickable = isOverview,
-                                        placeholder = "Note to remember ...",
+                                        icon = R.drawable.ic_repeat,
+                                        labelText = "Repeat",
+                                        isNote = false,
+                                        inputText = selectedRepeatMode.first,
+                                        onInputChange = {},
                                         isOverview = isOverview,
-                                        inputText = noteText,
-                                        onInputChange = {
-                                            viewmodel.onEvent(TaskEvents.OnNoteChange(it))
+                                        isClickable = true
+                                    ){
+                                        if(!isOverview){
+                                            val bundle = bundleOf()
+                                            bundle.putInt(Constants.SCREEN_TYPE, ScreenType.REPEAT.ordinal)
+                                            findNavController().navigate(
+                                                R.id.containerFragment,
+                                                bundle
+                                            )
                                         }
-                                    )
-                                }
-                            }
-                            item{
-                                Spacer(modifier = Modifier.height(14.dp))
-                                TaskItemDate(
-                                    dateText = selectedDateText,
-                                    timeText = selectedTimeText,
-                                    icon = R.drawable.ic_schedule,
-                                    labelText = "Date",
-                                    isClickable = !isOverview,
-                                    onDateChange = {
-                                        val year = calendar[Calendar.YEAR]
-                                        val month = calendar[Calendar.MONTH]
-                                        val dayOfMonth = calendar[Calendar.DAY_OF_MONTH]
-                                        val datePicker = DatePickerDialog(
-                                            context,
-                                            R.style.CustomDatePickerTheme,
-                                            { _: DatePicker, selectedYear: Int, selectedMonth: Int, selectedDayOfMonth: Int ->
-                                                viewmodel.onEvent(TaskEvents.OnDateChange("$selectedDayOfMonth/${selectedMonth + 1}/$selectedYear"))
-                                            }, year, month, dayOfMonth
-                                        )
-                                        datePicker.show()
-                                    },
-                                    onTimeChange = {
-                                        val hour = calendar[Calendar.HOUR_OF_DAY]
-                                        val minute = calendar[Calendar.MINUTE]
-
-                                        val timePicker = TimePickerDialog(
-                                            context,
-                                            R.style.CustomTimePickerTheme,
-                                            { _, selectedHour: Int, selectedMinute: Int ->
-                                                viewmodel.onEvent(TaskEvents.OnTimeChange("$selectedHour:$selectedMinute"))
-                                            }, hour, minute, false
-                                        )
-                                        timePicker.show()
-                                    }
-                                )
-                            }
-                            item{
-                                Spacer(modifier = Modifier.height(14.dp))
-                                TaskItemView(
-                                    hasIcon = true,
-                                    color = ButtonPrimary.value,
-                                    icon = R.drawable.ic_repeat,
-                                    labelText = "Repeat",
-                                    isNote = false,
-                                    inputText = selectedRepeatMode.first,
-                                    onInputChange = {},
-                                    isOverview = isOverview,
-                                    isClickable = true
-                                ){
-                                    if(!isOverview){
-                                        val bundle = bundleOf()
-                                        bundle.putInt(Constants.SCREEN_TYPE, ScreenType.REPEAT.ordinal)
-                                        findNavController().navigate(
-                                            R.id.containerFragment,
-                                            bundle
-                                        )
                                     }
                                 }
-                            }
-                            item{
-                                Spacer(modifier = Modifier.height(14.dp))
-                                TaskItemView(
-                                    hasIcon = true,
-                                    color = ButtonPrimary.value,
-                                    icon = R.drawable.ic_category,
-                                    labelText = "Category",
-                                    isNote = false,
-                                    inputText = selectedCategory.name.camelCase(),
-                                    onInputChange = {},
-                                    isOverview = isOverview,
-                                    isClickable = true
-                                ){
-                                    if (!isOverview){
-                                        val bundle = bundleOf()
-                                        bundle.putBoolean(Constants.EDIT_MODE,false)
-                                        bundle.putInt(Constants.SCREEN_TYPE, ScreenType.CATEGORY.ordinal)
-                                        findNavController().navigate(
-                                            R.id.containerFragment,
-                                            bundle
-                                        )
+                                item{
+                                    Spacer(modifier = Modifier.height(14.dp))
+                                    TaskItemView(
+                                        hasIcon = true,
+                                        color = ButtonPrimary.value,
+                                        icon = R.drawable.ic_category,
+                                        labelText = "Category",
+                                        isNote = false,
+                                        inputText = selectedCategory.name.camelCase(),
+                                        onInputChange = {},
+                                        isOverview = isOverview,
+                                        isClickable = true
+                                    ){
+                                        if (!isOverview){
+                                            val bundle = bundleOf()
+                                            bundle.putBoolean(Constants.EDIT_MODE,false)
+                                            bundle.putInt(Constants.SCREEN_TYPE, ScreenType.CATEGORY.ordinal)
+                                            findNavController().navigate(
+                                                R.id.containerFragment,
+                                                bundle
+                                            )
+                                        }
                                     }
                                 }
                             }
                         }
                     }
+
                     if (progressBar){
                         ProgressBar()
                     }
                     if (deletePopupState){
                         DeleteDialogComponent(eventSuccuss = {
-                            viewmodel.onEvent(TaskEvents.DeleteTasksEvent(taskId,true))
-                            viewmodel.onEvent(TaskEvents.DeleteTaskPopup(false))
-                            findNavController().navigateUp()
+                            runBlocking {
+                                viewmodel.onEvent(TaskEvents.DeleteTasksEvent(taskId,true))
+                                viewmodel.onEvent(TaskEvents.DeleteTaskPopup(false))
+                                delay(1000)
+                                findNavController().navigateUp()
+                            }
                         }, eventFail = {
                             viewmodel.onEvent(TaskEvents.DeleteTasksEvent(taskId,false))
                             viewmodel.onEvent(TaskEvents.DeleteTaskPopup(false))

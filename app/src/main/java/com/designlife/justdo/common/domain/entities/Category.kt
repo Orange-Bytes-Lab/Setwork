@@ -10,4 +10,8 @@ data class Category(
     val totalCompleted : Int = 0,
     val emoji : String = "",
     val color : Color = Color(0)
-)
+){
+    override fun toString(): String {
+        return "id : ${id} :: name : ${name} :: totalTodo : ${totalTodo} :: totalCompleted : ${totalCompleted} :: emoji : ${emoji} :: color : ${color}"
+    }
+}

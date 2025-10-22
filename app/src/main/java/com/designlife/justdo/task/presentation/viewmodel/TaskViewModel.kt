@@ -5,12 +5,14 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.room.Transaction
 import com.designlife.justdo.common.domain.calendar.IDateGenerator
 import com.designlife.justdo.common.domain.entities.Category
 import com.designlife.justdo.common.domain.entities.RawTodo
 import com.designlife.justdo.common.domain.entities.Todo
 import com.designlife.justdo.common.domain.repeat.RepeatRepository
 import com.designlife.justdo.common.domain.repositories.CategoryRepository
+import com.designlife.justdo.common.domain.repositories.TodoCategoryRepository
 import com.designlife.justdo.common.domain.repositories.TodoRepository
 import com.designlife.justdo.common.utils.enums.RepeatType
 import com.designlife.justdo.container.presentation.viewmodel.ContainerViewModel
@@ -26,6 +28,8 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.util.Calendar
 import java.util.Date
@@ -34,6 +38,7 @@ class TaskViewModel(
     private val repeatRepository: RepeatRepository,
     private val todoRepository: TodoRepository,
     private val categoryRepository: CategoryRepository,
+    private val todoCategoryRepository: TodoCategoryRepository,
     private val taskNotificationRepository: TaskNotificationRepository,
     private val shareViewModel: ContainerViewModel
 ) : ViewModel() {
@@ -63,15 +68,21 @@ class TaskViewModel(
     val deleteTaskPopup = _deleteTaskPopup
 
     private val _rawTodos = MutableStateFlow<List<RawTodo>>(emptyList())
+    private val _categories = MutableStateFlow<List<Category>>(emptyList())
 
     // Task Overview
     private val _isCompleted : MutableState<Boolean> = mutableStateOf(false)
     val isCompleted = _isCompleted
 
+    private val mutex = Mutex()
     init {
         viewModelScope.launch{
             todoRepository.getAllRawTodo().collect { todos ->
                 _rawTodos.value = todos
+            }
+
+            categoryRepository.getAllCategory().collect { categories ->
+                _categories.value = categories
             }
         }
     }
@@ -115,40 +126,61 @@ class TaskViewModel(
                 _deleteTaskPopup.value = event.state
             }
             is TaskEvents.DeleteTasksEvent -> {
-                if (event.allOccurrence){
-                    deleteAllTodoOccurrenceById(event.taskId)
-                }else{
-                    deleteTodoById(event.taskId)
+                if (event.taskId == -1) return
+                _progressBar.value = true
+                viewModelScope.launch(Dispatchers.IO) {
+                    if (event.allOccurrence){
+                        deleteAllTodoOccurrenceById(event.taskId)
+                    }else{
+                        deleteTodoById(event.taskId)
+                    }
+                    withContext(Dispatchers.Main.immediate){
+                        _progressBar.value = false
+                    }
                 }
             }
         }
 
     }
 
-    private fun deleteAllTodoOccurrenceById(taskId: Int): Unit {
-        _progressBar.value = true
+    @Transaction
+    private suspend fun deleteAllTodoOccurrenceById(taskId: Int): Unit {
         Log.i("DATA_CHECK", "deleteAllTodoOccurrenceById: Raw Todo Data List ${_rawTodos.value.size}")
         if (taskId != -1){
-            viewModelScope.launch(Dispatchers.IO) {
-                val rawTodo = async {  todoRepository.getRawTodoById(taskId) }.await()
-                Log.i("DATA_CHECK", "deleteAllTodoOccurrenceById: Raw Todo Date : ${rawTodo.date} & CreatedOn : ${rawTodo.createdOn}")
-                _rawTodos.value
-                    .filter { todo ->
-                        Log.i("DATA_CHECK", "deleteAllTodoOccurrenceById: Each Raw Todo Date : ${todo.date} & CreatedOn : ${todo.createdOn}")
-
-                        rawTodo.date.equals(todo.date) || rawTodo.createdOn.equals(todo.createdOn)
+            val rawTodo = todoRepository.getRawTodoById(taskId)
+            Log.i("DATA_CHECK", "deleteAllTodoOccurrenceById: Raw Todo Date : ${rawTodo.date} & CreatedOn : ${rawTodo.createdOn}")
+            _rawTodos
+                .value
+                .filter { todo ->
+                    Log.i("DATA_CHECK", "deleteAllTodoOccurrenceById: Each Raw Todo Date : ${todo.date} & CreatedOn : ${todo.createdOn}")
+                    rawTodo.date.equals(todo.date) || rawTodo.createdOn.equals(todo.createdOn)
+                }.forEachIndexed { index, todo ->
+                    todo?.let {
+                        deleteTodoById(todo.todoId.toInt())
+                        Log.i("DATA_CHECK", "deleteTodoById: delete index : ${index} with db call")
                     }
-                    .forEach { todo -> todoRepository.deleteTodo(todo.todoId.toInt()) }
+                }
+        }
+    }
+    private suspend fun deleteTodoById(todoId: Int) : Boolean {
+        mutex.withLock {
+                val (todo,category) = todoCategoryRepository.getTodoById(todoId = todoId)
+                todo?.let { todo ->
+                    category?.let { category ->
+                        if (todo.isCompleted){
+                            val updatedCategory = category.copy(totalTodo = category.totalTodo - 1, totalCompleted = category.totalCompleted - 1)
+                            Log.i("CATEGORY", "deleteAllTodoOccurrenceById: ${updatedCategory}")
+                            todoCategoryRepository.deleteTodoById(todoId = todoId,category = updatedCategory)
+                        }else{
+                            val updatedCategory = category.copy(totalTodo = category.totalTodo - 1)
+                            Log.i("CATEGORY", "deleteAllTodoOccurrenceById: ${updatedCategory}")
+                            todoCategoryRepository.deleteTodoById(todoId = todoId,category = updatedCategory)
+                        }
+                    }
+                }
+                return true
             }
         }
-        _progressBar.value = false
-    }
-
-    private fun deleteTodoById(todoId: Int) {
-        viewModelScope.launch(Dispatchers.IO) {
-            todoRepository.deleteTodo(todoId)
-        }
-    }
 
     private fun updateTodoDone(todoId: Int) {
         _progressBar.value = true

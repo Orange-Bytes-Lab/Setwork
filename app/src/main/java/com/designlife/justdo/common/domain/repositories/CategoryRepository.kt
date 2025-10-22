@@ -39,13 +39,17 @@ class CategoryRepository(
     }
 
 
-    private suspend fun updateCategoryCountById(categoryId: Long, completedCount : Int){
-        categoryDao.updateCategoryCountById(categoryId, completedCount)
+    suspend fun updateCategoryById(categoryId: Long, category: Category) {
+        categoryDao.updateCategoryById(
+            categoryId = categoryId,
+            totalTodo = category.totalTodo,
+            totalCompleted = category.totalCompleted,
+        )
     }
 
     suspend fun updateCategoryCount(categoryMap : Map<Long,Int>){
         categoryMap.keys.forEach {key ->
-            updateCategoryCountById(key,categoryMap.get(key)!!)
+            categoryDao.updateCategoryCountById(key,categoryMap.get(key)!!)
         }
     }
 }

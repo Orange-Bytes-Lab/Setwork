@@ -232,7 +232,7 @@ class HomeFragment : Fragment() {
                 val searchToggle = viewModel.searchToggle.value
                 val searchText = viewModel.searchText.value
                 val noteList =
-                    if (searchText.isNotEmpty()) viewModel.searchList.value as List<Note> else viewModel.noteList.value
+                    if (searchText.isNotEmpty()) viewModel.searchList.value as List<Note> else viewModel.noteList
                 val deckList =
                     if (searchText.isNotEmpty()) viewModel.searchList.value as List<Deck> else viewModel.deckList.value
                 val colorMap = viewModel.colorMap.value

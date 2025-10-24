@@ -2,7 +2,9 @@ package com.designlife.justdo.home.presentation.viewmodel
 
 import android.util.Log
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -21,6 +23,7 @@ import com.designlife.justdo.home.domain.usecase.LoadIntialDatesUseCase
 import com.designlife.justdo.home.domain.usecase.LoadNextDatesSetUseCase
 import com.designlife.justdo.home.domain.usecase.LoadPreviousDatesSetUseCase
 import com.designlife.justdo.home.presentation.events.HomeEvents
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
@@ -54,7 +57,7 @@ class HomeViewModel(
     private val _todoList : MutableState<List<Todo>> = mutableStateOf(listOf());
     val todoList = _todoList
 
-    private val _noteList : MutableState<List<Note>> = mutableStateOf(listOf());
+    private val _noteList : SnapshotStateList<Note> = mutableStateListOf<Note>();
     val noteList = _noteList
 
     private val _searchList : MutableState<List<Any>> = mutableStateOf(listOf());
@@ -118,7 +121,6 @@ class HomeViewModel(
                 }
             }
         }
-
     }
 
     fun onEvent(event : HomeEvents){
@@ -186,7 +188,7 @@ class HomeViewModel(
         when(_viewType.value){
             ViewType.TASK -> return
             ViewType.NOTE -> {
-                _searchList.value = _noteList.value.filter { it.title.lowercase().startsWith(searchText.lowercase()) }
+                _searchList.value = _noteList.filter { it.title.lowercase().startsWith(searchText.lowercase()) }
                 Log.i("SEARCH", "sortContentByText: Note ${_searchList.value}")
             }
             ViewType.DECK -> {
@@ -215,7 +217,7 @@ class HomeViewModel(
     private fun applySortByCategory() {
         todoList.value = todoUnSortedList
         deckList.value = deckUnSortedList
-        noteList.value = noteUnSortedList
+        updateNoteList(noteUnSortedList)
         when(viewType.value){
             ViewType.TASK -> {
                 if (_isSorted){
@@ -229,7 +231,7 @@ class HomeViewModel(
             }
             ViewType.NOTE -> {
                 if (_isSorted){
-                    noteList.value = noteList.value.filter { it.categoryId == _categoryList.value[_selectedCategoryIndex.value].id}
+                    updateNoteList(noteList.filter { it.categoryId == _categoryList.value[_selectedCategoryIndex.value].id})
                 }
             }
             else -> {}
@@ -375,11 +377,16 @@ class HomeViewModel(
 
     fun fetchAllNotes() {
         viewModelScope.launch(Dispatchers.IO) {
-            noteRepository.getAllNotes().collect{
-                _noteList.value = it
+            noteRepository.getAllNotes().collectLatest{
+                updateNoteList(it)
                 noteUnSortedList = it
             }
         }
+    }
+
+    fun updateNoteList(notes : List<Note>){
+        _noteList.clear()
+        _noteList.addAll(notes)
     }
 
     fun fetchAllDecks() {

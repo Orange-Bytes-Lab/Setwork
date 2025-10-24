@@ -2,12 +2,15 @@ package com.designlife.justdo.container.presentation.viewmodel
 
 import android.util.Log
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.designlife.justdo.common.domain.calendar.IDateGenerator
 import com.designlife.justdo.common.domain.entities.Category
+import com.designlife.justdo.common.domain.enums.CategoryState
 import com.designlife.justdo.common.domain.repeat.RepeatRepository
 import com.designlife.justdo.common.domain.repositories.CategoryRepository
 import com.designlife.justdo.common.utils.enums.RepeatType
@@ -27,7 +30,8 @@ class ContainerViewModel(
     private val _screenType : MutableState<ScreenType> = mutableStateOf(ScreenType.CATEGORY)
     val screenType = _screenType
 
-    private val _categoryList : MutableState<List<Category>> = mutableStateOf(listOf(Category()));
+//    private val _categoryList : MutableState<List<Category>> = mutableStateOf(listOf(Category()));
+    private val _categoryList : SnapshotStateList<Category> = mutableStateListOf();
     val categoryList = _categoryList
 
     private val _selectedCategory : MutableState<Int> = mutableStateOf(0)
@@ -52,6 +56,12 @@ class ContainerViewModel(
     private val _categoryName : MutableState<String> = mutableStateOf("")
     val categoryName = _categoryName
 
+    private val _categoryTitle : MutableState<String> = mutableStateOf("")
+    val categoryTitle = _categoryTitle
+
+    private val _categoryMode : MutableState<CategoryState> = mutableStateOf(CategoryState.INSERT)
+    val categoryMode = _categoryMode
+
     private val _repeatList : MutableState< List<Pair<String,RepeatType>>> = mutableStateOf(listOf());
     val repeatList = _repeatList
 
@@ -59,7 +69,7 @@ class ContainerViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             categoryRepository.getAllCategory().collectLatest{
                 Log.i("Observer", ": ${it.size}")
-                _categoryList.value = it
+                updateCategoryList(it)
             }
         }
     }
@@ -90,7 +100,27 @@ class ContainerViewModel(
             is ContainerEvents.OnPaletteEmojiSelection -> {
                 _selectedEmoji.value = event.emoji
             }
+            is ContainerEvents.OnCategoryStateChange -> {
+                _categoryMode.value = event.categoryState
+            }
+            is ContainerEvents.OnCategoryTitleUpdate -> {
+                val category = _categoryList[event.index].copy(name = event.name)
+                _categoryList[event.index] = category
+            }
+            is ContainerEvents.OnCategoryDelete-> {
+                if (event.index != -1 && event.index < _categoryList.size){
+                    _categoryList.removeAt(event.index)
+                }
+            }
+            is ContainerEvents.OnCategoryListUpdate -> {
+                _categoryMode.value = event.state
+            }
         }
+    }
+
+    private fun updateCategoryList(categoryList : List<Category>){
+        _categoryList.clear()
+        _categoryList.addAll(categoryList)
     }
 
     private fun insertNewCategory(category: Category){
@@ -120,8 +150,8 @@ class ContainerViewModel(
     }
 
     public fun getCatiegoryIndexById(categoryId : Long) : Int{
-        val categoryData = categoryList.value.filterIndexed { index, category -> category.id == categoryId }
-        return categoryList.value.indexOf(categoryData[0])
+        val categoryData = categoryList.filterIndexed { index, category -> category.id == categoryId }
+        return categoryList.indexOf(categoryData[0])
     }
 
 }

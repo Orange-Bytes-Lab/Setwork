@@ -110,7 +110,7 @@ class TaskFragment : Fragment(), TaskListener {
                 val selectedDateText = viewmodel.selectedDateText.value
                 val selectedTimeText = viewmodel.selectedTimeText.value
                 val calendar = Calendar.getInstance()
-                val selectedCategory = shareViewModel.categoryList.value[shareViewModel.selectedCategory.value]
+                val selectedCategory = shareViewModel.categoryList[shareViewModel.selectedCategory.value]
                 val selectedRepeatMode = shareViewModel.repeatList.value[shareViewModel.selectedRepeatIndex.value]
                 val calendarInstance = shareViewModel.setupRepeatList(viewmodel.rawTaskDateTimeInstance.value.time)
                 val progressBar = viewmodel.progressBar.value

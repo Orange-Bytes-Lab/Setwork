@@ -109,7 +109,7 @@ class ContainerFragment : Fragment() {
                                     onCategoryListUpdate = {
                                         viewmodel.onEvent(ContainerEvents.OnCategoryListUpdate(CategoryState.INSERT))
                                     },
-                                    onCategoryDelete = {index -> },
+                                    onCategoryDelete = {index -> viewmodel.onEvent(ContainerEvents.OnCategoryDelete(index)) },
                                     onCategoryTitleUpdate = { index,oldTitle, title ->
                                         viewmodel.onEvent(ContainerEvents.OnCategoryTitleUpdate(index = index, oldName = oldTitle, name = title))
                                     },

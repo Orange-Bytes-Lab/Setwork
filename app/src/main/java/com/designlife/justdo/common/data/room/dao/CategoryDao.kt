@@ -2,6 +2,7 @@ package com.designlife.justdo.common.data.room.dao
 
 import androidx.compose.ui.graphics.Color
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -31,6 +32,10 @@ interface CategoryDao {
     @Transaction
     @Update
     suspend fun updateCategory(category: Category)
+
+    @Transaction
+    @Query("DELETE FROM Category WHERE categoryId =:categoryId ")
+    suspend fun deleteCategoryById(categoryId : Long)
 
     @Transaction
     @Query("UPDATE Category SET totalTodo=:totalTodo, totalCompleted=:totalCompleted WHERE categoryId=:categoryId ")

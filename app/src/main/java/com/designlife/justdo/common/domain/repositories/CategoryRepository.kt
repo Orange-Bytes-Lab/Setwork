@@ -38,6 +38,9 @@ class CategoryRepository(
         return categoryDao.updateCategory(CategoryConverter.getCategoryEntity(category))
     }
 
+    suspend fun deleteCategoryById(categoryId : Long){
+        return categoryDao.deleteCategoryById(categoryId)
+    }
 
     suspend fun updateCategoryById(categoryId: Long, category: Category) {
         categoryDao.updateCategoryById(

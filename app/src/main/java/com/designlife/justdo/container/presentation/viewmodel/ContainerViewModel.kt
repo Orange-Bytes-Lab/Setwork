@@ -109,7 +109,11 @@ class ContainerViewModel(
             }
             is ContainerEvents.OnCategoryDelete-> {
                 if (event.index != -1 && event.index < _categoryList.size){
+                    val category = _categoryList[event.index]
                     _categoryList.removeAt(event.index)
+                    viewModelScope.launch(Dispatchers.IO) {
+                        categoryRepository.deleteCategoryById(category.id)
+                    }
                 }
             }
             is ContainerEvents.OnCategoryListUpdate -> {

@@ -241,7 +241,7 @@ class TaskViewModel(
         Log.i("ERROR_CHECK","setNotifications: setNotifications")
         val notificationInfoData = taskList.map { todo: Todo -> NotificationInfo(
             taskTitle = todo.title,
-            taskSubTitle = (if (todo.note.isEmpty()) "" else if(todo.note.length > 25) "${todo.note.substring(0,25)} ..." else todo.note.length) as String,
+            taskSubTitle = (if (todo.note.isEmpty()) "" else if(todo.note.length > 25) "${todo.note.substring(0,25)} ..." else todo.note),
             date = todo.date ,
             taskId = todo.todoId
         ) }

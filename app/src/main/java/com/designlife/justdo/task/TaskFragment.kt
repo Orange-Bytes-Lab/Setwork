@@ -46,13 +46,11 @@ import com.designlife.justdo.task.presentation.viewmodel.TaskViewModel
 import com.designlife.justdo.task.presentation.viewmodel.TaskViewModelFactory
 import com.designlife.justdo.ui.theme.ButtonPrimary
 import com.designlife.justdo.ui.theme.PrimaryBackgroundColor
-import com.designlife.orchestrator.NotificationServiceLocator
-import com.designlife.orchestrator.notification.clickmanager.NotificationClickManager
+import com.designlife.orchestrator.NotificationScheduler
+import com.designlife.orchestrator.SchedulingEngine
 import com.designlife.orchestrator.notification.clickmanager.TaskListener
-import com.designlife.orchestrator.notification.repository.TaskNotificationRepository
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 import java.util.Calendar
 
 class TaskFragment : Fragment(), TaskListener {
@@ -61,7 +59,7 @@ class TaskFragment : Fragment(), TaskListener {
     private lateinit var shareViewModel : ContainerViewModel
     private lateinit var alarmManager : AlarmManager
     private lateinit var notificationManager : NotificationManager
-    private lateinit var taskNotificationRepository : TaskNotificationRepository
+    private lateinit var notificationScheduler: NotificationScheduler
     private var isOverview : Boolean = false
     private var taskId : Int = -1
 
@@ -73,11 +71,12 @@ class TaskFragment : Fragment(), TaskListener {
         val todoRepository = AppServiceLocator.provideTodoRepository(requireActivity().applicationContext)
         val categoryRepository = AppServiceLocator.provideCategoryRepository(requireActivity().applicationContext)
         val todoCategoryRepository = AppServiceLocator.provideTodoCategoryRepository(requireActivity().applicationContext)
-        taskNotificationRepository = NotificationServiceLocator.provideNotificationRepository(requireContext(),alarmManager)
-        NotificationClickManager.setListener(this)
+        notificationScheduler = SchedulingEngine(requireActivity().applicationContext).notificationScheduler()
+//        taskNotificationRepository = NotificationServiceLocator.provideNotificationRepository(requireContext(),alarmManager)
+//        NotificationClickManager.setListener(this)
         val shareViewModelFactory = ContainerViewModelFactory(categoryRepository,repeatRepository)
         shareViewModel = ViewModelProvider(requireActivity(),shareViewModelFactory)[ContainerViewModel::class.java]
-        val factory = TaskViewModelFactory(repeatRepository,todoRepository,categoryRepository,todoCategoryRepository,taskNotificationRepository,shareViewModel)
+        val factory = TaskViewModelFactory(repeatRepository,todoRepository,categoryRepository,todoCategoryRepository,notificationScheduler,shareViewModel)
         viewmodel = ViewModelProvider(this,factory)[TaskViewModel::class.java]
         shareViewModel.setupRepeatList(IDateGenerator.getToday())
         navigationArgsDateSet()

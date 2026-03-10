@@ -2,7 +2,7 @@ package com.designlife.justdo.common.utils
 
 import android.content.Context
 import com.designlife.justdo.common.data.datastore.appStore
-import com.designlife.justdo.common.data.room.dao.AppDatabase
+import com.designlife.justdo.common.data.room.dao.SetworkDatabase
 import com.designlife.justdo.common.domain.repeat.RepeatRepository
 import com.designlife.justdo.common.domain.repositories.CategoryRepository
 import com.designlife.justdo.common.domain.repositories.DeckRepository
@@ -11,9 +11,6 @@ import com.designlife.justdo.common.domain.repositories.TodoCategoryRepository
 import com.designlife.justdo.common.domain.repositories.TodoRepository
 import com.designlife.justdo.common.domain.repositories.WidgetRepository
 import com.designlife.justdo.common.domain.repositories.appstore.IAppStoreRepository
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import java.util.Date
 
 object AppServiceLocator {
     private var categoryRepository : CategoryRepository? = null
@@ -31,7 +28,7 @@ object AppServiceLocator {
     }
 
     private fun createCategoryRepository(context: Context): CategoryRepository {
-        val categoryDao = AppDatabase.getDatabase(context).categoryDao()
+        val categoryDao = SetworkDatabase.getDatabase(context).categoryDao()
         categoryRepository = CategoryRepository(categoryDao)
         return categoryRepository!!
     }
@@ -41,7 +38,7 @@ object AppServiceLocator {
     }
 
     private fun createTodoRepository(context: Context): TodoRepository {
-        val todoDao = AppDatabase.getDatabase(context).todoDao()
+        val todoDao = SetworkDatabase.getDatabase(context).todoDao()
         todoRepository = TodoRepository(todoDao)
         return todoRepository!!
     }
@@ -69,7 +66,7 @@ object AppServiceLocator {
     }
 
     private fun createNoteRepository(context: Context): NoteRepository {
-        val noteDao = AppDatabase.getDatabase(context).noteDao()
+        val noteDao = SetworkDatabase.getDatabase(context).noteDao()
         noteRepository = NoteRepository(noteDao)
         return noteRepository!!
     }
@@ -79,7 +76,7 @@ object AppServiceLocator {
     }
 
     private fun createDeckRepository(context: Context): DeckRepository {
-        val deckDao = AppDatabase.getDatabase(context).deckDao()
+        val deckDao = SetworkDatabase.getDatabase(context).deckDao()
         deckRepository = DeckRepository(deckDao)
         return deckRepository!!
     }
@@ -89,9 +86,9 @@ object AppServiceLocator {
     }
 
     private fun createTodoCategoryRepository(context: Context): TodoCategoryRepository {
-        val todoCategoryDao = AppDatabase.getDatabase(context).todoCategoryJunctionDao()
-        val todoDao = AppDatabase.getDatabase(context).todoDao()
-        val categoryDao = AppDatabase.getDatabase(context).categoryDao()
+        val todoCategoryDao = SetworkDatabase.getDatabase(context).todoCategoryJunctionDao()
+        val todoDao = SetworkDatabase.getDatabase(context).todoDao()
+        val categoryDao = SetworkDatabase.getDatabase(context).categoryDao()
         todoCategoryRepository = TodoCategoryRepository(todoCategoryDao,todoDao,categoryDao)
         return todoCategoryRepository!!
     }
@@ -101,7 +98,7 @@ object AppServiceLocator {
     }
 
     private fun createWidgetRepository(context: Context): WidgetRepository {
-        val widgetDao = AppDatabase.getDatabase(context).widgetDao()
+        val widgetDao = SetworkDatabase.getDatabase(context).widgetDao()
         widgetRepository = WidgetRepository(widgetDao)
         return widgetRepository!!
     }

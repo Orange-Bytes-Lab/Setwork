@@ -5,6 +5,7 @@ import com.designlife.justdo.common.domain.entities.Todo
 import com.designlife.justdo.common.utils.enums.RepeatType
 import java.util.Calendar
 import java.util.Date
+import kotlin.math.absoluteValue
 
 class RepeatRepository(
 
@@ -48,7 +49,8 @@ class RepeatRepository(
             calendar.set(Calendar.MONTH,month)
             todoList.add(task.copy(
                 isRepeated = eventDate == calendar.time,
-                date = calendar.time
+                date = calendar.time,
+                notificationId = System.currentTimeMillis().hashCode().absoluteValue.toLong()
             ))
         }
         return todoList
@@ -67,7 +69,8 @@ class RepeatRepository(
             calendar.set(Calendar.YEAR,year+yearIdx)
             todoList.add(task.copy(
                 isRepeated = eventDate.year == calendar.time.year,
-                date = calendar.time
+                date = calendar.time,
+                notificationId = System.currentTimeMillis().hashCode().absoluteValue.toLong()
             ))
         }
         return todoList
@@ -88,7 +91,8 @@ class RepeatRepository(
             if(isDaysSame){
                 todoList.add(task.copy(
                     isRepeated = eventDate == calendar.time,
-                    date = calendar.time
+                    date = calendar.time,
+                    notificationId = System.currentTimeMillis().hashCode().absoluteValue.toLong()
                 ))
             }
         }
@@ -110,7 +114,8 @@ class RepeatRepository(
             if (isWorkingDay){
                 todoList.add(task.copy(
                     isRepeated = eventDate == calendar.time,
-                    date = calendar.time
+                    date = calendar.time,
+                    notificationId = System.currentTimeMillis().hashCode().absoluteValue.toLong()
                 ))
             }
         }
@@ -130,7 +135,8 @@ class RepeatRepository(
             calendar.set(Calendar.DAY_OF_MONTH,day)
             todoList.add(task.copy(
                 isRepeated = eventDate == calendar.time,
-                date = calendar.time
+                date = calendar.time,
+                notificationId = System.currentTimeMillis().hashCode().absoluteValue.toLong()
             ))
         }
         return todoList
@@ -139,7 +145,8 @@ class RepeatRepository(
     private fun createNoRepeatTask(task: Todo, eventDate: Date): List<Todo> {
         todoList.clear()
         todoList.add(task.copy(
-            date = eventDate
+            date = eventDate,
+            notificationId = System.currentTimeMillis().hashCode().absoluteValue.toLong()
         ))
         return todoList
     }

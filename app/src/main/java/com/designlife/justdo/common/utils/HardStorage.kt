@@ -1,14 +1,12 @@
 package com.designlife.justdo.common.utils
 
 import android.content.Context
-import android.os.Environment
 import android.util.Log
 import com.designlife.justdo.common.data.entities.Category
 import com.designlife.justdo.common.data.entities.Deck
 import com.designlife.justdo.common.data.entities.Note
 import com.designlife.justdo.common.data.entities.Todo
-import com.designlife.justdo.common.data.room.dao.AppDatabase
-import com.designlife.justdo.common.utils.security.EncryptionUtils
+import com.designlife.justdo.common.data.room.dao.SetworkDatabase
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.CoroutineScope
@@ -16,10 +14,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.launch
 import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
 import java.io.FileWriter
 import java.io.IOException
 
@@ -47,10 +42,10 @@ object HardStorage {
 //        }
 
         try {
-            val backupTodoFile = File(backupFolder,AppDatabase.BACKUP_EN_TODO)
-            val backupDeckFile = File(backupFolder,AppDatabase.BACKUP_EN_DECK)
-            val backupCategoryFile = File(backupFolder,AppDatabase.BACKUP_EN_CATEGORY)
-            val backupNoteFile = File(backupFolder, AppDatabase.BACKUP_EN_NOTE)
+            val backupTodoFile = File(backupFolder,SetworkDatabase.BACKUP_EN_TODO)
+            val backupDeckFile = File(backupFolder,SetworkDatabase.BACKUP_EN_DECK)
+            val backupCategoryFile = File(backupFolder,SetworkDatabase.BACKUP_EN_CATEGORY)
+            val backupNoteFile = File(backupFolder, SetworkDatabase.BACKUP_EN_NOTE)
 
             Log.i("BACKUP", "backupImport: Backup Todo Path :${backupTodoFile.absolutePath}")
             Log.i("BACKUP", "backupImport: Backup Todo File Exists :${backupTodoFile.exists()}")
@@ -117,10 +112,10 @@ object HardStorage {
 //        }
         Log.i("BACKUP", "backupExport: backupFolder : ${backupFolder.absoluteFile}")
 //        val backupFileTodo = File(backupFolder, AppDatabase.BACKUP_EN_TODO)
-        val backupFileTodo = File(backupFolder,AppDatabase.BACKUP_EN_TODO)
-        val backupFileNote = File(backupFolder,AppDatabase.BACKUP_EN_NOTE)
-        val backupFileDeck = File(backupFolder, AppDatabase.BACKUP_EN_DECK)
-        val backupFileCategory = File(backupFolder,  AppDatabase.BACKUP_EN_CATEGORY)
+        val backupFileTodo = File(backupFolder,SetworkDatabase.BACKUP_EN_TODO)
+        val backupFileNote = File(backupFolder,SetworkDatabase.BACKUP_EN_NOTE)
+        val backupFileDeck = File(backupFolder, SetworkDatabase.BACKUP_EN_DECK)
+        val backupFileCategory = File(backupFolder,  SetworkDatabase.BACKUP_EN_CATEGORY)
 
         checkFileExists(backupFileTodo)
         checkFileExists(backupFileNote)

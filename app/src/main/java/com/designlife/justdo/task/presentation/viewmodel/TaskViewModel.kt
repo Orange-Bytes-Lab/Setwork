@@ -17,29 +17,28 @@ import com.designlife.justdo.common.domain.repositories.TodoRepository
 import com.designlife.justdo.common.utils.enums.RepeatType
 import com.designlife.justdo.container.presentation.viewmodel.ContainerViewModel
 import com.designlife.justdo.task.presentation.events.TaskEvents
-import com.designlife.orchestrator.notification.data.NotificationInfo
-import com.designlife.orchestrator.notification.repository.TaskNotificationRepository
+import com.designlife.orchestrator.NotificationScheduler
+import com.designlife.orchestrator.data.NotificationInfo
+import com.designlife.orchestrator.data.NotificationStatus
+import com.designlife.orchestrator.data.NotificationType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import java.lang.System
 import java.util.Calendar
 import java.util.Date
+import kotlin.math.absoluteValue
 
 class TaskViewModel(
     private val repeatRepository: RepeatRepository,
     private val todoRepository: TodoRepository,
     private val categoryRepository: CategoryRepository,
     private val todoCategoryRepository: TodoCategoryRepository,
-    private val taskNotificationRepository: TaskNotificationRepository,
+    private val notificationScheduler: NotificationScheduler,
     private val shareViewModel: ContainerViewModel
 ) : ViewModel() {
 
@@ -222,7 +221,8 @@ class TaskViewModel(
                 isCompleted = false,
                 createdOn = System.currentTimeMillis(),
                 todoId = 0,
-                repeatIndex = shareViewModel.selectedRepeatIndex.value
+                repeatIndex = shareViewModel.selectedRepeatIndex.value,
+                notificationId = System.currentTimeMillis().hashCode().absoluteValue.toLong()
             )
             Log.i("ERROR_CHECK","createTask: createRepeatedEvents")
             val taskList = repeatRepository.createRepeatedEvents(todo,repeatType,_rawTaskDateTimeInstance.value.time)
@@ -237,16 +237,29 @@ class TaskViewModel(
         }
     }
 
-    private fun setNotifications(taskList : List<Todo>){
+    private fun setNotifications(taskList : List<Todo>) {
         Log.i("ERROR_CHECK","setNotifications: setNotifications")
-        val notificationInfoData = taskList.map { todo: Todo -> NotificationInfo(
-            taskTitle = todo.title,
-            taskSubTitle = (if (todo.note.isEmpty()) "" else if(todo.note.length > 25) "${todo.note.substring(0,25)} ..." else todo.note),
-            date = todo.date ,
-            taskId = todo.todoId
-        ) }
+        var indexUUID = System.currentTimeMillis().hashCode().absoluteValue
+        val notificationInfoData = taskList.map { todo: Todo ->
+            indexUUID += 1
+            NotificationInfo(
+                taskTitle = todo.title,
+                taskSubTitle = (if (todo.note.isEmpty()) "" else if (todo.note.length > 25) "${
+                    todo.note.substring(
+                        0,
+                        25
+                    )
+                } ..." else todo.note),
+                scheduledTime = todo.date.time,
+                createdTime = System.currentTimeMillis(),
+                deliveredTime = 0L,
+                notificationType = NotificationType.TASK_NOTIFY,
+                notificationStatus = NotificationStatus.ACTIVE,
+                taskId = indexUUID
+            )
+        }
         Log.i("ERROR_CHECK","setNotifications: before taskNotificationRepository.scheduleNotification")
-        taskNotificationRepository.scheduleNotification(notificationInfoData)
+        notificationScheduler.scheduleBulkNotification(notificationInfoData)
         Log.i("ERROR_CHECK","setNotifications: after taskNotificationRepository.scheduleNotification")
     }
 

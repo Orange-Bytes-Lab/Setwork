@@ -29,7 +29,8 @@ object TodoConverters {
             isCompleted = todo.isCompleted,
             categoryId = todo.categoryId,
             createdOn = todo.createdOn,
-            repeatIndex = todo.repeatIndex
+            repeatIndex = todo.repeatIndex,
+            notificationId = 0L
         )
     }
 

@@ -7,17 +7,17 @@ import com.designlife.justdo.common.domain.repositories.CategoryRepository
 import com.designlife.justdo.common.domain.repositories.TodoCategoryRepository
 import com.designlife.justdo.common.domain.repositories.TodoRepository
 import com.designlife.justdo.container.presentation.viewmodel.ContainerViewModel
-import com.designlife.orchestrator.notification.repository.TaskNotificationRepository
+import com.designlife.orchestrator.NotificationScheduler
 
 class TaskViewModelFactory(
     private val repeatRepository: RepeatRepository,
     private val todoRepository: TodoRepository,
     private val categoryRepository: CategoryRepository,
     private val todoCategoryRepository: TodoCategoryRepository,
-    private val taskNotificationRepository : TaskNotificationRepository,
+    private val notificationScheduler: NotificationScheduler,
     private val shareViewModel: ContainerViewModel
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        return TaskViewModel(repeatRepository,todoRepository,categoryRepository,todoCategoryRepository,taskNotificationRepository,shareViewModel) as T
+        return TaskViewModel(repeatRepository,todoRepository,categoryRepository,todoCategoryRepository,notificationScheduler,shareViewModel) as T
     }
 }

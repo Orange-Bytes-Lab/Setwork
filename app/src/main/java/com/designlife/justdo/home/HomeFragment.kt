@@ -162,6 +162,7 @@ class HomeFragment : Fragment(), TaskListener {
 
             initialSlide()
             viewModel.onEvent(HomeEvents.OnViewChange(settingViewModel.defaultScreen.value))
+            viewModel.onEvent(HomeEvents.OnProgressBarToggle(false))
         }
         checkNotificationView()
     }
@@ -237,9 +238,9 @@ class HomeFragment : Fragment(), TaskListener {
                     scrollToRollItem(viewModel.todoIndex.value, todoListState)
                 }
             }
+            val job1 = scope.launch { scrollToRollItem(index, dateListState) }
             job.join()
-            delay(100)
-            scope.launch { scrollToRollItem(index, dateListState) }
+            job1.join()
             scope.launch(Dispatchers.Main.immediate) {
                 viewModel.onEvent(HomeEvents.OnProgressBarToggle(false))
             }

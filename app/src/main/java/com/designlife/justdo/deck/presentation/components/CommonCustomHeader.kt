@@ -17,9 +17,11 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -139,9 +141,16 @@ fun DeckHeader(
                 }
 
                 if (!isNew){
-                    CustomButton(buttonText = "Delete", isDangerButton = true) {
-                        onDeleteButtonClickEvent()
+                    IconButton(
+                        onClick = {
+                            onDeleteButtonClickEvent()
+                        }
+                    ) {
+                        Icon(imageVector = Icons.Default.Delete, tint = Color.Red, contentDescription = "Delete Icon")
                     }
+//                    CustomButton(buttonText = "Delete", isDangerButton = true) {
+//
+//                    }
                 }
             }
         }

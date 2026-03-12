@@ -218,6 +218,7 @@ class DeckFragment : Fragment() {
                         verticalArrangement = Arrangement.Bottom,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
+                        Spacer(modifier = Modifier.height(6.dp))
                         AnimatedVisibility(visible = !viewModeVisibility) {
                             CustomCardButton {
                                 viewModel.onEvent(DeckEvents.OnCreateCard)

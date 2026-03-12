@@ -105,7 +105,7 @@ fun CreateCardListComponent(
             cards.size
         ) { index ->
             var isSwiped by remember { mutableStateOf(false) }
-            val threshold = -100f // Adjust the threshold as needed
+            val threshold = -60f // Adjust the threshold as needed
             var offsetY = animateFloatAsState(
                 targetValue = if (isSwiped) -2500F else 0F,
                 animationSpec = tween(durationMillis = 300)

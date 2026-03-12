@@ -240,7 +240,9 @@ class HomeFragment : Fragment(), TaskListener {
             job.join()
             delay(100)
             scope.launch { scrollToRollItem(index, dateListState) }
-            viewModel.onEvent(HomeEvents.OnProgressBarToggle(false))
+            scope.launch(Dispatchers.Main.immediate) {
+                viewModel.onEvent(HomeEvents.OnProgressBarToggle(false))
+            }
         }
     }
 

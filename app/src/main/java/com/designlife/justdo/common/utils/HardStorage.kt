@@ -7,6 +7,10 @@ import com.designlife.justdo.common.data.entities.Deck
 import com.designlife.justdo.common.data.entities.Note
 import com.designlife.justdo.common.data.entities.Todo
 import com.designlife.justdo.common.data.room.dao.SetworkDatabase
+import com.designlife.orchestrator.SchedulingEngine
+import com.designlife.orchestrator.data.NotificationInfo
+import com.designlife.orchestrator.data.NotificationStatus
+import com.designlife.orchestrator.data.NotificationType
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.CoroutineScope
@@ -21,7 +25,6 @@ import java.io.IOException
 
 object HardStorage {
     val scope = CoroutineScope(Dispatchers.IO + Job())
-
     suspend fun backupImport(context : Context) : Boolean {
         val backupFolder = File(context.getExternalFilesDir(null),"Setwork/Backup/")
 //        val envExternalFileDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
@@ -86,13 +89,40 @@ object HardStorage {
             deckRepository.insertAllImportedDeck(deckList)
             noteRepository.insertAllImportedNote(noteList)
             categoryRepository.insertAllImportedCategories(categoryList)
-
+            setNotifications(context,todoList)
             return true
         } catch (e: IOException) {
             e.printStackTrace()
             Log.i("BACKUP", "backupImport: Exception : ${e.message}")
             return false
         }
+    }
+
+    private fun setNotifications(context : Context,taskList : List<Todo>) {
+        Log.i("ERROR_CHECK","setNotifications: setNotifications")
+        val notificationInfoData = taskList.map { todo: Todo ->
+            NotificationInfo(
+                taskTitle = todo.title,
+                taskSubTitle = (if (todo.note.isEmpty()) "" else if (todo.note.length > 25) "${
+                    todo.note.substring(
+                        0,
+                        25
+                    )
+                } ..." else todo.note),
+                scheduledTime = todo.date,
+                createdTime = System.currentTimeMillis(),
+                deliveredTime = 0L,
+                notificationType = NotificationType.TASK_NOTIFY,
+                notificationStatus = NotificationStatus.ACTIVE,
+                taskId = todo.todoId.toInt()
+            )
+        }
+        Log.i("ERROR_CHECK","setNotifications: before taskNotificationRepository.scheduleNotification")
+        SchedulingEngine(context)
+            .notificationScheduler()
+            .scheduleBulkNotification(notificationInfoData)
+
+        Log.i("ERROR_CHECK","setNotifications: after taskNotificationRepository.scheduleNotification")
     }
 
     suspend fun backupExport(context : Context){

@@ -9,6 +9,17 @@ plugins {
 android {
     namespace 'com.designlife.justdo'
     compileSdk 34
+    buildToolsVersion "35.0.0"
+
+    aaptOptions {
+        cruncherEnabled = false
+    }
+
+    packaging {
+        resources {
+            excludes += ['META-INF/com/android/build/gradle/app-metadata.properties']
+        }
+    }
 
     defaultConfig {
         applicationId "com.designlife.justdo"
@@ -18,6 +29,10 @@ android {
         versionName "1.0.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+        vectorDrawables {
+            useSupportLibrary true
+        }
     }
 
     buildFeatures{
@@ -26,8 +41,9 @@ android {
     }
     buildTypes {
         release {
-            minifyEnabled false
-            shrinkResources false
+            vcsInfo.include false
+            shrinkResources true
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }

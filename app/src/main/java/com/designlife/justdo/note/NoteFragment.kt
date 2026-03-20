@@ -22,6 +22,7 @@ import androidx.core.content.PermissionChecker.checkSelfPermission
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import com.designlife.justdo.R
 import com.designlife.justdo.common.presentation.components.CommonCustomHeader
@@ -40,6 +41,7 @@ import com.designlife.justdo.ui.theme.UIComponentBackground
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
 class NoteFragment : Fragment() {
@@ -229,6 +231,7 @@ class NoteFragment : Fragment() {
             if (viewModel.hasNoteModified.value) {
                 Toast.makeText(requireContext(), "Saved", Toast.LENGTH_SHORT).show()
             }
+            lifecycleScope?.cancel()
         }catch (e : Exception){
             e.printStackTrace()
         }

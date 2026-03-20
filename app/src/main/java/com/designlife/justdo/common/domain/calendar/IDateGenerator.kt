@@ -58,8 +58,9 @@ class IDateGenerator : DateGenerator {
         return nextMonthList
     }
 
-
-
+    override fun clear() {
+        _allDateList.value = arrayListOf()
+    }
 
 
     override fun setupDates() {

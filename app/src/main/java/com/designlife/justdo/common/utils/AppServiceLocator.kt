@@ -1,5 +1,6 @@
 package com.designlife.justdo.common.utils
 
+import android.annotation.SuppressLint
 import android.content.Context
 import com.designlife.justdo.common.data.datastore.AppStore.Companion.getDataStore
 import com.designlife.justdo.common.data.datastore.appStore
@@ -30,6 +31,7 @@ object AppServiceLocator {
     private var repeatRepository : RepeatRepository? = null
     private var appStoreRepository : IAppStoreRepository? = null
     private var widgetRepository : WidgetRepository? = null
+    @SuppressLint("StaticFieldLeak")
     private var softwareUpdateManager : SoftwareUpdateManager? = null
 
 
@@ -132,5 +134,17 @@ object AppServiceLocator {
             notificationScheduler = notificationScheduler
         )
         return softwareUpdateManager!!
+    }
+
+    fun clear(){
+        categoryRepository = null
+        todoRepository = null
+        noteRepository = null
+        deckRepository = null
+        todoCategoryRepository = null
+        repeatRepository = null
+        appStoreRepository = null
+        widgetRepository = null
+        softwareUpdateManager = null
     }
 }

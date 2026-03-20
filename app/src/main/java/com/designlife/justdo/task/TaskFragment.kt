@@ -26,6 +26,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.unit.dp
 import androidx.core.os.bundleOf
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import com.designlife.justdo.R
 import com.designlife.justdo.common.domain.calendar.IDateGenerator
@@ -49,6 +50,7 @@ import com.designlife.justdo.ui.theme.PrimaryBackgroundColor
 import com.designlife.orchestrator.NotificationScheduler
 import com.designlife.orchestrator.SchedulingEngine
 import com.designlife.orchestrator.notification.clickmanager.TaskListener
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import java.util.Calendar
@@ -300,5 +302,10 @@ class TaskFragment : Fragment() {
             5 -> RepeatType.EVERY_WORKING_DAY
             else -> RepeatType.NO_REPEAT
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        lifecycleScope?.cancel()
     }
 }

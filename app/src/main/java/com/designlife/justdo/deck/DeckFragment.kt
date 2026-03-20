@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.os.bundleOf
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import com.designlife.justdo.R
 import com.designlife.justdo.common.domain.entities.FlashCard
@@ -56,6 +57,7 @@ import com.designlife.justdo.ui.theme.UIComponentBackground
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
 class DeckFragment : Fragment() {
@@ -290,5 +292,6 @@ class DeckFragment : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
+        lifecycleScope?.cancel()
     }
 }

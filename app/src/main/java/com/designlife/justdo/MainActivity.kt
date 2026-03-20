@@ -18,6 +18,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.NavHostFragment
 import com.designlife.justdo.common.data.datastore.appStore
 import com.designlife.justdo.common.utils.AppServiceLocator
+import com.designlife.justdo.common.utils.HardStorage
 import com.designlife.justdo.common.utils.update.SoftwareUpdateManager
 import com.designlife.justdo.permission.PermissionHandler
 import com.designlife.justdo.settings.presentation.viewmodel.SettingViewModel
@@ -31,6 +32,7 @@ import com.designlife.justdo.ui.theme.updateSystemUIMode
 import com.designlife.justdo_provider.ServiceLocator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.serialization.InternalSerializationApi
@@ -207,6 +209,18 @@ class MainActivity : AppCompatActivity() {
 
         if (permissionRequestList.isNotEmpty()) {
             permissionLauncher.launch(permissionRequestList.toTypedArray())
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        try {
+            lifecycleScope.cancel()
+            this.viewModelStore.clear()
+            HardStorage.clear()
+            AppServiceLocator.clear()
+        }catch (e : Exception){
+            Log.i("CLEAN_FLOW", "onDestroy: MainActivity ::Exception during state clearning")
         }
     }
 }

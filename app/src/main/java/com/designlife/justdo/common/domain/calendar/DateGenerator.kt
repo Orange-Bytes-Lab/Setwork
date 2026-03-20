@@ -8,4 +8,6 @@ interface DateGenerator {
     fun getDateList() : StateFlow<List<Date>>
     fun loadPreviousMonth() : List<Date>
     fun loadNextMonth() : List<Date>
+
+    fun clear()
 }

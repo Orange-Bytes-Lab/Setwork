@@ -17,6 +17,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.firstOrNull
 import java.io.File
 import java.io.FileWriter
@@ -238,5 +239,9 @@ object HardStorage {
     }
 
     private fun setReadOnly(file : File) = file.setReadOnly()
+
+    fun clear(){
+        scope?.cancel()
+    }
 
 }

@@ -1,5 +1,8 @@
 package com.designlife.justdo.home
 
+import android.content.ActivityNotFoundException
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -547,8 +550,12 @@ class HomeFragment : Fragment(), TaskListener {
                                                 )
                                             )
                                         },
-                                        onHelpEvent = {},
-                                        onFeedbackEvent = {},
+                                        onHelpEvent = {
+                                            helpMailToOrangeBytes()
+                                        },
+                                        onFeedbackEvent = {
+                                            feedbackMailToOrangeBytes()
+                                        },
                                         onSoftwareUpdateEvent = {
                                             softwareUpdateManager.checkForUpdate()
                                             Toast.makeText(requireContext(), "Checking Software Updates", Toast.LENGTH_SHORT).show()
@@ -748,4 +755,64 @@ class HomeFragment : Fragment(), TaskListener {
         }
     }
 
+    private fun feedbackMailToOrangeBytes(){
+        val email = arrayOf("feedback.orangebytes@protonmail.com")
+        val subject = "Setwork - Feedback"
+
+        val gmailIntent = Intent(Intent.ACTION_SEND).apply {
+            type = "message/rfc822"
+            putExtra(Intent.EXTRA_EMAIL, email)
+            putExtra(Intent.EXTRA_SUBJECT, subject)
+            setPackage("com.google.android.gm")
+        }
+
+        try {
+            startActivity(gmailIntent)
+        } catch (e: ActivityNotFoundException) {
+
+            // 2. Fallback → show chooser with all email apps
+            val fallbackIntent = Intent(Intent.ACTION_SENDTO).apply {
+                data = Uri.parse("mailto:")
+                putExtra(Intent.EXTRA_EMAIL, email)
+                putExtra(Intent.EXTRA_SUBJECT, subject)
+            }
+
+            try {
+                startActivity(Intent.createChooser(fallbackIntent, "Write us on a mail"))
+            } catch (ex: ActivityNotFoundException) {
+                Toast.makeText(requireContext(), "No email apps installed", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+
+    private fun helpMailToOrangeBytes(){
+        val email = arrayOf("help.orangebytes@protonmail.com")
+        val subject = "Setwork - Help"
+
+        val gmailIntent = Intent(Intent.ACTION_SEND).apply {
+            type = "message/rfc822"
+            putExtra(Intent.EXTRA_EMAIL, email)
+            putExtra(Intent.EXTRA_SUBJECT, subject)
+            setPackage("com.google.android.gm")
+        }
+
+        try {
+            startActivity(gmailIntent)
+        } catch (e: ActivityNotFoundException) {
+
+            // 2. Fallback → show chooser with all email apps
+            val fallbackIntent = Intent(Intent.ACTION_SENDTO).apply {
+                data = Uri.parse("mailto:")
+                putExtra(Intent.EXTRA_EMAIL, email)
+                putExtra(Intent.EXTRA_SUBJECT, subject)
+            }
+
+            try {
+                startActivity(Intent.createChooser(fallbackIntent, "Write us on a mail"))
+            } catch (ex: ActivityNotFoundException) {
+                Toast.makeText(requireContext(), "No email apps installed", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 }

@@ -361,7 +361,7 @@ Setwork is free and open source. It is maintained in spare time. If the project 
 [![Bitcoin](https://img.shields.io/badge/Bitcoin-Donate-F7931A?style=flat-square&logo=bitcoin&logoColor=white)](#)
 
 ```
-BTC Address: [Your Bitcoin Address Here]
+BTC Address: bc1q3d52v9tk2hhlnsmj08es2atkq8zgxeeg69ykth
 ```
 
 Donations go directly toward development time and tooling costs.

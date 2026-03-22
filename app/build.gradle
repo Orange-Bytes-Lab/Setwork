@@ -69,7 +69,9 @@ android {
         jniLibs {
             useLegacyPackaging = false
         }
+        excludes += ["lib/**/libdatastore_shared_counter.so"]
     }
+
 }
 
 tasks.whenTaskAdded { task ->

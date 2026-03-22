@@ -1,13 +1,13 @@
-Setwork — Set your work. Get it done ●
+Setwork — タスクを決めて、やり遂げよう ●
 
-Your tasks live on your phone. Not in a cloud.
-Setwork is a distraction-free task manager that works entirely offline. No account. No sync fees. No ads. Just you and your to-do list.
+タスクはあなたのスマートフォン内に保存されます。クラウドではありません。
+Setworkは完全オフラインで動作する、集中を妨げないタスク管理アプリです。アカウント不要。同期料金なし。広告なし。あなたとToDoリストだけ。
 
-Why people love it:
+選ばれる理由：
 
-● Open it. Add a task. Done. No onboarding, no setup wizard.
-● Smart reminders that let you in sync.
-● Notes alongside tasks, so context never gets lost.
-● App modes, theming, customizations — your app, your feel.
+● 開く → タスク追加 → 完了。初期設定不要。
+● スマートリマインダーで予定をキープ。
+● タスクと一緒にメモを残せるので文脈を失わない。
+● モードやテーマ、カスタマイズ — あなた好みに。
 
-Built lean. Runs fast. Respects your privacy completely.
+軽量設計。高速動作。プライバシーを完全に尊重します。

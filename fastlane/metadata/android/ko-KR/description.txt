@@ -1,13 +1,13 @@
-Setwork — Set your work. Get it done ●
+Setwork — 할 일을 정하고, 끝내세요 ●
 
-Your tasks live on your phone. Not in a cloud.
-Setwork is a distraction-free task manager that works entirely offline. No account. No sync fees. No ads. Just you and your to-do list.
+당신의 작업은 클라우드가 아닌 휴대폰에 저장됩니다.
+Setwork는 완전히 오프라인으로 작동하는 방해 없는 작업 관리 앱입니다. 계정 없음. 동기화 비용 없음. 광고 없음. 오직 당신과 할 일 목록만 있습니다.
 
-Why people love it:
+사람들이 좋아하는 이유:
 
-● Open it. Add a task. Done. No onboarding, no setup wizard.
-● Smart reminders that let you in sync.
-● Notes alongside tasks, so context never gets lost.
-● App modes, theming, customizations — your app, your feel.
+● 열기 → 작업 추가 → 완료. 별도의 설정 없음.
+● 일정에 맞춰주는 스마트 알림.
+● 작업과 함께 메모를 기록해 맥락 유지.
+● 앱 모드, 테마, 커스터마이징 — 나만의 스타일.
 
-Built lean. Runs fast. Respects your privacy completely.
+가볍고 빠릅니다. 개인정보를 완벽히 존중합니다.

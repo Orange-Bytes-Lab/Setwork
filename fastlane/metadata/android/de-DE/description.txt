@@ -1,13 +1,13 @@
-Setwork — Set your work. Get it done ●
+Setwork — Lege deine Aufgaben fest. Erledige sie ●
 
-Your tasks live on your phone. Not in a cloud.
-Setwork is a distraction-free task manager that works entirely offline. No account. No sync fees. No ads. Just you and your to-do list.
+Deine Aufgaben bleiben auf deinem Gerät. Nicht in der Cloud.
+Setwork ist ein ablenkungsfreier Aufgabenmanager, der vollständig offline funktioniert. Kein Konto. Keine Synchronisationsgebühren. Keine Werbung. Nur du und deine To-do-Liste.
 
-Why people love it:
+Warum Menschen es lieben:
 
-● Open it. Add a task. Done. No onboarding, no setup wizard.
-● Smart reminders that let you in sync.
-● Notes alongside tasks, so context never gets lost.
-● App modes, theming, customizations — your app, your feel.
+● Öffnen. Aufgabe hinzufügen. Fertig. Kein Onboarding, kein Setup-Assistent.
+● Intelligente Erinnerungen, die dich im Takt halten.
+● Notizen zu Aufgaben, damit kein Kontext verloren geht.
+● App-Modi, Themes, Anpassungen — deine App, dein Stil.
 
-Built lean. Runs fast. Respects your privacy completely.
+Schlank entwickelt. Schnell ausgeführt. Respektiert deine Privatsphäre vollständig.

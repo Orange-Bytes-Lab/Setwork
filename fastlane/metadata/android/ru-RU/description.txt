@@ -1,13 +1,13 @@
-Setwork — Set your work. Get it done ●
+Setwork — Определи задачи. Выполни их ●
 
-Your tasks live on your phone. Not in a cloud.
-Setwork is a distraction-free task manager that works entirely offline. No account. No sync fees. No ads. Just you and your to-do list.
+Ваши задачи хранятся на вашем телефоне. Не в облаке.
+Setwork — это менеджер задач без отвлекающих факторов, полностью работающий офлайн. Без аккаунта. Без платы за синхронизацию. Без рекламы. Только вы и ваш список дел.
 
-Why people love it:
+Почему его любят:
 
-● Open it. Add a task. Done. No onboarding, no setup wizard.
-● Smart reminders that let you in sync.
-● Notes alongside tasks, so context never gets lost.
-● App modes, theming, customizations — your app, your feel.
+● Открыл. Добавил задачу. Готово. Без настройки.
+● Умные напоминания, которые держат вас в ритме.
+● Заметки рядом с задачами — контекст не теряется.
+● Режимы, темы, настройки — ваше приложение, ваш стиль.
 
-Built lean. Runs fast. Respects your privacy completely.
+Лёгкий. Быстрый. Полностью уважает вашу приватность.

@@ -65,6 +65,11 @@ android {
         includeInApk = false
         includeInBundle = false
     }
+    packagingOptions {
+        jniLibs {
+            useLegacyPackaging = false
+        }
+    }
 }
 
 tasks.whenTaskAdded { task ->

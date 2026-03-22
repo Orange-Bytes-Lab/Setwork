@@ -136,7 +136,7 @@ A note on the 100MB CursorWindow: the default SQLite cursor window in Android is
 **Distribution — coming soon:**
 
 [![F-Droid](https://img.shields.io/badge/F--Droid-Pending-1976D2?style=flat-square&logo=f-droid&logoColor=white)](#)
-[![Amazon Appstore](https://img.shields.io/badge/Amazon%20Appstore-Pending-FF9900?style=flat-square&logo=amazon&logoColor=white)](#)
+[![Amazon Appstore](https://img.shields.io/badge/Amazon%20Appstore-Pending-FF9900?style=flat-square&logo=amazon&logoColor=white)](https://www.amazon.com/gp/product/B0CR83YYW1)
 
 When installing from a GitHub release APK, you will need to permit installation from unknown sources on your device: Settings > Apps > Special App Access > Install Unknown Apps.
 

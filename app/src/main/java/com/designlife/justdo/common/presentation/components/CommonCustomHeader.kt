@@ -9,7 +9,6 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,13 +35,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.designlife.justdo.R
 import com.designlife.justdo.common.utils.enums.ViewType
 import com.designlife.justdo.ui.theme.ComponentBackground
 import com.designlife.justdo.ui.theme.IconColor
-import com.designlife.justdo.ui.theme.NotePopUpItemStyle
 import com.designlife.justdo.ui.theme.Shapes
 import com.designlife.justdo.ui.theme.TypographyColor
 import com.designlife.justdo.ui.theme.cutBottomRoundedCorners
@@ -169,7 +166,9 @@ fun CommonCustomHeader(
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Box(
-                        modifier = Modifier.wrapContentSize().rotate(rotation)
+                        modifier = Modifier
+                            .wrapContentSize()
+                            .rotate(rotation)
                     ) {
                         CustomIconButton(
                             onIconEvent = { /* auto launching from launched effects */ },

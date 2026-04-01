@@ -22,6 +22,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Calendar
 import java.util.Date
 
@@ -153,17 +154,19 @@ class NoteViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             val note = noteRepository.getNoteById(noteId)
             Log.i("FETCH", "fetchNoteById: Note Id ${noteId}")
-            note.also {
-                _titleValue.value = it.title
-                _contentValue.value = it.content
-                _noteId.value = it.noteId
-                _categoryId.value = it.categoryId
+            withContext(Dispatchers.Main.immediate){
+                note.also {
+                    _titleValue.value = it.title
+                    _contentValue.value = it.content
+                    _noteId.value = it.noteId
+                    _categoryId.value = it.categoryId
+                }
+                Log.i("FETCH", "fetchNoteById: Before bitmap ${note.coverImage}")
+                Log.i("FETCH", "fetchNoteById: ${_coverImage.value}")
+                setNoteState(note)
+                _progressBar.value = false
             }
-            Log.i("FETCH", "fetchNoteById: Before bitmap ${note.coverImage}")
             _coverImage.value = ImageConverter.getBitMapFromByteArray(note.coverImage)  // async(Dispatchers.Default) { }.await()
-            Log.i("FETCH", "fetchNoteById: ${_coverImage.value}")
-            setNoteState(note)
-            _progressBar.value = false
         }
     }
 
@@ -270,7 +273,7 @@ class NoteViewModel(
             deliveredTime = 0L,
             notificationType = NotificationType.NOTE_NOTIFY,
             notificationStatus = NotificationStatus.ACTIVE,
-            taskId = System.currentTimeMillis().toInt()
+            taskId = _noteId.value.toInt()
         )
         Log.i("ERROR_CHECK","setNotifications: NoteViewModel :: before scheduleNotification")
         notificationScheduler.scheduleNotification(noteNotificationInfo)

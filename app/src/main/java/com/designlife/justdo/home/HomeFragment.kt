@@ -92,6 +92,8 @@ import com.designlife.justdo.ui.theme.ButtonPrimary
 import com.designlife.justdo.ui.theme.PrimaryBackgroundColor
 import com.designlife.justdo.ui.theme.PrimaryColorHome1
 import com.designlife.justdo.ui.theme.PrimaryColorHome2
+import com.designlife.orchestrator.data.NotificationType
+import com.designlife.orchestrator.data.NotificationTypeI
 import com.designlife.orchestrator.notification.clickmanager.TaskListener
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -203,7 +205,8 @@ class HomeFragment : Fragment(), TaskListener {
         if (requireActivity().intent?.getBooleanExtra("fromNotification", false) == true) {
             val id = requireActivity().intent.getIntExtra("notificationId", 0)
             val title = requireActivity().intent.getStringExtra("title") ?: ""
-            onUserNotificationEvent(id, title)
+            val type = requireActivity().intent.getStringExtra("type") ?: ""
+            onUserNotificationEvent(id, title,type)
         }
     }
 
@@ -222,15 +225,6 @@ class HomeFragment : Fragment(), TaskListener {
             }
         }
     }
-
-    private fun byPassNotificationView(todoId : Int) {
-        if (todoId != -1) {
-            Log.i("NOTIFICATION_FLOW", "HomeFragment :: checkNotificationView: navigated to todoId : ${todoId}")
-            navigateToTaskViewById(todoId)
-            Log.i("NOTIFICATION_FLOW", "HomeFragment :: checkNotificationView: update todoId : -1")
-        }
-    }
-
     private suspend fun initialSlide() {
         if (::scope.isInitialized == false){
             return
@@ -256,12 +250,33 @@ class HomeFragment : Fragment(), TaskListener {
         viewModel.onEvent(HomeEvents.OnProgressBarToggle(false))
     }
 
-    override fun onUserNotificationEvent(id: Int, title: String) {
-        Log.i("NOTIFICATION_FLOW", "HomeFragment :: onUserNotificationEvent: task : ${id}")
-        if (title.equals("Software Update") && id == 10001){
-            softwareUpdateManager.installUpdate()
-        }else{
-            byPassNotificationView(id)
+    override fun onUserNotificationEvent(id: Int, title: String, type: String) {
+        Log.i("NOTIFICATION_FLOW", "HomeFragment :: onUserNotificationEvent: taskId : ${id} : type : ${type} : title : ${title}")
+        Toast.makeText(requireContext(), "Setwork Orchestrator\n Title $title ::\n Id ${id} ::\n Type ${type}\n", Toast.LENGTH_SHORT).show()
+
+        if (id != -1) {
+            Log.i("NOTIFICATION_FLOW", "HomeFragment :: checkNotificationView: navigated to taskId : ${id}")
+            val notificationType = NotificationTypeI.getType(type)
+            when(notificationType){
+                NotificationType.TASK_NOTIFY -> {
+                    navigateToTaskViewById(id)
+                }
+                NotificationType.NOTE_NOTIFY ->{
+                    navigateToNoteViewById(id)
+                }
+                NotificationType.DECK_NOTIFY -> {
+                    navigateToDeckViewById(id)
+                }
+                NotificationType.APP_UPDATE -> {
+                    if (title.equals("Software Update") && id == 10001){
+                        softwareUpdateManager.installUpdate()
+                    }
+                }
+                NotificationType.COMMON_NOTIFY -> {
+                }
+            }
+            Log.i("NOTIFICATION_FLOW", "HomeFragment :: checkNotificationView: navigated to taskId : ${id}, tyoe : ${type}")
+
         }
     }
 
@@ -626,7 +641,9 @@ class HomeFragment : Fragment(), TaskListener {
                             }
                         }
                         Box(
-                            modifier = Modifier.Companion.fillMaxSize().padding(WindowInsets.navigationBars.asPaddingValues()),
+                            modifier = Modifier.Companion
+                                .fillMaxSize()
+                                .padding(WindowInsets.navigationBars.asPaddingValues()),
                             contentAlignment = Alignment.Companion.BottomEnd
                         ) {
                             BottomNavigationBar(
@@ -735,6 +752,30 @@ class HomeFragment : Fragment(), TaskListener {
         Log.i("NOTIFICATION_FLOW", "HomeFragment :: navigateToTaskViewById: navigated to todoId : ${todoId}")
         findNavController().navigate(
             R.id.taskFragment,
+            bundle,
+            NavOptions.navOptionStack
+        )
+    }
+
+    private fun navigateToNoteViewById(noteId: Int) {
+        val bundle = bundleOf()
+        bundle.putBoolean(Constants.NOTE_VIEW, true)
+        bundle.putInt(Constants.NOTE_VIEW_ID, noteId)
+        Log.i("NOTIFICATION_FLOW", "HomeFragment :: navigateToNoteViewById: navigated to todoId : ${noteId}")
+        findNavController().navigate(
+            R.id.noteFragment,
+            bundle,
+            NavOptions.navOptionStack
+        )
+    }
+
+    private fun navigateToDeckViewById(deckId: Int) {
+        val bundle = bundleOf()
+        bundle.putBoolean(Constants.DECK_VIEW, true)
+        bundle.putInt(Constants.DECK_VIEW_ID, deckId)
+        Log.i("NOTIFICATION_FLOW", "HomeFragment :: navigateToNoteViewById: navigated to todoId : ${deckId}")
+        findNavController().navigate(
+            R.id.deckFragment,
             bundle,
             NavOptions.navOptionStack
         )

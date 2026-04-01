@@ -1,19 +1,25 @@
 package com.designlife.justdo.deck.presentation.components
 
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.Icon
@@ -23,15 +29,20 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.unit.dp
+import com.designlife.justdo.R
 import com.designlife.justdo.common.domain.entities.Category
-import com.designlife.justdo.common.presentation.components.CustomAttachementsTab
-import com.designlife.justdo.common.presentation.components.CustomButton
+import com.designlife.justdo.common.presentation.components.CustomAttachmentsTab
+import com.designlife.justdo.common.presentation.components.CustomCategoryIcon
+import com.designlife.justdo.common.presentation.components.CustomIconButton
 import com.designlife.justdo.ui.theme.ButtonPrimary
 import com.designlife.justdo.ui.theme.ComponentBackground
 import com.designlife.justdo.ui.theme.IconColor
@@ -40,6 +51,7 @@ import com.designlife.justdo.ui.theme.TaskItemLabelColor
 import com.designlife.justdo.ui.theme.TypographyColor
 import com.designlife.justdo.ui.theme.cutBottomRoundedCorners
 import com.designlife.justdo.ui.theme.headerStyle
+import kotlinx.coroutines.delay
 
 @Composable
 fun DeckHeader(
@@ -48,99 +60,119 @@ fun DeckHeader(
     onCloseEvent: () -> Unit,
     isEdit : Boolean,
     isNew : Boolean,
-    onButtonClickEvent : () -> Unit,
+    onAutoSaveEvent : () -> Unit,
     onDeleteButtonClickEvent : () -> Unit,
     categoryList : List<Category>,
     selectedCategoryIndex : Int,
     onCategoryIndexChange : (index : Int) -> Unit,
+    onReminderEvent : () -> Unit,
     addNewCategory : () -> Unit
 ) {
-    Row(
+
+    LaunchedEffect(Unit) {
+        delay(15000)
+        onAutoSaveEvent()
+    }
+
+    val infiniteTransition = rememberInfiniteTransition(label = "infinite transition")
+
+    val rotation by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 360f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 5000, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "rotation"
+    )
+
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .height(50.dp)
-            .clip(Shapes.cutBottomRoundedCorners(15.dp))
+            .heightIn(min = 64.dp, max = 72.dp)
+            .clip(Shapes.cutBottomRoundedCorners(16.dp))
             .background(ComponentBackground.value),
-        horizontalArrangement = Arrangement.Start,
-        verticalAlignment = Alignment.CenterVertically
+        horizontalAlignment = Alignment.Start,
+        verticalArrangement = Arrangement.Center
     ) {
-        Spacer(modifier = Modifier.width(10.dp))
-        Column(
-            modifier = Modifier
-                .size(22.dp)
-                .clickable { onCloseEvent() },
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Icon(imageVector = Icons.Default.Close, contentDescription = "Close Icon", tint = IconColor.value)
-        }
+        Spacer(modifier = Modifier.height(20.dp))
         Row(
-            modifier = Modifier.fillMaxWidth(.52F),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Start
+            modifier = Modifier
+            .fillMaxWidth(),
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Spacer(modifier = Modifier.width(10.dp))
-            BasicTextField(
-                modifier = Modifier
-                    .padding(end = 10.dp)
-                    .fillMaxWidth()
-                    .background(color = Color.Transparent),
-                value = if (headerTitle.length > 20) headerTitle.substring(0,19) else headerTitle,
-                onValueChange = {
-                    onTitleChange(it)
-                },
-                singleLine = true,
-                textStyle = headerStyle.value.copy(color = TypographyColor.value),
-                cursorBrush = SolidColor(ButtonPrimary.value)
-            ) { innerField ->
-                if (headerTitle.isEmpty()) {
-                    Text(text = "Deck Name ...", color = TaskItemLabelColor.value)
+            IconButton(onClick = {onCloseEvent() }) {
+                Column(
+                    modifier = Modifier
+                        .size(22.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Icon(imageVector = Icons.Default.Close, contentDescription = "Close Icon", tint = IconColor.value)
                 }
-                innerField()
             }
-        }
 
-        if (isEdit){
             Row(
                 modifier = Modifier
-                    .padding(end = 10.dp)
-                    .fillMaxWidth(),
+                    .fillMaxWidth(.40F)
+                    .fillMaxHeight(),
+                verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Start
             ) {
-                CustomButton(buttonText = "Save",isDangerButton = false) {
-                    onButtonClickEvent()
+                Spacer(modifier = Modifier.width(8.dp))
+                BasicTextField(
+                    modifier = Modifier
+                        .padding(end = 8.dp)
+                        .fillMaxWidth()
+                        .background(color = Color.Transparent),
+                    value = if (headerTitle.length > 20) headerTitle.substring(0,19) else headerTitle,
+                    onValueChange = {
+                        onTitleChange(it)
+                    },
+                    singleLine = true,
+                    textStyle = headerStyle.value.copy(color = TypographyColor.value),
+                    cursorBrush = SolidColor(ButtonPrimary.value)
+                ) { innerField ->
+                    if (headerTitle.isEmpty()) {
+                        Text(text = "Deck Name ...", color = TaskItemLabelColor.value)
+                    }
+                    innerField()
                 }
             }
-        }
 
-        if (!isEdit){
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight()
-                    .wrapContentHeight(),
-                horizontalArrangement = Arrangement.Start,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+            if (!isEdit){
                 Row(
                     modifier = Modifier
-                        .fillMaxWidth(.7F)
-                        .padding(horizontal = 8.dp)
-                        .background(color = Color.LightGray, shape = RoundedCornerShape(100))
-                        .padding(start = 4.dp)
+                        .fillMaxWidth()
+                        .fillMaxHeight(),
+                    horizontalArrangement = Arrangement.Start,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    CustomAttachementsTab(
-                        hasCover = false,
-                        onGalleryEvent = { /*TODO*/ },
+                    CustomIconButton(
+                        onIconEvent = { onReminderEvent() },
+                        iconRes = R.drawable.ic_reminder
+                    )
+                    Spacer(modifier = Modifier.width(1.dp))
+                    Column (
+                        modifier = Modifier
+                            .wrapContentSize()
+                            .rotate(rotation)
+                    ) {
+                        CustomIconButton(
+                            onIconEvent = { /* auto launching from launched effects */ },
+                            iconRes = R.drawable.ic_auto_save
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(1.dp))
+                    CustomCategoryIcon(
                         categoryList = categoryList,
-                        selectedCategoryIndex = selectedCategoryIndex,
                         onCategoryEvent = onCategoryIndexChange
                     ) {
                         addNewCategory()
                     }
-                }
 
-                if (!isNew){
+                    Spacer(modifier = Modifier.width(1.dp))
                     IconButton(
                         onClick = {
                             onDeleteButtonClickEvent()
@@ -148,9 +180,7 @@ fun DeckHeader(
                     ) {
                         Icon(imageVector = Icons.Default.Delete, tint = Color.Red, contentDescription = "Delete Icon")
                     }
-//                    CustomButton(buttonText = "Delete", isDangerButton = true) {
-//
-//                    }
+
                 }
             }
         }

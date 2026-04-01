@@ -27,12 +27,10 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.unit.dp
 import androidx.core.os.bundleOf
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import com.designlife.justdo.R
@@ -50,9 +48,6 @@ import com.designlife.justdo.deck.presentation.events.DeckEvents
 import com.designlife.justdo.deck.presentation.viewmodel.DeckViewModel
 import com.designlife.justdo.deck.presentation.viewmodel.DeckViewModelFactory
 import com.designlife.justdo.note.presentation.enums.DeckMode
-import com.designlife.justdo.note.presentation.enums.NoteMode
-import com.designlife.justdo.note.presentation.events.NoteEvents
-import com.designlife.justdo.ui.theme.PrimaryBackgroundColor
 import com.designlife.justdo.ui.theme.UIComponentBackground
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -128,8 +123,8 @@ class DeckFragment : Fragment() {
                                 },
                                 isEdit = editState,
                                 isNew = deckMode != DeckMode.UPDATE,
-                                onButtonClickEvent = {
-                                    viewModel.onEvent(DeckEvents.OnEditStateChange(false))
+                                onAutoSaveEvent = {
+//                                    viewModel.onEvent(DeckEvents.OnEditStateChange(false))
                                     viewModel.onEvent(DeckEvents.OnPersistCardChanges)
                                 },
                                 onDeleteButtonClickEvent = {
@@ -141,6 +136,7 @@ class DeckFragment : Fragment() {
                                 onCategoryIndexChange = {
                                     viewModel.onEvent(DeckEvents.OnCategoryIndexChange(it))
                                 },
+                                onReminderEvent = {},
                                 addNewCategory = {
                                     val bundle = bundleOf()
                                     bundle.putInt(Constants.SCREEN_TYPE, ScreenType.CATEGORY.ordinal)

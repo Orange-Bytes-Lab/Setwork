@@ -18,21 +18,26 @@ import com.designlife.justdo.ui.theme.buttonStyleSize
 
 @Composable
 fun CustomButton(
-    buttonText : String,
-    isDangerButton : Boolean,
-    onButtonEvent : () -> Unit
+    buttonText: String,
+    isDangerButton: Boolean,
+    onButtonEvent: () -> Unit
 ) {
     Button(
         onClick = { onButtonEvent() },
         modifier = Modifier
-            .width(if (isDangerButton) 72.dp else 62.dp)
+            .width(if (isDangerButton) 74.dp else 64.dp)
             .height(32.dp),
         colors = ButtonDefaults.buttonColors(
-            backgroundColor = if(isDangerButton) DangerButton.value else ButtonPrimary.value,
+            backgroundColor = if (isDangerButton) DangerButton.value else ButtonPrimary.value,
             disabledBackgroundColor = Purple500
         ),
         shape = RoundedCornerShape(20.dp),
     ) {
-        Text(text = buttonText, textAlign = TextAlign.Center, style = buttonStyle.value, fontSize = buttonStyleSize.value)
+        Text(
+            text = buttonText,
+            textAlign = TextAlign.Center,
+            style = buttonStyle.value,
+            fontSize = buttonStyleSize.value
+        )
     }
 }

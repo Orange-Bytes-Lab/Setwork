@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -41,16 +42,18 @@ fun CategoryHeader(
     onCloseEvent : () -> Unit,
     onEditEvent : () -> Unit
 ) {
-    Row(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .wrapContentHeight()
-            .clip(Shapes.cutBottomRoundedCorners(15.dp))
+            .heightIn(min = 64.dp, max = 72.dp)
+            .clip(Shapes.cutBottomRoundedCorners(16.dp))
             .background(ComponentBackground.value),
-        horizontalArrangement = Arrangement.Center
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
         Row(
             modifier = Modifier
+                .padding(top = 20.dp)
                 .fillMaxWidth()
                 .height(50.dp)
             ,
@@ -59,14 +62,15 @@ fun CategoryHeader(
         ) {
             Row(modifier = Modifier.fillMaxWidth(.7F)) {
                 Spacer(modifier = Modifier.width(12.dp))
-                Column(
-                    modifier = Modifier
-                        .size(22.dp)
-                        .clickable { onCloseEvent() },
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Icon(imageVector = Icons.Default.Close, contentDescription = "Close Icon", tint = IconColor.value)
+                IconButton( onClick = { onCloseEvent() } ) {
+                    Column(
+                        modifier = Modifier
+                            .size(22.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Icon(imageVector = Icons.Default.Close, contentDescription = "Close Icon", tint = IconColor.value)
+                    }
                 }
                 Spacer(modifier = Modifier.width(10.dp))
                 Text(
@@ -80,7 +84,9 @@ fun CategoryHeader(
                 horizontalArrangement = Arrangement.End
             ) {
                 if (screenType == ScreenType.CATEGORY){
-                    IconButton(modifier = Modifier.padding(end = 10.dp).size(26.dp), onClick = {
+                    IconButton(modifier = Modifier
+                        .padding(end = 10.dp)
+                        .size(26.dp), onClick = {
                         onEditEvent()
                     }){
                         Icon(imageVector = Icons.Default.Edit, contentDescription = "Edit Pencil Icon", tint = Color.LightGray)

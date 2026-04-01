@@ -1,6 +1,5 @@
 package com.designlife.justdo.note.presentation.components
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -21,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.designlife.justdo.R
+import com.designlife.justdo.common.presentation.components.rippleClickable
 import com.designlife.justdo.ui.theme.TaskItemLabelColor
 import com.designlife.justdo.ui.theme.TypographyColor
 import com.designlife.justdo.ui.theme.taskItemLabelStyle
@@ -30,10 +30,10 @@ import com.designlife.justdo.ui.theme.taskItemStyleSize
 
 @Composable
 fun NoteReminderComponent(
-    dateText : String,
-    timeText : String,
-    onDateChange : () -> Unit,
-    onTimeChange : () -> Unit
+    dateText: String,
+    timeText: String,
+    onDateChange: () -> Unit,
+    onTimeChange: () -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -44,7 +44,12 @@ fun NoteReminderComponent(
         horizontalArrangement = Arrangement.Start
     ) {
         Spacer(modifier = Modifier.width(10.dp))
-        Icon(painter = painterResource(id = R.drawable.ic_schedule), contentDescription = "Item Icon", modifier = Modifier.size(14.dp), tint = TaskItemLabelColor.value)
+        Icon(
+            painter = painterResource(id = R.drawable.ic_schedule),
+            contentDescription = "Item Icon",
+            modifier = Modifier.size(14.dp),
+            tint = TaskItemLabelColor.value
+        )
         Spacer(modifier = Modifier.width(10.dp))
         Column(
             modifier = Modifier.fillMaxHeight()
@@ -54,26 +59,33 @@ fun NoteReminderComponent(
                 modifier = Modifier
                     .padding(start = 6.dp)
                     .fillMaxWidth(),
-                text =  "Date",
+                text = "Date",
                 style = taskItemLabelStyle.value,
                 fontSize = taskItemLabelStyleSize.value
             )
             Row(
-                modifier = Modifier.padding(start = 6.dp).fillMaxSize(),
+                modifier = Modifier
+                    .padding(start = 6.dp)
+                    .fillMaxSize(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    modifier = Modifier.wrapContentWidth().clickable {
-                        onDateChange()
-                    },
+                    modifier = Modifier
+                        .wrapContentWidth()
+                        .rippleClickable {
+                            onDateChange()
+                        },
                     text = dateText,
                     style = taskItemStyle.value.copy(color = TypographyColor.value),
                     fontSize = taskItemStyleSize.value
                 )
                 Text(
-                    modifier = Modifier.padding(end = 4.dp).wrapContentWidth().clickable {
-                        onTimeChange()
-                    },
+                    modifier = Modifier
+                        .padding(end = 4.dp)
+                        .wrapContentWidth()
+                        .rippleClickable {
+                            onTimeChange()
+                        },
                     text = timeText,
                     style = taskItemStyle.value.copy(color = TypographyColor.value),
                     fontSize = taskItemStyleSize.value

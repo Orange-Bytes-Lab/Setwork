@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.designlife.justdo.common.domain.entities.Category
 import com.designlife.justdo.common.presentation.components.FolderItem
+import com.designlife.justdo.common.presentation.components.rippleClickable
 import com.designlife.justdo.common.utils.enums.ViewType
 import com.designlife.justdo.ui.theme.PrimaryBackgroundCategoryColor
 import com.designlife.justdo.ui.theme.*
@@ -115,9 +116,7 @@ fun CategoryItem(
             .padding(horizontal = 6.dp)
             .width(200.dp)
             .height(100.dp)
-            .clickable {
-                onCategoryEvent()
-            }
+            .rippleClickable{ onCategoryEvent() }
             .alpha(if (isSelected) .8F else 1F)
             .background(
                 color = if (isSelected) categoryTheme else UIComponentBackground.value,
@@ -154,7 +153,7 @@ fun DummyCategoryItem(
             .width(200.dp)
             .height(100.dp)
             .background(color = PrimaryColorHome2.value, shape = RoundedCornerShape(20))
-            .clickable { newCategoryEvent() }
+            .rippleClickable{newCategoryEvent()}
             .border(width = 1.dp, color = Color.Gray, shape = RoundedCornerShape(20))
             .padding(horizontal = 8.dp),
     ) {

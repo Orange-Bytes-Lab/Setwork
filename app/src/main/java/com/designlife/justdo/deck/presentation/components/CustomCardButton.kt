@@ -5,8 +5,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.Composable
@@ -18,9 +18,9 @@ import com.designlife.justdo.ui.theme.ButtonPrimary
 
 @Composable
 fun CustomCardButton(
-    onClick : () -> Unit
+    onClick: () -> Unit
 ) {
-    IconButton(onClick = {  onClick() }) {
+    IconButton(onClick = { onClick() }) {
         Card(
             modifier = Modifier
                 .size(50.dp),
@@ -29,9 +29,13 @@ fun CustomCardButton(
             shape = RoundedCornerShape(12.dp)
         ) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Icon(modifier = Modifier.size(20.dp), imageVector = Icons.Default.Add, contentDescription = "Add Button", tint = Color.White)
+                Icon(
+                    modifier = Modifier.size(20.dp),
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "Add Button",
+                    tint = Color.White
+                )
             }
         }
     }
-
 }

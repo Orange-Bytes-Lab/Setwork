@@ -1,10 +1,7 @@
 package com.designlife.justdo.task.presentation.components
 
 import androidx.annotation.DrawableRes
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -16,21 +13,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
-import androidx.compose.material.Icon
-import androidx.compose.material.Text
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.designlife.justdo.R
-import com.designlife.justdo.common.presentation.components.CustomTaskInput
+import com.designlife.justdo.common.presentation.components.rippleClickable
 import com.designlife.justdo.ui.theme.TaskItemLabelColor
 import com.designlife.justdo.ui.theme.TypographyColor
-import com.designlife.justdo.ui.theme.buttonStyleSize
 import com.designlife.justdo.ui.theme.taskItemLabelStyle
 import com.designlife.justdo.ui.theme.taskItemLabelStyleSize
 import com.designlife.justdo.ui.theme.taskItemStyle
@@ -38,13 +30,13 @@ import com.designlife.justdo.ui.theme.taskItemStyleSize
 
 @Composable
 fun TaskItemDate(
-    dateText : String,
-    timeText : String,
-    @DrawableRes icon : Int,
-    labelText : String,
-    isClickable : Boolean,
-    onDateChange : () -> Unit,
-    onTimeChange : () -> Unit,
+    dateText: String,
+    timeText: String,
+    @DrawableRes icon: Int,
+    labelText: String,
+    isClickable: Boolean,
+    onDateChange: () -> Unit,
+    onTimeChange: () -> Unit,
 ) {
     Row(
         modifier = Modifier
@@ -55,7 +47,12 @@ fun TaskItemDate(
         horizontalArrangement = Arrangement.Start
     ) {
         Spacer(modifier = Modifier.width(10.dp))
-        Icon(painter = painterResource(id = icon), contentDescription = "Item Icon", modifier = Modifier.size(14.dp,height=18.dp), tint = TaskItemLabelColor.value)
+        Icon(
+            painter = painterResource(id = icon),
+            contentDescription = "Item Icon",
+            modifier = Modifier.size(14.dp, height = 18.dp),
+            tint = TaskItemLabelColor.value
+        )
         Spacer(modifier = Modifier.width(10.dp))
         Column(
             modifier = Modifier.fillMaxHeight()
@@ -65,28 +62,37 @@ fun TaskItemDate(
                 modifier = Modifier
                     .padding(start = 6.dp)
                     .fillMaxWidth(),
-                text =  labelText,
+                text = labelText,
                 style = taskItemLabelStyle.value,
                 fontSize = taskItemLabelStyleSize.value
             )
             Row(
-                modifier = Modifier.padding(start = 6.dp).fillMaxSize(),
+                modifier = Modifier
+                    .padding(start = 6.dp)
+                    .fillMaxSize(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    modifier = Modifier.wrapContentWidth().clickable {
-                        if (isClickable)
-                            onDateChange()
-                    },
+                    modifier = Modifier
+                        .wrapContentWidth()
+                        .rippleClickable {
+                            if (isClickable) {
+                                onDateChange()
+                            }
+                        },
                     text = dateText,
                     style = taskItemStyle.value.copy(color = TypographyColor.value),
                     fontSize = taskItemStyleSize.value
                 )
                 Text(
-                    modifier = Modifier.padding(end = 4.dp).wrapContentWidth().clickable {
-                        if(isClickable)
-                            onTimeChange()
-                    },
+                    modifier = Modifier
+                        .padding(end = 4.dp)
+                        .wrapContentWidth()
+                        .rippleClickable {
+                            if (isClickable) {
+                                onTimeChange()
+                            }
+                        },
                     text = timeText,
                     style = taskItemStyle.value.copy(color = TypographyColor.value),
                     fontSize = taskItemStyleSize.value

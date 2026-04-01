@@ -28,6 +28,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.designlife.justdo.R
+import com.designlife.justdo.common.presentation.components.rippleClickable
 import com.designlife.justdo.ui.theme.*
 
 @Composable
@@ -74,7 +75,7 @@ fun CustomColorPicker(
                     modifier = Modifier
                         .padding(horizontal = 6.dp, vertical = 15.dp)
                         .height(46.dp)
-                        .clickable {
+                        .rippleClickable {
                             onColorChange(colorList[index])
                             onEmojiChange(emojiList[index])
                             colorPaletteDialog(false)

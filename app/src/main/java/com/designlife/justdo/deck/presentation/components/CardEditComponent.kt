@@ -1,14 +1,11 @@
 package com.designlife.justdo.deck.presentation.components
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.animateValueAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -22,8 +19,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -31,15 +26,9 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Card
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -48,7 +37,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
@@ -58,10 +46,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.designlife.justdo.common.domain.entities.FlashCard
-import com.designlife.justdo.ui.theme.PrimaryColorHome2
 import com.designlife.justdo.ui.theme.TaskItemLabelColor
-import com.designlife.justdo.ui.theme.UIComponentBackground
 import com.designlife.justdo.ui.theme.cardTextStyle
 import com.designlife.justdo.ui.theme.headerStyle
 import com.designlife.justdo.ui.theme.highlightTextStyle
@@ -71,12 +56,12 @@ import com.designlife.justdo.ui.theme.highlightTextStyleSize
 fun CardEditComponent(
     modifier: Modifier = Modifier,
     deckTheme: Color,
-    frontContent : String,
-    backContent : String,
-    editState : Boolean,
+    frontContent: String,
+    backContent: String,
+    editState: Boolean,
     onEditStateChange: (value: Boolean) -> Unit,
-    onFrontContentChange : (value : String) -> Unit,
-    onBackContentChange : (value : String) -> Unit,
+    onFrontContentChange: (value: String) -> Unit,
+    onBackContentChange: (value: String) -> Unit,
 ) {
     val screenWidth = LocalDensity.current.run {
         (LocalConfiguration.current.screenWidthDp * density).toInt()
@@ -152,7 +137,7 @@ fun CardEditComponent(
                     .fillMaxHeight()
                     .clip(RoundedCornerShape(8.dp))
             ) {
-                if (!rotated){
+                if (!rotated) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -182,12 +167,11 @@ fun CardEditComponent(
                         .fillMaxWidth()
                         .fillMaxHeight()
                         .padding(horizontal = 6.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                    ,
+                        .clip(RoundedCornerShape(8.dp)),
                     verticalArrangement = if (editState) Arrangement.SpaceEvenly else Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
-                ){
-                    if (editState){
+                ) {
+                    if (editState) {
                         BasicTextField(
                             modifier = Modifier
                                 .padding(end = 10.dp)
@@ -195,7 +179,7 @@ fun CardEditComponent(
                                 .background(color = Color.Transparent),
                             value = frontContent,
                             onValueChange = {
-                                if (((frontContent.length)+(it.length)) <= 300){
+                                if (((frontContent.length) + (it.length)) <= 300) {
                                     onFrontContentChange(it)
                                 }
                             },
@@ -203,14 +187,19 @@ fun CardEditComponent(
                                 fontWeight = FontWeight.Normal
                             )
                         ) { innerField ->
-                            if (frontContent.isEmpty()){
-                                Text(text = "Front Content Text ...", color = TaskItemLabelColor.value)
+                            if (frontContent.isEmpty()) {
+                                Text(
+                                    text = "Front Content Text ...",
+                                    color = TaskItemLabelColor.value
+                                )
                             }
                             innerField()
                         }
-                        Row(modifier = Modifier
-                            .padding(vertical = 5.dp)
-                            .fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                        Row(
+                            modifier = Modifier
+                                .padding(vertical = 5.dp)
+                                .fillMaxWidth(), horizontalArrangement = Arrangement.End
+                        ) {
                             Text(
                                 text = "${frontContent.length}/300",
                                 style = highlightTextStyle.value,
@@ -224,7 +213,7 @@ fun CardEditComponent(
                                 .background(color = Color.Transparent),
                             value = backContent,
                             onValueChange = {
-                                if (backContent.length <= 1000){
+                                if (backContent.length <= 1000) {
                                     onBackContentChange(it)
                                 }
                             },
@@ -232,13 +221,16 @@ fun CardEditComponent(
                                 fontWeight = FontWeight.Normal
                             )
                         ) { innerField ->
-                            if (backContent.isEmpty()){
-                                Text(text = "Back Content Text ...", color = TaskItemLabelColor.value)
+                            if (backContent.isEmpty()) {
+                                Text(
+                                    text = "Back Content Text ...",
+                                    color = TaskItemLabelColor.value
+                                )
                             }
                             innerField()
                         }
                     }
-                    if (!editState){
+                    if (!editState) {
                         Text(
                             modifier = Modifier
                                 .verticalScroll(frontTextScrollState)
@@ -246,7 +238,11 @@ fun CardEditComponent(
                                     alpha = if (rotated) animateBack else animateFront
                                     rotationY = rotationState
                                 },
-                            text = if (!rotated){if(frontContent.isEmpty()) "Short Text ..." else frontContent} else { if(backContent.isEmpty()) "Full Content Text ..." else backContent},
+                            text = if (!rotated) {
+                                if (frontContent.isEmpty()) "Short Text ..." else frontContent
+                            } else {
+                                if (backContent.isEmpty()) "Full Content Text ..." else backContent
+                            },
                             style = cardTextStyle.value.copy(
                                 textAlign = TextAlign.Justify,
                                 fontWeight = FontWeight.SemiBold,
@@ -282,10 +278,10 @@ fun CardEditPrev() {
             backContent = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum. N",
             editState = edit.value,
             onEditStateChange = {
-                 edit.value = it
+                edit.value = it
             },
             onFrontContentChange = {},
-            onBackContentChange ={}
+            onBackContentChange = {}
         )
     }
 }

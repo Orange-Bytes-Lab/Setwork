@@ -2,7 +2,6 @@ package com.designlife.justdo.container.presentation
 
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,13 +13,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.ComposeView
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
-import com.designlife.justdo.common.domain.calendar.IDateGenerator
 import com.designlife.justdo.common.domain.enums.CategoryState
 import com.designlife.justdo.common.presentation.components.CategoryHeader
-import com.designlife.justdo.common.presentation.components.CommonCustomHeader
 import com.designlife.justdo.common.utils.AppServiceLocator
 import com.designlife.justdo.common.utils.constants.Constants
 import com.designlife.justdo.common.utils.enums.ScreenType
@@ -31,23 +29,23 @@ import com.designlife.justdo.container.presentation.events.ContainerEvents
 import com.designlife.justdo.container.presentation.viewmodel.ContainerViewModel
 import com.designlife.justdo.container.presentation.viewmodel.ContainerViewModelFactory
 import com.designlife.justdo.ui.theme.PrimaryBackgroundColor
-import com.designlife.justdo.ui.theme.TaskItemLabelColor
 import kotlinx.coroutines.cancel
 
 
 class ContainerFragment : Fragment() {
 
-    private lateinit var viewmodel : ContainerViewModel
+    private lateinit var viewmodel: ContainerViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.i("FRAGMENT_CHECK", "onCreate: ContainerFragment")
-        val categoryRepository = AppServiceLocator.provideCategoryRepository(requireActivity().applicationContext)
+        val categoryRepository =
+            AppServiceLocator.provideCategoryRepository(requireActivity().applicationContext)
         val repeatRepository = AppServiceLocator.provideRepeatRepository()
-        val factory = ContainerViewModelFactory(categoryRepository,repeatRepository)
-        viewmodel = ViewModelProvider(requireActivity(),factory)[ContainerViewModel::class.java]
+        val factory = ContainerViewModelFactory(categoryRepository, repeatRepository)
+        viewmodel = ViewModelProvider(requireActivity(), factory)[ContainerViewModel::class.java]
 
-        
+
 
         arguments?.let { bundle ->
             val ordinal = bundle.getInt(Constants.SCREEN_TYPE)
@@ -92,14 +90,22 @@ class ContainerFragment : Fragment() {
                             headerTitle = if (screenType == ScreenType.CATEGORY) "New Category" else "Repeat",
                             screenType = screenType,
                             onCloseEvent = {
-                                viewmodel.onEvent(ContainerEvents.OnCategoryStateChange(CategoryState.INSERT))
+                                viewmodel.onEvent(
+                                    ContainerEvents.OnCategoryStateChange(
+                                        CategoryState.INSERT
+                                    )
+                                )
                                 findNavController().navigateUp()
                             },
                             onEditEvent = {
-                                viewmodel.onEvent(ContainerEvents.OnCategoryStateChange(CategoryState.UPDATE))
+                                viewmodel.onEvent(
+                                    ContainerEvents.OnCategoryStateChange(
+                                        CategoryState.UPDATE
+                                    )
+                                )
                             }
                         )
-                        when(screenType){
+                        when (screenType) {
                             ScreenType.CATEGORY -> {
                                 CategoryComponent(
                                     categoryList = categoryList,
@@ -109,11 +115,27 @@ class ContainerFragment : Fragment() {
                                     categoryName = newCategoryName,
                                     categoryMode = categoryMode,
                                     onCategoryListUpdate = {
-                                        viewmodel.onEvent(ContainerEvents.OnCategoryListUpdate(CategoryState.INSERT))
+                                        viewmodel.onEvent(
+                                            ContainerEvents.OnCategoryListUpdate(
+                                                CategoryState.INSERT
+                                            )
+                                        )
                                     },
-                                    onCategoryDelete = {index -> viewmodel.onEvent(ContainerEvents.OnCategoryDelete(index)) },
-                                    onCategoryTitleUpdate = { index,oldTitle, title ->
-                                        viewmodel.onEvent(ContainerEvents.OnCategoryTitleUpdate(index = index, oldName = oldTitle, name = title))
+                                    onCategoryDelete = { index ->
+                                        viewmodel.onEvent(
+                                            ContainerEvents.OnCategoryDelete(
+                                                index
+                                            )
+                                        )
+                                    },
+                                    onCategoryTitleUpdate = { index, oldTitle, title ->
+                                        viewmodel.onEvent(
+                                            ContainerEvents.OnCategoryTitleUpdate(
+                                                index = index,
+                                                oldName = oldTitle,
+                                                name = title
+                                            )
+                                        )
                                     },
                                     onCategoryNameChange = {
                                         viewmodel.onEvent(ContainerEvents.OnCategoryNameUpdate(it))
@@ -122,7 +144,7 @@ class ContainerFragment : Fragment() {
                                         viewmodel.onEvent(ContainerEvents.ColorPickerToggle(true))
                                     },
                                     onCategorySelectedEvent = {
-                                        if(!isEditMode){
+                                        if (!isEditMode) {
                                             viewmodel.onEvent(ContainerEvents.OnCategorySelected(it))
                                             findNavController().navigateUp()
                                         }
@@ -132,6 +154,7 @@ class ContainerFragment : Fragment() {
                                     }
                                 )
                             }
+
                             ScreenType.REPEAT -> {
                                 RepeatComponent(
                                     repeatList = repeatList,
@@ -144,7 +167,7 @@ class ContainerFragment : Fragment() {
                             }
                         }
                     }
-                    if (colorPickerState){
+                    if (colorPickerState) {
                         Box(
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center
@@ -152,7 +175,7 @@ class ContainerFragment : Fragment() {
                             CustomColorPicker(
                                 isVisible = colorPickerState,
                                 colorPaletteDialog = {
-                                      viewmodel.onEvent(ContainerEvents.ColorPickerToggle(it))
+                                    viewmodel.onEvent(ContainerEvents.ColorPickerToggle(it))
                                 },
                                 selectedColor = selectedPaletteColor,
                                 onColorChange = {

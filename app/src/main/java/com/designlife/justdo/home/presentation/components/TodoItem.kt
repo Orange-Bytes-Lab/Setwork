@@ -25,6 +25,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.designlife.justdo.common.domain.entities.Todo
+import com.designlife.justdo.common.presentation.components.rippleClickable
 import com.designlife.justdo.ui.theme.TypographyColor
 import com.designlife.justdo.ui.theme.UIComponentBackground
 import com.designlife.justdo.ui.theme.taskItemStyle
@@ -41,9 +42,7 @@ fun TodoItem(
         modifier = Modifier
             .padding(horizontal = 15.dp, vertical = todoListHeight.value)
             .fillMaxWidth()
-            .clickable {
-                onTodoEvent()
-            }
+            .rippleClickable{ onTodoEvent() }
             .height(50.dp),
         shape = RoundedCornerShape(40),
         backgroundColor = UIComponentBackground.value,

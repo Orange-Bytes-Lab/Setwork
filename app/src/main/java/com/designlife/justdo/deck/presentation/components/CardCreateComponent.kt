@@ -33,6 +33,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.designlife.justdo.common.domain.entities.FlashCard
+import com.designlife.justdo.common.presentation.components.rippleClickable
 import com.designlife.justdo.ui.theme.cardTextStyle
 import com.designlife.justdo.ui.theme.cardTextStyleSize
 import com.designlife.justdo.ui.theme.headerStyle
@@ -54,7 +55,7 @@ fun CardCreateComponent(
             .padding(horizontal = 15.dp)
             .width((screenWidth * itemWidthFraction).dp)
             .fillMaxHeight(.8F)
-            .clickable {
+            .rippleClickable {
                 onExpandEvent()
             },
         backgroundColor = Color.White,

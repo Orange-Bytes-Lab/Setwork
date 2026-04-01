@@ -26,6 +26,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.designlife.justdo.R
 import com.designlife.justdo.common.presentation.components.CustomTaskInput
+import com.designlife.justdo.common.presentation.components.rippleClickable
 import com.designlife.justdo.ui.theme.TaskItemLabelColor
 import com.designlife.justdo.ui.theme.TypographyColor
 import com.designlife.justdo.ui.theme.buttonStyleSize
@@ -53,7 +54,7 @@ fun TaskItemView(
             .padding(horizontal = 10.dp)
             .fillMaxWidth()
             .height(60.dp)
-            .clickable {
+            .rippleClickable {
                        if (isClickable){
                            onClickEvent();
                        }

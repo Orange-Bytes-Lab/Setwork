@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.designlife.justdo.common.domain.calendar.IDateGenerator
+import com.designlife.justdo.common.presentation.components.rippleClickable
 import com.designlife.justdo.ui.theme.ButtonPrimary
 import com.designlife.justdo.ui.theme.TypographyColor
 import com.designlife.justdo.ui.theme.UIComponentBackground
@@ -150,7 +151,7 @@ fun DateItem(
             shape = RoundedCornerShape(12)
         )
         .dashedBorder(strokeWidth = 1.dp, color = if (isCurrent && !isSelected) ButtonPrimary.value else Color.Transparent, cornerRadiusDp = 12.dp)
-        .clickable {
+        .rippleClickable{
             onEventClick()
         },
         horizontalAlignment = Alignment.CenterHorizontally,

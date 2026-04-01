@@ -43,9 +43,7 @@ fun FolderItem(
             .padding(horizontal = 6.dp)
             .wrapContentWidth()
             .height(36.dp)
-            .clickable {
-                onFolderEvent()
-            }
+            .rippleClickable{ onFolderEvent() }
             .clip(RoundedCornerShape(100))
             .background(if (isSelected) ButtonPrimary.value else UIComponentBackground.value)
             .padding(horizontal = 8.dp),

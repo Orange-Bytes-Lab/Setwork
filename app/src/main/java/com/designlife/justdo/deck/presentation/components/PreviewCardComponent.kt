@@ -1,9 +1,5 @@
 package com.designlife.justdo.deck.presentation.components
 
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,7 +13,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -26,22 +21,23 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.designlife.justdo.common.domain.entities.FlashCard
+import com.designlife.justdo.common.presentation.components.rippleClickable
 import com.designlife.justdo.ui.theme.cardTextStyle
 import com.designlife.justdo.ui.theme.cardTextStyleSize
 
 @Composable
 fun PreviewCardComponent(
-    modifier : Modifier = Modifier,
+    modifier: Modifier = Modifier,
     card: FlashCard,
-    isHighlighted : Boolean,
-    onItemEvent : () -> Unit
+    isHighlighted: Boolean,
+    onItemEvent: () -> Unit
 ) {
     Card(
         modifier = modifier
             .padding(horizontal = 15.dp)
             .width(40.dp)
             .height(58.dp)
-            .clickable {
+            .rippleClickable {
                 onItemEvent()
             },
         backgroundColor = Color.White,

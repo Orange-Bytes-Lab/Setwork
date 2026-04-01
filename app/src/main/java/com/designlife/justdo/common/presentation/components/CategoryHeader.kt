@@ -1,8 +1,6 @@
 package com.designlife.justdo.common.presentation.components
 
-import android.util.Log
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,8 +11,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
@@ -37,10 +33,10 @@ import com.designlife.justdo.ui.theme.headerStyle
 
 @Composable
 fun CategoryHeader(
-    headerTitle : String,
-    screenType : ScreenType,
-    onCloseEvent : () -> Unit,
-    onEditEvent : () -> Unit
+    headerTitle: String,
+    screenType: ScreenType,
+    onCloseEvent: () -> Unit,
+    onEditEvent: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -55,21 +51,27 @@ fun CategoryHeader(
             modifier = Modifier
                 .padding(top = 20.dp)
                 .fillMaxWidth()
-                .height(50.dp)
-            ,
+                .height(50.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Row(modifier = Modifier.fillMaxWidth(.7F)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(.7F),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
                 Spacer(modifier = Modifier.width(12.dp))
-                IconButton( onClick = { onCloseEvent() } ) {
+                IconButton(onClick = { onCloseEvent() }) {
                     Column(
                         modifier = Modifier
                             .size(22.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {
-                        Icon(imageVector = Icons.Default.Close, contentDescription = "Close Icon", tint = IconColor.value)
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = "Close Icon",
+                            tint = IconColor.value
+                        )
                     }
                 }
                 Spacer(modifier = Modifier.width(10.dp))
@@ -77,23 +79,27 @@ fun CategoryHeader(
                     text = headerTitle,
                     style = headerStyle.value.copy(color = TypographyColor.value)
                 )
-                Log.i("UPDATE", "CommonCustomHeader: Header Font Size ${headerStyle.value.fontSize}")
             }
             Row(
                 modifier = Modifier.fillMaxWidth(1F),
                 horizontalArrangement = Arrangement.End
             ) {
-                if (screenType == ScreenType.CATEGORY){
-                    IconButton(modifier = Modifier
-                        .padding(end = 10.dp)
-                        .size(26.dp), onClick = {
-                        onEditEvent()
-                    }){
-                        Icon(imageVector = Icons.Default.Edit, contentDescription = "Edit Pencil Icon", tint = Color.LightGray)
+                if (screenType == ScreenType.CATEGORY) {
+                    IconButton(
+                        modifier = Modifier
+                            .padding(end = 10.dp)
+                            .size(26.dp), onClick = {
+                            onEditEvent()
+                        }) {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = "Edit Pencil Icon",
+                            tint = Color.LightGray
+                        )
                     }
                 }
             }
         }
     }
-    
+
 }

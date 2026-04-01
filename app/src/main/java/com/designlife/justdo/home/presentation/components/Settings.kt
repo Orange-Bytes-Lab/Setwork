@@ -2,8 +2,6 @@ package com.designlife.justdo.home.presentation.components
 
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -21,9 +19,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.designlife.justdo.common.utils.entity.SettingItem
 import com.designlife.justdo.ui.theme.ButtonHighLightPrimary
-import com.designlife.justdo.ui.theme.DarkTypography
-import com.designlife.justdo.ui.theme.LightTypography
-import com.designlife.justdo.ui.theme.PrimaryBackgroundColor
 import com.designlife.justdo.ui.theme.SettingHeaderStyle
 import com.designlife.justdo.ui.theme.SettingPageHeaderStyle
 import com.designlife.justdo.ui.theme.TypographyColor
@@ -32,30 +27,33 @@ import com.designlife.justdo.ui.theme.settingHeaderStyleSize
 
 @Composable
 fun Settings(
-    iconList : List<SettingItem>,
-    pickerState : Boolean,
-    loaderState : Boolean,
-    onDefaultScreenEvent : () -> Unit,
-    onAppThemeEvent : () -> Unit,
-    onFontSizeEvent : () -> Unit,
-    onListHeightEvent : () -> Unit,
-    onImportEvent : () -> Unit,
-    onExportEvent : () -> Unit,
-    onHelpEvent : () -> Unit,
-    onFeedbackEvent : () -> Unit,
-    onSoftwareUpdateEvent : () -> Unit,
-    onGeneralSettingItemClick : () -> Unit,
-    onBackupSettingItemClick : () -> Unit
+    iconList: List<SettingItem>,
+    pickerState: Boolean,
+    loaderState: Boolean,
+    onDefaultScreenEvent: () -> Unit,
+    onAppThemeEvent: () -> Unit,
+    onFontSizeEvent: () -> Unit,
+    onListHeightEvent: () -> Unit,
+    onImportEvent: () -> Unit,
+    onExportEvent: () -> Unit,
+    onHelpEvent: () -> Unit,
+    onFeedbackEvent: () -> Unit,
+    onSoftwareUpdateEvent: () -> Unit,
+    onGeneralSettingItemClick: () -> Unit,
+    onBackupSettingItemClick: () -> Unit
 ) {
-    Box(modifier = Modifier
-        .fillMaxSize()
-        .background(UIComponentBackground.value)
-        .alpha(if (pickerState || loaderState) 0.7F else 1F)
-        .blur(radius = if (pickerState || loaderState) 7.dp else 0.dp))
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(UIComponentBackground.value)
+            .alpha(if (pickerState || loaderState) 0.7F else 1F)
+            .blur(radius = if (pickerState || loaderState) 7.dp else 0.dp)
+    )
     {
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
+            Spacer(modifier = Modifier.height(22.dp))
             Text(
                 modifier = Modifier.padding(start = 6.dp),
                 text = "Settings",
@@ -66,29 +64,41 @@ fun Settings(
                 modifier = Modifier
                     .padding(start = 6.dp)
                     .fillMaxSize()
-            ){
+            ) {
                 item {
                     Spacer(modifier = Modifier.height(12.dp))
                     DividerLiner()
                     Spacer(modifier = Modifier.height(15.dp))
                     SettingHeader(headerTitle = "General")
                     Spacer(modifier = Modifier.height(15.dp))
-                    SettingItemComponent(drawableIcon = iconList[0].icon, title = iconList[0].title) {
+                    SettingItemComponent(
+                        drawableIcon = iconList[0].icon,
+                        title = iconList[0].title
+                    ) {
                         onDefaultScreenEvent.invoke()
                         onGeneralSettingItemClick()
                     }
                     Spacer(modifier = Modifier.height(15.dp))
-                    SettingItemComponent(drawableIcon = iconList[1].icon, title = iconList[1].title) {
+                    SettingItemComponent(
+                        drawableIcon = iconList[1].icon,
+                        title = iconList[1].title
+                    ) {
                         onAppThemeEvent.invoke()
                         onGeneralSettingItemClick()
                     }
                     Spacer(modifier = Modifier.height(15.dp))
-                    SettingItemComponent(drawableIcon = iconList[2].icon, title = iconList[2].title ) {
+                    SettingItemComponent(
+                        drawableIcon = iconList[2].icon,
+                        title = iconList[2].title
+                    ) {
                         onFontSizeEvent.invoke()
                         onGeneralSettingItemClick()
                     }
                     Spacer(modifier = Modifier.height(15.dp))
-                    SettingItemComponent(drawableIcon = iconList[3].icon, title = iconList[3].title) {
+                    SettingItemComponent(
+                        drawableIcon = iconList[3].icon,
+                        title = iconList[3].title
+                    ) {
                         onListHeightEvent.invoke()
                         onGeneralSettingItemClick()
                     }
@@ -99,12 +109,18 @@ fun Settings(
                     Spacer(modifier = Modifier.height(15.dp))
                     SettingHeader(headerTitle = "Backup")
                     Spacer(modifier = Modifier.height(15.dp))
-                    SettingItemComponent(drawableIcon = iconList[4].icon, title = iconList[4].title) {
+                    SettingItemComponent(
+                        drawableIcon = iconList[4].icon,
+                        title = iconList[4].title
+                    ) {
                         onImportEvent.invoke()
                         onBackupSettingItemClick()
                     }
                     Spacer(modifier = Modifier.height(15.dp))
-                    SettingItemComponent(drawableIcon = iconList[5].icon, title = iconList[5].title) {
+                    SettingItemComponent(
+                        drawableIcon = iconList[5].icon,
+                        title = iconList[5].title
+                    ) {
                         onExportEvent.invoke()
                         onBackupSettingItemClick()
                     }
@@ -115,15 +131,24 @@ fun Settings(
                     Spacer(modifier = Modifier.height(15.dp))
                     SettingHeader(headerTitle = "More")
                     Spacer(modifier = Modifier.height(15.dp))
-                    SettingItemComponent(drawableIcon = iconList[6].icon, title = iconList[6].title) {
+                    SettingItemComponent(
+                        drawableIcon = iconList[6].icon,
+                        title = iconList[6].title
+                    ) {
                         onHelpEvent.invoke()
                     }
                     Spacer(modifier = Modifier.height(15.dp))
-                    SettingItemComponent(drawableIcon = iconList[7].icon, title = iconList[7].title) {
+                    SettingItemComponent(
+                        drawableIcon = iconList[7].icon,
+                        title = iconList[7].title
+                    ) {
                         onFeedbackEvent.invoke()
                     }
                     Spacer(modifier = Modifier.height(15.dp))
-                    SettingItemComponent(drawableIcon = iconList[8].icon, title = iconList[8].title) {
+                    SettingItemComponent(
+                        drawableIcon = iconList[8].icon,
+                        title = iconList[8].title
+                    ) {
                         onSoftwareUpdateEvent.invoke()
                     }
                 }
@@ -140,16 +165,22 @@ fun Settings(
 
 @Composable
 fun SettingHeader(
-    headerTitle : String
+    headerTitle: String
 ) {
-   Text(text = headerTitle.uppercase(), style = SettingHeaderStyle.value, fontSize = settingHeaderStyleSize.value)
+    Text(
+        text = headerTitle.uppercase(),
+        style = SettingHeaderStyle.value,
+        fontSize = settingHeaderStyleSize.value
+    )
 }
 
 @Composable
 fun DividerLiner() {
-    Spacer(modifier = Modifier
-        .height(0.2.dp)
-        .fillMaxWidth()
-        .background(color = ButtonHighLightPrimary.value))
+    Spacer(
+        modifier = Modifier
+            .height(0.2.dp)
+            .fillMaxWidth()
+            .background(color = ButtonHighLightPrimary.value)
+    )
 }
 

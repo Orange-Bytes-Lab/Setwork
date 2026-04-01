@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.designlife.justdo.common.domain.calendar.IDateGenerator
 import com.designlife.justdo.common.domain.entities.Deck
+import com.designlife.justdo.common.presentation.components.rippleClickable
 import com.designlife.justdo.ui.theme.Shapes
 import com.designlife.justdo.ui.theme.deckItemContentStyle
 import com.designlife.justdo.ui.theme.deckItemContentStyleSize
@@ -42,7 +43,7 @@ fun DeckItem(
             .padding(horizontal = 15.dp, vertical = deckListHeight.value)
             .fillMaxWidth()
             .height(80.dp)
-            .clickable { onDeckClickEvent() },
+            .rippleClickable{onDeckClickEvent()},
         shape = RoundedCornerShape(20)
     ) {
         Row(

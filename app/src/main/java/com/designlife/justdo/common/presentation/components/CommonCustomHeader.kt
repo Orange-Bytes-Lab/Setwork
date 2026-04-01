@@ -136,7 +136,7 @@ fun CommonCustomHeader(
                 if (forTask) {
                     Row(
                         modifier = Modifier
-                            .padding(end = 12.dp)
+                            .padding(end = 10.dp)
                             .fillMaxHeight()
                             .fillMaxWidth(),
                         horizontalArrangement = Arrangement.End,

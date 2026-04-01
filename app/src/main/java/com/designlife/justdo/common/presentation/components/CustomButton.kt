@@ -25,8 +25,8 @@ fun CustomButton(
     Button(
         onClick = { onButtonEvent() },
         modifier = Modifier
-            .width(if (isDangerButton) 74.dp else 64.dp)
-            .height(32.dp),
+            .width(if (isDangerButton) 80.dp else 64.dp)
+            .height(if (isDangerButton) 30.dp else 32.dp),
         colors = ButtonDefaults.buttonColors(
             backgroundColor = if (isDangerButton) DangerButton.value else ButtonPrimary.value,
             disabledBackgroundColor = Purple500
@@ -35,7 +35,7 @@ fun CustomButton(
     ) {
         Text(
             text = buttonText,
-            textAlign = TextAlign.Center,
+            textAlign = TextAlign.Start,
             style = buttonStyle.value,
             fontSize = buttonStyleSize.value
         )

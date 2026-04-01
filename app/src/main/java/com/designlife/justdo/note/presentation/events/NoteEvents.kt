@@ -3,6 +3,7 @@ package com.designlife.justdo.note.presentation.events
 import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
+import com.designlife.justdo.task.presentation.events.TaskEvents
 
 sealed class NoteEvents{
     data class OnTitleChange(val value : String) : NoteEvents()
@@ -15,4 +16,8 @@ sealed class NoteEvents{
     data class OnThreeDotToggle(val state : Boolean) : NoteEvents()
     data object OnAIChatToggle : NoteEvents()
     data object OnReminderToggle : NoteEvents()
+    data class OnDateChange(val value : String) : NoteEvents()
+    data class OnTimeChange(val value : String) : NoteEvents()
+
+
 }

@@ -45,6 +45,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.designlife.justdo.R
 import com.designlife.justdo.common.domain.entities.Category
@@ -100,12 +101,12 @@ fun CustomAttachementsTab(
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            AttachementTabItem(icon = R.drawable.ic_folder, itemTitle = categoryName,isCategory = true) {
+            AttachementTabItem(layoutWeight = .5F, icon = R.drawable.ic_folder, itemTitle = categoryName,isCategory = true) {
                 dropDownState = true
             }
             Spacer(modifier = Modifier.width(25.dp))
             if (hasCover){
-                AttachementTabItem(icon = R.drawable.ic_gallery, itemTitle = "Add Cover") {
+                AttachementTabItem(layoutWeight = 1F,icon = R.drawable.ic_gallery, itemTitle = "Add Cover") {
                     launcher.launch(arrayOf("image/*"))
                 }
             }
@@ -166,6 +167,7 @@ fun getCategoryName(name: String): String {
 
 @Composable
 fun AttachementTabItem(
+    layoutWeight: Float,
     @DrawableRes icon : Int,
     itemTitle : String,
     isCategory : Boolean = false,
@@ -174,7 +176,7 @@ fun AttachementTabItem(
 ) {
     Row(
         modifier = Modifier
-            .fillMaxWidth()
+            .fillMaxWidth(layoutWeight)
             .clickable {
                 onEvent()
             },

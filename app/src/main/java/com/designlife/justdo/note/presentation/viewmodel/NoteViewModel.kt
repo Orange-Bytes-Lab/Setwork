@@ -1,30 +1,34 @@
 package com.designlife.justdo.note.presentation.viewmodel
 
-import android.content.Context
 import android.graphics.Bitmap
 import android.util.Log
-import android.widget.Toast
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.designlife.justdo.common.domain.calendar.IDateGenerator
 import com.designlife.justdo.common.domain.entities.Category
 import com.designlife.justdo.common.domain.entities.Note
 import com.designlife.justdo.common.domain.repositories.CategoryRepository
 import com.designlife.justdo.common.domain.repositories.NoteRepository
 import com.designlife.justdo.common.utils.ImageConverter
 import com.designlife.justdo.note.presentation.events.NoteEvents
+import com.designlife.orchestrator.NotificationScheduler
+import com.designlife.orchestrator.data.NotificationInfo
+import com.designlife.orchestrator.data.NotificationStatus
+import com.designlife.orchestrator.data.NotificationType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
+import java.util.Calendar
 import java.util.Date
 
 class NoteViewModel(
     private val noteRepository: NoteRepository,
-    private val categoryRepository: CategoryRepository
+    private val categoryRepository: CategoryRepository,
+    private val notificationScheduler: NotificationScheduler
 ) : ViewModel() {
     private val TAG : String = this.javaClass.simpleName
 
@@ -73,6 +77,17 @@ class NoteViewModel(
     private val _reminderState : MutableState<Boolean> = mutableStateOf(false)
     val reminderState = _reminderState
 
+    private val _rawNoteDateTimeInstanceCompute : MutableState<Calendar> = mutableStateOf(Calendar.getInstance())
+    private val _rawNoteDateTimeInstance : MutableState<Calendar> = mutableStateOf(Calendar.getInstance())
+    val rawNoteDateTimeInstance = _rawNoteDateTimeInstance
+
+    private val _selectedDateText : MutableState<String> = mutableStateOf(IDateGenerator.getGracefullyDateFromDate(
+        Date(System.currentTimeMillis())
+    ))
+    val selectedDateText = _selectedDateText
+
+    private val _selectedTimeText : MutableState<String> = mutableStateOf(IDateGenerator.getGracefullyTimeFromEpoch(System.currentTimeMillis()))
+    val selectedTimeText = _selectedTimeText
 
     fun onEvent(event : NoteEvents){
         when(event){
@@ -102,6 +117,20 @@ class NoteViewModel(
             }
             is NoteEvents.OnReminderToggle -> {
                 _reminderState.value = !_reminderState.value
+            }
+            is NoteEvents.OnDateChange -> {
+                val(day,month,year) = event.value.split("/")
+                _selectedDateText.value = IDateGenerator.getGracefullyDateFrom(day.toInt(),month.toInt(),year.toInt())
+                rawNoteDateTimeInstance.value.set(year.toInt(), month.toInt() - 1, day.toInt())
+            }
+            is NoteEvents.OnTimeChange -> {
+                val(hour,minute) = event.value.split(":")
+                _selectedTimeText.value = IDateGenerator.getGracefullyTimeFrom(hour.toInt(),minute.toInt())
+                val calendar = Calendar.getInstance()
+                _rawNoteDateTimeInstance.value.apply {
+                    set(Calendar.HOUR_OF_DAY, hour.toInt())
+                    set(Calendar.MINUTE, minute.toInt())
+                }
             }
         }
     }
@@ -163,6 +192,9 @@ class NoteViewModel(
             _progressBar.value = false
             _hasNoteModified.value = false
         }
+        if (_rawNoteDateTimeInstanceCompute.value.equals(_rawNoteDateTimeInstance.value) == false){
+            setNotification()
+        }
     }
 
     fun updateNote() {
@@ -198,8 +230,9 @@ class NoteViewModel(
                 _hasNoteModified.value = false
             }
         }
-
-
+        if (_rawNoteDateTimeInstanceCompute.value.equals(_rawNoteDateTimeInstance.value) == false){
+            setNotification()
+        }
     }
 
     private fun isNoteUpdated(): Boolean {
@@ -221,4 +254,27 @@ class NoteViewModel(
             _categoryList.value = it
         }
     }
+
+    private fun setNotification() {
+        Log.i("ERROR_CHECK","setNotifications: setNotifications")
+        val noteNotificationInfo = NotificationInfo(
+            taskTitle = _titleValue.value.ifEmpty { "Setwork Note" },
+            taskSubTitle = (if (_contentValue.value.isEmpty()) "" else if (_contentValue.value.length > 25) "${
+                _contentValue.value.substring(
+                    0,
+                    25
+                )
+            } ..." else _contentValue.value),
+            scheduledTime = _rawNoteDateTimeInstance.value.timeInMillis,
+            createdTime = System.currentTimeMillis(),
+            deliveredTime = 0L,
+            notificationType = NotificationType.NOTE_NOTIFY,
+            notificationStatus = NotificationStatus.ACTIVE,
+            taskId = System.currentTimeMillis().toInt()
+        )
+        Log.i("ERROR_CHECK","setNotifications: NoteViewModel :: before scheduleNotification")
+        notificationScheduler.scheduleNotification(noteNotificationInfo)
+        Log.i("ERROR_CHECK","setNotifications: NoteViewModel :: after scheduleNotification")
+    }
+
 }

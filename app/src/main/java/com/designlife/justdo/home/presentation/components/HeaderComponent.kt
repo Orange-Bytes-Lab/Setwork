@@ -1,5 +1,6 @@
 package com.designlife.justdo.home.presentation.components
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -47,58 +48,75 @@ fun HeaderComponent(
     onSearchIconClick : () -> Unit,
     currentDayButton : Boolean = false,
     viewType : ViewType,
-    onViewChange : (viewType : ViewType) -> Unit
+    onViewChange : (viewType : ViewType) -> Unit,
+    onChatIconEvent : () -> Unit
 ) {
-    Row(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
             .clip(Shapes.cutBottomRoundedCorners(15.dp))
             .background(ComponentBackground.value),
-        horizontalArrangement = Arrangement.Center
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
+        Spacer(modifier = Modifier.height(20.dp))
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(50.dp)
+                .height(54.dp)
             ,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Start
         ) {
             Spacer(modifier = Modifier.width(12.dp))
-            Column(
-                modifier = Modifier
-                    .size(25.dp)
-                    .background(color = ButtonPrimary.value, RoundedCornerShape(100))
-                    .clickable { onEventClick() },
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                Text(
-                    text = getDateInt(currentDate),
-                    color = Color.White,
-                    style = TextStyle(
-                        fontSize = commonStyleSize.value,
-                        fontWeight = FontWeight.ExtraBold
-                    ),
-                    textAlign = TextAlign.Center
-                )
+            IconButton(onClick = {
+                onEventClick()
+            }) {
+                Column(
+                    modifier = Modifier
+                        .size(26.dp)
+                        .background(color = ButtonPrimary.value, RoundedCornerShape(100)),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        text = getDateInt(currentDate),
+                        color = Color.White,
+                        style = TextStyle(
+                            fontSize = commonStyleSize.value,
+                            fontWeight = FontWeight.ExtraBold
+                        ),
+                        textAlign = TextAlign.Center
+                    )
+                }
             }
-            Spacer(modifier = Modifier.width(12.dp))
+            Spacer(modifier = Modifier.width(8.dp))
             SelectedHeaderTitle(
                 viewType = viewType
             )
-            if (searchIconVisibility){
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
-                ) {
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
+            ) {
+                if (viewType == ViewType.TASK){
                     IconButton(onClick = {
-                        onSearchIconClick()
+                        onChatIconEvent()
                     }) {
-                        Icon(modifier = Modifier.size(20.dp), painter = painterResource(id = R.drawable.ic_search),contentDescription = "Search Icon", tint = ButtonPrimary.value)
+                        Image(modifier = Modifier.size(20.dp), painter = painterResource(id = R.drawable.ic_ai_chat),contentDescription = "AI Chat Icon")
+                    }
+                }else{
+                    if (searchIconVisibility){
+                        IconButton(onClick = {
+                            onSearchIconClick()
+                        }) {
+                            Icon(modifier = Modifier.size(20.dp), painter = painterResource(id = R.drawable.ic_search),contentDescription = "Search Icon", tint = ButtonPrimary.value)
+                        }
                     }
                 }
             }
+            Spacer(modifier = Modifier.width(6.dp))
         }
     }
 }

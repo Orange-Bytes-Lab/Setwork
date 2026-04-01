@@ -18,8 +18,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyListState
@@ -84,6 +87,7 @@ import com.designlife.justdo.settings.presentation.enums.GeneralSettingView
 import com.designlife.justdo.settings.presentation.events.SettingEvents
 import com.designlife.justdo.settings.presentation.viewmodel.SettingViewModel
 import com.designlife.justdo.settings.presentation.viewmodel.SettingViewModelFactory
+import com.designlife.justdo.setworkllm.SetworkOLLM
 import com.designlife.justdo.ui.theme.ButtonPrimary
 import com.designlife.justdo.ui.theme.PrimaryBackgroundColor
 import com.designlife.justdo.ui.theme.PrimaryColorHome1
@@ -324,7 +328,8 @@ class HomeFragment : Fragment(), TaskListener {
                         modifier = Modifier.Companion
                             .fillMaxSize()
                             .alpha(if (viewModel.progressBarVisibility.value) 0.7F else 1F)
-                            .blur(radius = if (viewModel.progressBarVisibility.value) 7.dp else 0.dp)
+                            .blur(radius = if (viewModel.progressBarVisibility.value) 7.dp else 0.dp),
+                        contentAlignment = Alignment.BottomEnd
                     ) {
                         Box(
                             modifier = Modifier.Companion
@@ -372,7 +377,14 @@ class HomeFragment : Fragment(), TaskListener {
                                         onSearchIconClick = {
                                             viewModel.onEvent(HomeEvents.OnSearchToggle(true))
                                         },
-                                        onViewChange = {}
+                                        onViewChange = {},
+                                        onChatIconEvent = {
+                                            findNavController().navigate(
+                                                R.id.OChatFragment,
+                                                null,
+                                                NavOptions.navOptionStack
+                                            )
+                                        }
                                     )
                                 }
                                 AnimatedVisibility(visible = viewType != ViewType.SETTING) {
@@ -589,27 +601,6 @@ class HomeFragment : Fragment(), TaskListener {
                                     )
                                 }
                             }
-                            AnimatedVisibility(
-                                visible = viewType != ViewType.SETTING,
-                                enter = scaleIn(),
-                                exit = scaleOut()
-                            ) {
-                                FloatingActionButton(
-                                    modifier = Modifier.Companion
-                                        .padding(bottom = 65.dp, end = 20.dp)
-                                        .wrapContentSize(),
-                                    onClick = {
-                                        navigateByView(viewType)
-                                    },
-                                    backgroundColor = ButtonPrimary.value
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Add,
-                                        contentDescription = "FAB",
-                                        tint = PrimaryColorHome2.value
-                                    )
-                                }
-                            }
                             if (sheetVisibility) {
                                 val dialog = BottomSheet.dialog(
                                     context = requireActivity(),
@@ -635,7 +626,7 @@ class HomeFragment : Fragment(), TaskListener {
                             }
                         }
                         Box(
-                            modifier = Modifier.Companion.fillMaxSize(),
+                            modifier = Modifier.Companion.fillMaxSize().padding(WindowInsets.navigationBars.asPaddingValues()),
                             contentAlignment = Alignment.Companion.BottomEnd
                         ) {
                             BottomNavigationBar(
@@ -689,6 +680,27 @@ class HomeFragment : Fragment(), TaskListener {
                                 ) {
                                     CustomLoaderComponent(loaderData = loaderStatus)
                                 }
+                            }
+                        }
+                        AnimatedVisibility(
+                            visible = viewType != ViewType.SETTING,
+                            enter = scaleIn(),
+                            exit = scaleOut()
+                        ) {
+                            FloatingActionButton(
+                                modifier = Modifier.Companion
+                                    .padding(bottom = 115.dp, end = 20.dp)
+                                    .wrapContentSize(),
+                                onClick = {
+                                    navigateByView(viewType)
+                                },
+                                backgroundColor = ButtonPrimary.value
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Add,
+                                    contentDescription = "FAB",
+                                    tint = PrimaryColorHome2.value
+                                )
                             }
                         }
                     }

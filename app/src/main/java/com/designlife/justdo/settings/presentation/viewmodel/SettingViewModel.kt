@@ -262,6 +262,7 @@ class SettingViewModel(
             ViewType.NOTE -> 1
             ViewType.DECK -> 2
             ViewType.SETTING -> 3
+            else -> 0
         }
     }
     private fun getOrdinalFromAppTheme(appTheme : AppTheme) : Int{

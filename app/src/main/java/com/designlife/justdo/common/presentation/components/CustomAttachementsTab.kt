@@ -15,9 +15,11 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -49,7 +51,9 @@ import com.designlife.justdo.common.domain.entities.Category
 import com.designlife.justdo.common.utils.Logs
 import com.designlife.justdo.common.utils.camelCase
 import com.designlife.justdo.ui.theme.AttachmentTabItemTextStyle
+import com.designlife.justdo.ui.theme.ButtonPrimary
 import com.designlife.justdo.ui.theme.IconColor
+import com.designlife.justdo.ui.theme.PrimaryColor1
 import com.designlife.justdo.ui.theme.TypographyColor
 import com.designlife.justdo.ui.theme.attachmentTabItemTextStyleSize
 
@@ -96,14 +100,14 @@ fun CustomAttachementsTab(
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            if (hasCover){
-                AttachementTabItem(icon = R.drawable.ic_gallery, itemTitle = "Gallery") {
-                    launcher.launch(arrayOf("image/*"))
-                }
-                Spacer(modifier = Modifier.width(25.dp))
-            }
             AttachementTabItem(icon = R.drawable.ic_folder, itemTitle = categoryName,isCategory = true) {
                 dropDownState = true
+            }
+            Spacer(modifier = Modifier.width(25.dp))
+            if (hasCover){
+                AttachementTabItem(icon = R.drawable.ic_gallery, itemTitle = "Add Cover") {
+                    launcher.launch(arrayOf("image/*"))
+                }
             }
         }
         if (dropDownState){
@@ -170,7 +174,7 @@ fun AttachementTabItem(
 ) {
     Row(
         modifier = Modifier
-            .wrapContentSize()
+            .fillMaxWidth()
             .clickable {
                 onEvent()
             },
@@ -178,7 +182,14 @@ fun AttachementTabItem(
         verticalAlignment = Alignment.CenterVertically
     ) {
         if (!isDeckCategory){
-            Icon(modifier = Modifier.size(width = 10.dp, height = 20.dp), painter = painterResource(id = icon), contentDescription = "Tab Icon", tint = IconColor.value)
+            Box(
+                modifier = Modifier
+                    .size(28.dp)
+                    .background(ButtonPrimary.value, shape = RoundedCornerShape(100)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(modifier = Modifier.size(16.dp), painter = painterResource(id = icon), contentDescription = "Tab Icon", tint = Color.White)
+            }
             Spacer(modifier = Modifier.width(4.dp))
         }
         Text(

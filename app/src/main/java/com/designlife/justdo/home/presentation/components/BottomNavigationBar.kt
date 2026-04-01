@@ -62,5 +62,6 @@ private fun getItemIndex(navBarItem : ViewType) : Int{
         ViewType.NOTE -> 1
         ViewType.DECK -> 2
         ViewType.SETTING -> 3
+        else -> 0
     }
 }

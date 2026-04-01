@@ -12,4 +12,7 @@ sealed class NoteEvents{
     data class OnCategoryChange(val value : Long) : NoteEvents()
     data class OnCategoryIndexChange(val value : Int) : NoteEvents()
     data class OnDeleteNote(val context: Context) : NoteEvents()
+    data class OnThreeDotToggle(val state : Boolean) : NoteEvents()
+    data object OnAIChatToggle : NoteEvents()
+    data object OnReminderToggle : NoteEvents()
 }

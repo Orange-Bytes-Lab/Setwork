@@ -64,6 +64,16 @@ class NoteViewModel(
 
     private val saveImageTimeMillis : Long = 200
 
+    private val _threeDot : MutableState<Boolean> = mutableStateOf(false)
+    val threeDot = _threeDot
+
+    private val _aiChatState : MutableState<Boolean> = mutableStateOf(false)
+    val aiChatState = _aiChatState
+
+    private val _reminderState : MutableState<Boolean> = mutableStateOf(false)
+    val reminderState = _reminderState
+
+
     fun onEvent(event : NoteEvents){
         when(event){
             is NoteEvents.OnTitleChange -> {
@@ -83,6 +93,15 @@ class NoteViewModel(
             }
             is NoteEvents.OnDeleteNote -> {
                 deleteNoteById()
+            }
+            is NoteEvents.OnThreeDotToggle -> {
+                _threeDot.value = event.state
+            }
+            is NoteEvents.OnAIChatToggle -> {
+                _aiChatState.value = !_aiChatState.value
+            }
+            is NoteEvents.OnReminderToggle -> {
+                _reminderState.value = !_reminderState.value
             }
         }
     }
@@ -124,27 +143,25 @@ class NoteViewModel(
     }
 
     fun insertNote(){
-        if (_contentValue.value.isNotEmpty()){
-            Log.i("INSERT_FLOW", "insertNote: Condition Check True")
-            _hasNoteModified.value = true
-            _progressBar.value = true
-            CoroutineScope((Dispatchers.IO)).launch {
-                Log.i("INSERT_FLOW", "insertNote: Context Change")
-                val coverImage = async { ImageConverter.getByteArrayFromBitMap(_coverImage.value) }.await()
-                Log.i("INSERT_FLOW", "insertNote: Cover Image Converted ${coverImage}")
-                noteRepository.insertNote(Note(
-                    title = _titleValue.value,
-                    content = _contentValue.value,
-                    categoryId = _categoryList.value[_selectedCategoryIndex.value].id,
-                    emoji = _categoryList.value[_selectedCategoryIndex.value].emoji,
-                    coverImage = coverImage,
-                    createdTime = Date(System.currentTimeMillis()),
-                    lastModified = Date(System.currentTimeMillis())
-                ))
-                Log.i("INSERT_FLOW", "insertNote: Note Inserted")
-                _progressBar.value = false
-                _hasNoteModified.value = false
-            }
+        Log.i("INSERT_FLOW", "insertNote: Condition Check True")
+        _hasNoteModified.value = true
+        _progressBar.value = true
+        CoroutineScope((Dispatchers.IO)).launch {
+            Log.i("INSERT_FLOW", "insertNote: Context Change")
+            val coverImage = async { ImageConverter.getByteArrayFromBitMap(_coverImage.value) }.await()
+            Log.i("INSERT_FLOW", "insertNote: Cover Image Converted ${coverImage}")
+            noteRepository.insertNote(Note(
+                title = _titleValue.value.ifEmpty { "Untitled" },
+                content = _contentValue.value,
+                categoryId = _categoryList.value[_selectedCategoryIndex.value].id,
+                emoji = _categoryList.value[_selectedCategoryIndex.value].emoji,
+                coverImage = coverImage,
+                createdTime = Date(System.currentTimeMillis()),
+                lastModified = Date(System.currentTimeMillis())
+            ))
+            Log.i("INSERT_FLOW", "insertNote: Note Inserted")
+            _progressBar.value = false
+            _hasNoteModified.value = false
         }
     }
 

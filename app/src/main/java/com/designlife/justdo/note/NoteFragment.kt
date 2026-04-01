@@ -6,15 +6,25 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.material.Text
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker
@@ -24,18 +34,22 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
+import com.designlife.justdo.MainActivity
 import com.designlife.justdo.R
 import com.designlife.justdo.common.presentation.components.CommonCustomHeader
 import com.designlife.justdo.common.presentation.components.CustomAttachementsTab
 import com.designlife.justdo.common.presentation.components.ProgressBar
+import com.designlife.justdo.common.presentation.components.ToolBarPopUpComponent
 import com.designlife.justdo.common.utils.AppServiceLocator
 import com.designlife.justdo.common.utils.constants.Constants
 import com.designlife.justdo.common.utils.enums.ScreenType
+import com.designlife.justdo.common.utils.enums.ViewType
 import com.designlife.justdo.note.presentation.components.NoteComponent
 import com.designlife.justdo.note.presentation.enums.NoteMode
 import com.designlife.justdo.note.presentation.events.NoteEvents
 import com.designlife.justdo.note.presentation.viewmodel.NoteViewModel
 import com.designlife.justdo.note.presentation.viewmodel.NoteViewModelFactory
+import com.designlife.justdo.setworkllm.SetworkOLLM
 import com.designlife.justdo.ui.theme.PrimaryBackgroundColor
 import com.designlife.justdo.ui.theme.UIComponentBackground
 import kotlinx.coroutines.CoroutineScope
@@ -44,7 +58,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
-class NoteFragment : Fragment() {
+class NoteFragment : Fragment(), SetworkOLLM.SetworkMessage {
     private lateinit var viewModel: NoteViewModel
     private var noteMode = NoteMode.CREATE
     private val READ_EXTERNAL_STORAGE_PERMISSION = android.Manifest.permission.READ_EXTERNAL_STORAGE
@@ -53,6 +67,7 @@ class NoteFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        MainActivity.setworkChat.protocol(this)
         val noteId = arguments?.getLong("noteId") ?: -1L
         val index = arguments?.getInt("categoryIndex") ?: -1
         val noteRepository = AppServiceLocator.provideNoteRepository(requireContext())
@@ -91,6 +106,9 @@ class NoteFragment : Fragment() {
                 val selectedCategoryIndex = viewModel.selectedCategoryIndex.value
                 val scope = rememberCoroutineScope()
                 val progressBar = viewModel.progressBar.value
+                val threeDot = viewModel.threeDot.value
+                val aiChatState = viewModel.aiChatState.value
+                val reminderState = viewModel.reminderState.value
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -103,7 +121,7 @@ class NoteFragment : Fragment() {
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         CommonCustomHeader(
-                            headerTitle = if (noteTitle.isEmpty()) "New Note" else noteTitle,
+                            headerTitle = noteTitle.ifEmpty { "New Note" },
                             onCloseEvent = {
                                 // save updates
                                 try {
@@ -122,10 +140,43 @@ class NoteFragment : Fragment() {
                             },
                             hasDone = noteMode == NoteMode.UPDATE,
                             forTask = noteMode == NoteMode.UPDATE,
-                            isOverview = noteMode == NoteMode.UPDATE
+                            isOverview = noteMode == NoteMode.UPDATE,
+                            viewType = ViewType.NOTE,
+                            onReminderEvent = {
+                                viewModel.onEvent(NoteEvents.OnReminderToggle)
+
+                            },
+                            onAutoSaveEvent = {
+                                try {
+                                    if (noteMode == NoteMode.CREATE) {
+                                        viewModel.insertNote()
+                                    } else {
+                                        viewModel.updateNote()
+                                    }
+                                }catch (e : Exception){
+                                    e.printStackTrace()
+                                }
+                            },
+                            onAIChatEvent = {
+                                viewModel.onEvent(NoteEvents.OnAIChatToggle)
+                            },
+                            onThreeDotEvent = {
+                                viewModel.onEvent(NoteEvents.OnThreeDotToggle(!threeDot))
+                            }
                         ) {
-                            viewModel.onEvent(NoteEvents.OnDeleteNote(requireContext()))
-                            findNavController().navigateUp()
+
+                        }
+                        AnimatedVisibility(reminderState) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth().height(100.dp).background(color = Color.White),
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text("Reminder Section")
+                            }
+                        }
+                        AnimatedVisibility(aiChatState) {
+                            MainActivity.setworkChat.ChatTextView()
                         }
                         CustomAttachementsTab(
                             hasCover = true,
@@ -170,9 +221,50 @@ class NoteFragment : Fragment() {
                     if (progressBar) {
                         ProgressBar()
                     }
+
+                    AnimatedVisibility(threeDot) {
+                        ToolBarPopUpComponent(
+                            onExportPdfEvent = {
+                                viewModel.onEvent(NoteEvents.OnThreeDotToggle(false))
+                            },
+                            onExportPngEvent = {
+                                viewModel.onEvent(NoteEvents.OnThreeDotToggle(false))
+                            },
+                            onDeleteEvent = {
+                                viewModel.onEvent(NoteEvents.OnThreeDotToggle(false))
+                                viewModel.onEvent(NoteEvents.OnDeleteNote(requireContext()))
+                                findNavController().navigateUp()
+                            }
+                        )
+                    }
+
                 }
             }
         }
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        val callback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (isEnabled) {
+                    try {
+                        if (noteMode == NoteMode.CREATE) {
+                            viewModel.insertNote()
+                        } else {
+                            viewModel.updateNote()
+                        }
+                    }catch (e : Exception){
+                        e.printStackTrace()
+                    }finally {
+                        Toast.makeText(requireContext(), "Saved", Toast.LENGTH_SHORT).show()
+                    }
+                    isEnabled = false
+                    requireActivity().onBackPressed()
+                }
+            }
+        }
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, callback)
     }
 
     private fun takeUserPermission() {
@@ -236,4 +328,11 @@ class NoteFragment : Fragment() {
             e.printStackTrace()
         }
     }
+
+    override fun onChatRelay(message: String) {
+        val completeContent = viewModel.contentValue.value +"\n -- Setwork Chat --> \n" + message
+        viewModel.onEvent(NoteEvents.OnContentChange(completeContent))
+    }
+
+
 }

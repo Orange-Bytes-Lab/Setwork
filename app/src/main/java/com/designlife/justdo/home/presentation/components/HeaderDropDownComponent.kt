@@ -31,5 +31,6 @@ fun getViewTypeText(viewType: ViewType, typeList: List<String>): String {
         ViewType.NOTE -> typeList[1]
         ViewType.DECK -> typeList[2]
         ViewType.SETTING -> typeList[3]
+        ViewType.UNKNOWN -> typeList[0]
     }
 }

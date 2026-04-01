@@ -67,6 +67,7 @@ val settingPageHeaderStyleSize = mutableStateOf<TextUnit>(26.sp)
 val settingHeaderStyleSize = mutableStateOf<TextUnit>(12.sp)
 val settingItemStyleSize = mutableStateOf<TextUnit>(16.sp)
 val pickerItemStyleSize = mutableStateOf<TextUnit>(14.sp)
+val notePopUpItemStyleSize = mutableStateOf<TextUnit>(14.sp)
 
 val headerStyle = mutableStateOf(TextStyle(
     color = Color.Black,
@@ -210,6 +211,15 @@ val PickerItemStyle = mutableStateOf(TextStyle(
     fontWeight = FontWeight.Light
 ))
 
+val NotePopUpItemStyle = mutableStateOf(TextStyle(
+    color = TypographyColor.value,
+    fontFamily = fontFamily,
+    fontSize = notePopUpItemStyleSize.value,
+    fontWeight = FontWeight.Normal
+))
+
+
+
 fun updateSystemFont(value: AppFontSize) {
     when(value){
         AppFontSize.MEDIUM -> {
@@ -233,6 +243,7 @@ fun updateSystemFont(value: AppFontSize) {
             settingHeaderStyleSize.value = 11.sp
             settingItemStyleSize.value = 16.sp
             pickerItemStyleSize.value = 14.sp
+            notePopUpItemStyleSize.value = 14.sp
         }
         AppFontSize.SMALL -> {
             headerStyleFontSize.value = 14.sp
@@ -255,6 +266,7 @@ fun updateSystemFont(value: AppFontSize) {
             settingHeaderStyleSize.value = 10.sp
             settingItemStyleSize.value = 14.sp
             pickerItemStyleSize.value = 12.sp
+            notePopUpItemStyleSize.value = 12.sp
         }
         AppFontSize.LARGE -> {
             headerStyleFontSize.value = 18.sp
@@ -277,6 +289,7 @@ fun updateSystemFont(value: AppFontSize) {
             settingHeaderStyleSize.value = 12.sp
             settingItemStyleSize.value = 17.sp
             pickerItemStyleSize.value = 16.sp
+            notePopUpItemStyleSize.value = 16.sp
         }
     }
 }

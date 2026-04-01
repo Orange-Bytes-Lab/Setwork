@@ -4,5 +4,6 @@ enum class ViewType {
     TASK,
     NOTE,
     DECK,
-    SETTING
+    SETTING,
+    UNKNOWN
 }

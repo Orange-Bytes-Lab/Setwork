@@ -34,4 +34,8 @@
         android:id="@+id/deckFragment"
         android:name="com.designlife.justdo.deck.DeckFragment"
         android:label="DeckFragment" />
+    <fragment
+        android:id="@+id/OChatFragment"
+        android:name="com.designlife.justdo.chat.OChatFragment"
+        android:label="OChatFragment" />
 </navigation>

@@ -13,6 +13,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.DatePicker
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -37,6 +38,7 @@ import com.designlife.justdo.common.utils.camelCase
 import com.designlife.justdo.common.utils.constants.Constants
 import com.designlife.justdo.common.utils.enums.RepeatType
 import com.designlife.justdo.common.utils.enums.ScreenType
+import com.designlife.justdo.common.utils.enums.ViewType
 import com.designlife.justdo.container.presentation.viewmodel.ContainerViewModel
 import com.designlife.justdo.container.presentation.viewmodel.ContainerViewModelFactory
 import com.designlife.justdo.task.presentation.components.DeleteDialogComponent
@@ -127,9 +129,10 @@ class TaskFragment : Fragment() {
                             modifier = Modifier
                                 .fillMaxSize()
                                 .background(color = PrimaryBackgroundColor.value),
-                            horizontalAlignment = Alignment.CenterHorizontally
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Top
                         ) {
-                            CommonCustomHeader(headerTitle = if (isOverview) "Task Overview" else "New Task", forTask = true, hasDone = viewmodel.isCompleted.value, onCloseEvent = { findNavController().navigateUp()}, isOverview = isOverview) {
+                            CommonCustomHeader(headerTitle = if (isOverview) "Task Overview" else "New Task", forTask = true, hasDone = viewmodel.isCompleted.value, onCloseEvent = { findNavController().navigateUp()}, isOverview = isOverview, viewType = ViewType.TASK) {
                                 if (isOverview){
 //                                viewmodel.onEvent(TaskEvents.MarkTaskDone(taskId))
 //                                viewmodel.onEvent(TaskEvents.DeleteTaskEvent(taskId))

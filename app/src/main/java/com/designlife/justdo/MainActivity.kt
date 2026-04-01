@@ -14,6 +14,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.platform.ComposeView
 import androidx.core.content.ContextCompat
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.NavHostFragment
 import com.designlife.justdo.common.data.datastore.appStore
@@ -25,6 +26,7 @@ import com.designlife.justdo.settings.presentation.viewmodel.SettingViewModel
 import com.designlife.justdo.settings.presentation.viewmodel.SettingViewModel.Companion.getAppThemeFromOrdinal
 import com.designlife.justdo.settings.presentation.viewmodel.SettingViewModel.Companion.getFontSizeFromOrdinal
 import com.designlife.justdo.settings.presentation.viewmodel.SettingViewModel.Companion.getListItemHeightFromOrdinal
+import com.designlife.justdo.setworkllm.SetworkOLLM
 import com.designlife.justdo.ui.theme.updateSystemColor
 import com.designlife.justdo.ui.theme.updateSystemFont
 import com.designlife.justdo.ui.theme.updateSystemListSize
@@ -58,6 +60,7 @@ class MainActivity : AppCompatActivity() {
         Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
             Log.i(TAG, "onCreate: SETWORK CRASH :: Crash happened on thread ${thread.name} ::  ${throwable.printStackTrace()}")
         }
+        WindowCompat.setDecorFitsSystemWindows(window, false)
 
 
         if (!PermissionHandler.checkAllPermissions(this)){
@@ -72,7 +75,6 @@ class MainActivity : AppCompatActivity() {
             }
             requestPermissions()
         }
-
         resizeCursorWindow()
         setContentView(R.layout.activity_main)
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
@@ -80,6 +82,12 @@ class MainActivity : AppCompatActivity() {
         observeDarkModeChanges()
         observeSettingChanges()
         checkSoftwareUpdates()
+        initChat()
+    }
+
+    private fun initChat() {
+        setworkChat = SetworkOLLM.chatSDK(this)
+        setworkChat.init()
     }
 
     private fun checkSoftwareUpdates() {
@@ -118,6 +126,7 @@ class MainActivity : AppCompatActivity() {
 
     companion object{
         val isDarkModeTheme : MutableState<Boolean> = mutableStateOf(false);
+        lateinit var setworkChat : SetworkOLLM
     }
 
     // System UI Mode Observe
@@ -215,6 +224,7 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         try {
+            setworkChat.clean()
             lifecycleScope.cancel()
             this.viewModelStore.clear()
             HardStorage.clear()

@@ -12,6 +12,10 @@ import android.widget.DatePicker
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -272,7 +276,11 @@ class NoteFragment : Fragment(), SetworkOLLM.SetworkMessage {
                         ProgressBar()
                     }
 
-                    AnimatedVisibility(threeDot) {
+                    AnimatedVisibility(
+                        threeDot,
+                        enter = scaleIn() + expandVertically(expandFrom = Alignment.CenterVertically),
+                        exit = scaleOut() + shrinkVertically(shrinkTowards = Alignment.CenterVertically)
+                    ) {
                         ToolBarPopUpComponent(
                             onExportPdfEvent = {
                                 viewModel.onEvent(NoteEvents.OnThreeDotToggle(false))

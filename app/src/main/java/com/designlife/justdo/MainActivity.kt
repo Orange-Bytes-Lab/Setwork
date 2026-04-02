@@ -2,6 +2,7 @@ package com.designlife.justdo
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.pm.PackageManager
 import android.database.CursorWindow
 import android.os.Bundle
@@ -82,12 +83,7 @@ class MainActivity : AppCompatActivity() {
         observeDarkModeChanges()
         observeSettingChanges()
         checkSoftwareUpdates()
-        initChat()
-    }
-
-    private fun initChat() {
-        setworkChat = SetworkOLLM.chatSDK(this)
-        setworkChat.init()
+        MainActivity.initChat(this)
     }
 
     private fun checkSoftwareUpdates() {
@@ -127,6 +123,13 @@ class MainActivity : AppCompatActivity() {
     companion object{
         val isDarkModeTheme : MutableState<Boolean> = mutableStateOf(false);
         lateinit var setworkChat : SetworkOLLM
+
+        internal fun initChat(context: Context) {
+            if (!::setworkChat.isInitialized){
+                setworkChat = SetworkOLLM.chatSDK(context)
+                setworkChat.init()
+            }
+        }
     }
 
     // System UI Mode Observe

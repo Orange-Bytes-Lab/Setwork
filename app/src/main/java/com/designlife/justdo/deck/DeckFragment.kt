@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.rememberCoroutineScope
@@ -125,7 +126,11 @@ class DeckFragment : Fragment() {
                                 isNew = deckMode != DeckMode.UPDATE,
                                 onAutoSaveEvent = {
 //                                    viewModel.onEvent(DeckEvents.OnEditStateChange(false))
-                                    viewModel.onEvent(DeckEvents.OnPersistCardChanges)
+                                    try {
+                                        viewModel.onEvent(DeckEvents.OnPersistCardChanges)
+                                    }catch (e : Exception){
+                                        e.printStackTrace()
+                                    }
                                 },
                                 onDeleteButtonClickEvent = {
                                     viewModel.onEvent(DeckEvents.OnDeckDeleteEvent)
@@ -154,7 +159,7 @@ class DeckFragment : Fragment() {
                         ) {
                             CreateCardListComponent(
                                 modifier = Modifier
-                                    .fillMaxHeight(.7F)
+                                    .fillMaxHeight(.68F)
                                     .fillMaxWidth(),
                                 listState = listState,
                                 deckTheme = themeColor,
@@ -212,6 +217,7 @@ class DeckFragment : Fragment() {
                     }
                     Column(
                         modifier = Modifier
+                            .padding(bottom = 36.dp)
                             .wrapContentHeight()
                             .fillMaxWidth(),
                         verticalArrangement = Arrangement.Bottom,
@@ -231,11 +237,16 @@ class DeckFragment : Fragment() {
                             listState = editListState,
                             viewModeVisible = viewModeVisibility,
                             onShowStackEvent = {
-                                viewModel.onEvent(DeckEvents.OnDeckToggle)
-                                if (it) {
-                                    viewModel.onEvent(DeckEvents.OnEditStateChange(false))
-                                    viewModel.onEvent(DeckEvents.OnPersistCardChanges)
+                                try{
+                                    viewModel.onEvent(DeckEvents.OnDeckToggle)
+                                    if (it) {
+                                        viewModel.onEvent(DeckEvents.OnEditStateChange(false))
+                                        viewModel.onEvent(DeckEvents.OnPersistCardChanges)
+                                    }
+                                }catch (e : Exception){
+                                    e.printStackTrace()
                                 }
+
                             },
                             onNextCardEvent = { index ->
                                 scope.launch(Dispatchers.Main.immediate) {

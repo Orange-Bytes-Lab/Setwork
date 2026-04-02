@@ -70,7 +70,7 @@ fun DeckHeader(
 ) {
 
     LaunchedEffect(Unit) {
-        delay(15000)
+        delay(5000)
         onAutoSaveEvent()
     }
 
@@ -146,13 +146,13 @@ fun DeckHeader(
                     modifier = Modifier
                         .fillMaxWidth()
                         .fillMaxHeight(),
-                    horizontalArrangement = Arrangement.Start,
+                    horizontalArrangement = Arrangement.End,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    CustomIconButton(
-                        onIconEvent = { onReminderEvent() },
-                        iconRes = R.drawable.ic_reminder
-                    )
+//                    CustomIconButton(
+//                        onIconEvent = { onReminderEvent() },
+//                        iconRes = R.drawable.ic_reminder
+//                    )
                     Spacer(modifier = Modifier.width(1.dp))
                     Column (
                         modifier = Modifier

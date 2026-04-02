@@ -50,16 +50,19 @@ fun DeckBottomBarComponent(
                 )
             }
         }
-        IconButton(
-            modifier = Modifier.weight(1F),
-            onClick = { onShowStackEvent(!viewModeVisible) }) {
-            Icon(
-                modifier = Modifier.size(22.dp),
-                painter = painterResource(id = R.drawable.ic_bottom_stack),
-                contentDescription = "Stack Card Icon",
-                tint = Color.Gray
-            )
+        if (viewModeVisible){
+            IconButton(
+                modifier = Modifier.weight(1F),
+                onClick = { onShowStackEvent(!viewModeVisible) }) {
+                Icon(
+                    modifier = Modifier.size(22.dp),
+                    painter = painterResource(id = R.drawable.ic_bottom_stack),
+                    contentDescription = "Stack Card Icon",
+                    tint = Color.Gray
+                )
+            }
         }
+
         if (viewModeVisible) {
             IconButton(
                 modifier = Modifier.weight(1F),

@@ -70,6 +70,7 @@ class NoteFragment : Fragment(), SetworkOLLM.SetworkMessage {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        MainActivity.initChat(requireContext())
         MainActivity.setworkChat.protocol(this)
         val noteId = arguments?.getLong("noteId") ?: -1L
         val index = arguments?.getInt("categoryIndex") ?: -1
@@ -78,31 +79,34 @@ class NoteFragment : Fragment(), SetworkOLLM.SetworkMessage {
         notificationScheduler = SchedulingEngine(requireActivity().applicationContext).notificationScheduler()
         val factory = NoteViewModelFactory(noteRepository, categoryRepository,notificationScheduler)
         viewModel = ViewModelProvider(this, factory)[NoteViewModel::class.java]
-        CoroutineScope(Dispatchers.IO).launch {
-            async { viewModel.fetchCategories() }.await()
-            if (index != -1) {
-                viewModel.onEvent(NoteEvents.OnCategoryIndexChange(index))
-            }
-            if (noteId != -1L) {
-                noteMode = NoteMode.UPDATE
-                viewModel.fetchNoteById(noteId)
+
+        val noteView = arguments?.getBoolean(Constants.NOTE_VIEW) ?: false
+        if (noteView){
+            fetchFromNotification(noteView)
+        }else{
+            CoroutineScope(Dispatchers.IO).launch {
+                async { viewModel.fetchCategories() }.await()
+                if (index != -1) {
+                    viewModel.onEvent(NoteEvents.OnCategoryIndexChange(index))
+                }
+                if (noteId != -1L) {
+                    noteMode = NoteMode.UPDATE
+                    viewModel.fetchNoteById(noteId)
+                }
             }
         }
         isPermissionGranted = checkPermission()
-        fetchFromNotification()
+
     }
 
-    private fun fetchFromNotification() {
-        val noteView = arguments?.getBoolean(Constants.NOTE_VIEW) ?: false
+    private fun fetchFromNotification(noteView : Boolean) {
         val noteId = arguments?.getInt(Constants.NOTE_VIEW_ID) ?: -1
-        noteView?.let { view ->
-            noteId?.let {
-                if (view && noteId != -1){
-                    CoroutineScope(Dispatchers.IO).launch {
-                        async { viewModel.fetchCategories() }.await()
-                        noteMode = NoteMode.UPDATE
-                        viewModel.fetchNoteById(noteId.toLong())
-                    }
+        noteId?.let {
+            if (noteView && noteId != -1){
+                CoroutineScope(Dispatchers.IO).launch {
+                    async { viewModel.fetchCategories() }.await()
+                    noteMode = NoteMode.UPDATE
+                    viewModel.fetchNoteById(noteId.toLong())
                 }
             }
         }

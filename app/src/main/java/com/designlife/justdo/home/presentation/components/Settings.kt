@@ -53,9 +53,9 @@ fun Settings(
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            Spacer(modifier = Modifier.height(26.dp))
+            Spacer(modifier = Modifier.height(28.dp))
             Text(
-                modifier = Modifier.padding(start = 6.dp),
+                modifier = Modifier.padding(start = 6.dp, top = 6.dp),
                 text = "Settings",
                 style = SettingPageHeaderStyle.value.copy(TypographyColor.value),
                 fontSize = 26.sp

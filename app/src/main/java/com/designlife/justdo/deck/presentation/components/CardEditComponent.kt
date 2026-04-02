@@ -6,7 +6,6 @@ import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -46,6 +45,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.designlife.justdo.common.presentation.components.rippleClickable
 import com.designlife.justdo.ui.theme.TaskItemLabelColor
 import com.designlife.justdo.ui.theme.cardTextStyle
 import com.designlife.justdo.ui.theme.headerStyle
@@ -63,20 +63,15 @@ fun CardEditComponent(
     onFrontContentChange: (value: String) -> Unit,
     onBackContentChange: (value: String) -> Unit,
 ) {
+
     val screenWidth = LocalDensity.current.run {
         (LocalConfiguration.current.screenWidthDp * density).toInt()
     }
     val itemHeight = remember {
         mutableStateOf(1F) // // Adjust this fraction as needed
     }
-    val itemWidthFraction = 0.33f
+    val itemWidthFraction = 0.40f
     val frontTextScrollState = rememberScrollState()
-    val backTextScrollState = rememberScrollState()
-//    val rotationState = animateFloatAsState(
-//        targetValue = if (cardExpandState.value) 180F else 0F
-//    )
-
-
     var rotated by remember { mutableStateOf(false) }
 
     val rotationState by animateFloatAsState(
@@ -103,11 +98,11 @@ fun CardEditComponent(
         modifier = Modifier
             .graphicsLayer {
                 rotationY = rotationState
-                cameraDistance = 8 * density
+                cameraDistance = 7 * density
             }
             .width((screenWidth * itemWidthFraction).dp)
             .fillMaxHeight(itemHeight.value)
-            .clickable {
+            .rippleClickable {
                 if (editState) {
                     rotated = false
                 } else {
@@ -135,7 +130,8 @@ fun CardEditComponent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .fillMaxHeight()
-                    .clip(RoundedCornerShape(8.dp))
+                    .clip(RoundedCornerShape(8.dp)),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 if (!rotated) {
                     Row(

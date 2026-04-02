@@ -35,6 +35,7 @@ import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.rememberModalBottomSheetState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -87,7 +88,6 @@ import com.designlife.justdo.settings.presentation.enums.GeneralSettingView
 import com.designlife.justdo.settings.presentation.events.SettingEvents
 import com.designlife.justdo.settings.presentation.viewmodel.SettingViewModel
 import com.designlife.justdo.settings.presentation.viewmodel.SettingViewModelFactory
-import com.designlife.justdo.setworkllm.SetworkOLLM
 import com.designlife.justdo.ui.theme.ButtonPrimary
 import com.designlife.justdo.ui.theme.PrimaryBackgroundColor
 import com.designlife.justdo.ui.theme.PrimaryColorHome1
@@ -97,10 +97,7 @@ import com.designlife.orchestrator.data.NotificationTypeI
 import com.designlife.orchestrator.notification.clickmanager.TaskListener
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Date
@@ -155,9 +152,7 @@ class HomeFragment : Fragment(), TaskListener {
             }
             launch(Dispatchers.Main.immediate) {
                 viewModel.loadInitialDates()
-
             }
-
             launch(Dispatchers.IO) {
                 viewModel.fetchAllTodo()
             }
@@ -170,11 +165,8 @@ class HomeFragment : Fragment(), TaskListener {
             launch(Dispatchers.IO) {
                 viewModel.fetchAllDecks()
             }
-
-
             viewModel.onEvent(HomeEvents.OnProgressBarToggle(false))
         }
-//        checkNotificationView()
     }
 
     private fun initBottomNavItems() {
@@ -200,85 +192,57 @@ class HomeFragment : Fragment(), TaskListener {
         )
     }
 
-
     private fun onNotificationAvailable() {
-        Log.i("NOTIFICATION_FLOW", "onNotificationAvailable: ")
         if (requireActivity().intent?.getBooleanExtra("fromNotification", false) == true) {
             val id = requireActivity().intent.getIntExtra("notificationId", 0)
             val title = requireActivity().intent.getStringExtra("title") ?: ""
             val type = requireActivity().intent.getStringExtra("type") ?: ""
-            Log.i("NOTIFICATION_FLOW", "onNotificationAvailable: id : ${id}, title : ${title}, type : ${type}")
-            onUserNotificationEvent(id, title,type)
+            onUserNotificationEvent(id, title, type)
         }
     }
 
-
-
-
-    private fun checkNotificationView() {
-        CoroutineScope(Dispatchers.IO).launch {
-            val todoId = async {  appStoreRepository.getTodoId() }.await()
-            Log.i("NOTIFICATION_FLOW", "HomeFragment :: checkNotificationView: fetched todoId : ${todoId}")
-            if (todoId != -1) {
-                Log.i("NOTIFICATION_FLOW", "HomeFragment :: checkNotificationView: navigated to todoId : ${todoId}")
-                navigateToTaskViewById(todoId)
-                Log.i("NOTIFICATION_FLOW", "HomeFragment :: checkNotificationView: update todoId : -1")
-                appStoreRepository.updateTodoId(-1)
-            }
-        }
-    }
     private suspend fun initialSlide() {
-        if (::scope.isInitialized == false){
-            return
-        }
-        viewModel.onEvent(HomeEvents.OnProgressBarToggle(true))
-
         viewModel.onEvent(HomeEvents.OnRefreshInitialDates)
-
         val dateList = viewModel.dateList.value
         val currentDate = viewModel.currentDate.value
         val index = dateList.indexOf(currentDate)
-
         viewModel.onEvent(HomeEvents.OnIndexSelected(index))
-
-        scope.launch {
+        scope.launch(Dispatchers.Main.immediate) {
+            val todayDateIndex = dateList.indexOf(currentDate)
+            viewModel.onEvent(HomeEvents.OnIndexSelected(todayDateIndex))
+            dateListState.scrollToItem(todayDateIndex)
+            viewModel.onEvent(HomeEvents.HighlightTodoByDate(todayDateIndex))
+            todoListState.scrollToItem(viewModel.todoIndex.value)
             scrollToRollItem(viewModel.todoIndex.value, todoListState)
         }
-
-        scope.launch {
-            scrollToRollItem(index, dateListState)
-        }
-
-        viewModel.onEvent(HomeEvents.OnProgressBarToggle(false))
     }
 
     override fun onUserNotificationEvent(id: Int, title: String, type: String) {
-//        Log.i("NOTIFICATION_FLOW", "HomeFragment :: onUserNotificationEvent: taskId : ${id} : type : ${type} : title : ${title}")
 //        Toast.makeText(requireContext(), "Setwork Orchestrator\n Title $title ::\n Id ${id} ::\n Type ${type}\n", Toast.LENGTH_SHORT).show()
-
         if (id != -1) {
-//            Log.i("NOTIFICATION_FLOW", "HomeFragment :: checkNotificationView: navigated to taskId : ${id}")
             val notificationType = NotificationTypeI.getType(type)
-            when(notificationType){
+            when (notificationType) {
                 NotificationType.TASK_NOTIFY -> {
                     navigateToTaskViewById(id)
                 }
-                NotificationType.NOTE_NOTIFY ->{
+
+                NotificationType.NOTE_NOTIFY -> {
                     navigateToNoteViewById(id)
                 }
+
                 NotificationType.DECK_NOTIFY -> {
                     navigateToDeckViewById(id)
                 }
+
                 NotificationType.APP_UPDATE -> {
-                    if (title.equals("Software Update") && id == 10001){
+                    if (title.equals("Software Update") && id == 10001) {
                         softwareUpdateManager.installUpdate()
                     }
                 }
+
                 NotificationType.COMMON_NOTIFY -> {
                 }
             }
-            Log.i("NOTIFICATION_FLOW", "HomeFragment :: checkNotificationView: navigated to taskId : ${id}, tyoe : ${type}")
-
         }
     }
 
@@ -332,12 +296,12 @@ class HomeFragment : Fragment(), TaskListener {
                 val loaderState = settingViewModel.loaderVisibility.value
                 val loaderStatus = settingViewModel.loaderStatus.value
                 val isDarkMode = SettingViewModel.Companion.darkModeStatus.value
-                remember {
+                LaunchedEffect(viewModel.isLoaded.value) {
                     scope.launch {
-                        delay(120)
                         initialSlide()
                     }
                 }
+
                 Box(
                     modifier = Modifier.Companion.fillMaxSize(),
                 ) {
@@ -599,7 +563,11 @@ class HomeFragment : Fragment(), TaskListener {
                                         },
                                         onSoftwareUpdateEvent = {
                                             softwareUpdateManager.checkForUpdate()
-                                            Toast.makeText(requireContext(), "Checking Software Updates", Toast.LENGTH_SHORT).show()
+                                            Toast.makeText(
+                                                requireContext(),
+                                                "Checking Software Updates",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
                                         },
                                         onGeneralSettingItemClick = {
                                             settingViewModel.onEvent(
@@ -751,7 +719,10 @@ class HomeFragment : Fragment(), TaskListener {
         val bundle = bundleOf()
         bundle.putBoolean(Constants.TASK_VIEW, true)
         bundle.putInt(Constants.TASK_VIEW_ID, todoId)
-        Log.i("NOTIFICATION_FLOW", "HomeFragment :: navigateToTaskViewById: navigated to todoId : ${todoId}")
+        Log.i(
+            "NOTIFICATION_FLOW",
+            "HomeFragment :: navigateToTaskViewById: navigated to todoId : ${todoId}"
+        )
         findNavController().navigate(
             R.id.taskFragment,
             bundle,
@@ -763,7 +734,10 @@ class HomeFragment : Fragment(), TaskListener {
         val bundle = bundleOf()
         bundle.putBoolean(Constants.NOTE_VIEW, true)
         bundle.putInt(Constants.NOTE_VIEW_ID, noteId)
-        Log.i("NOTIFICATION_FLOW", "HomeFragment :: navigateToNoteViewById: navigated to todoId : ${noteId}")
+        Log.i(
+            "NOTIFICATION_FLOW",
+            "HomeFragment :: navigateToNoteViewById: navigated to todoId : ${noteId}"
+        )
         findNavController().navigate(
             R.id.noteFragment,
             bundle,
@@ -775,7 +749,10 @@ class HomeFragment : Fragment(), TaskListener {
         val bundle = bundleOf()
         bundle.putBoolean(Constants.DECK_VIEW, true)
         bundle.putInt(Constants.DECK_VIEW_ID, deckId)
-        Log.i("NOTIFICATION_FLOW", "HomeFragment :: navigateToNoteViewById: navigated to todoId : ${deckId}")
+        Log.i(
+            "NOTIFICATION_FLOW",
+            "HomeFragment :: navigateToNoteViewById: navigated to todoId : ${deckId}"
+        )
         findNavController().navigate(
             R.id.deckFragment,
             bundle,
@@ -784,14 +761,14 @@ class HomeFragment : Fragment(), TaskListener {
     }
 
     private suspend fun scrollToRollItem(currentDateIndex: Int, listState: LazyListState) {
-        if (currentDateIndex != -1){
+        if (currentDateIndex != -1) {
             listState.animateScrollToItem(currentDateIndex)
         }
     }
 
-    private fun navigateByView(viewType : ViewType){
+    private fun navigateByView(viewType: ViewType) {
         val bundle = bundleOf()
-        when(viewType){
+        when (viewType) {
             ViewType.TASK -> {
                 bundle.putBoolean(Constants.TASK_VIEW, false)
                 findNavController().navigate(
@@ -800,6 +777,7 @@ class HomeFragment : Fragment(), TaskListener {
                     NavOptions.navOptionStackSlide
                 )
             }
+
             ViewType.DECK -> {
                 bundle.putLong("deckId", -1L)
                 bundle.putInt("categoryIndex", 0)
@@ -809,6 +787,7 @@ class HomeFragment : Fragment(), TaskListener {
                     NavOptions.navOptionStackSlide
                 )
             }
+
             ViewType.NOTE -> {
                 bundle.putLong("noteId", -1L)
                 bundle.putInt("categoryIndex", 0)
@@ -818,11 +797,12 @@ class HomeFragment : Fragment(), TaskListener {
                     NavOptions.navOptionStackSlide
                 )
             }
+
             else -> {}
         }
     }
 
-    private fun feedbackMailToOrangeBytes(){
+    private fun feedbackMailToOrangeBytes() {
         val email = arrayOf("feedback.orangebytes@protonmail.com")
         val subject = "Setwork - Feedback"
 
@@ -847,13 +827,14 @@ class HomeFragment : Fragment(), TaskListener {
             try {
                 startActivity(Intent.createChooser(fallbackIntent, "Write us on a mail"))
             } catch (ex: ActivityNotFoundException) {
-                Toast.makeText(requireContext(), "No email apps installed", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "No email apps installed", Toast.LENGTH_SHORT)
+                    .show()
             }
         }
     }
 
 
-    private fun helpMailToOrangeBytes(){
+    private fun helpMailToOrangeBytes() {
         val email = arrayOf("help.orangebytes@proton.me")
         val subject = "Setwork - Help"
 
@@ -878,7 +859,8 @@ class HomeFragment : Fragment(), TaskListener {
             try {
                 startActivity(Intent.createChooser(fallbackIntent, "Write us on a mail"))
             } catch (ex: ActivityNotFoundException) {
-                Toast.makeText(requireContext(), "No email apps installed", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "No email apps installed", Toast.LENGTH_SHORT)
+                    .show()
             }
         }
     }

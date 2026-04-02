@@ -24,6 +24,7 @@ import com.designlife.justdo.home.domain.usecase.LoadNextDatesSetUseCase
 import com.designlife.justdo.home.domain.usecase.LoadPreviousDatesSetUseCase
 import com.designlife.justdo.home.presentation.events.HomeEvents
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
@@ -105,15 +106,15 @@ class HomeViewModel(
     private val _searchText : MutableState<String> = mutableStateOf("")
     val searchText = _searchText
 
-
+    private var _isLoaded : MutableState<Boolean> = mutableStateOf(false)
+    val isLoaded  = _isLoaded
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            launch {
-                dateGenerator.getDateList().collect{
-                _dateList.value = it
-                }
+            dateGenerator.getDateList().collect{
+                _dateList.value = it.toOrderedUniqueList()
             }
+            _isLoaded.value = true
         }
     }
 
@@ -178,11 +179,17 @@ class HomeViewModel(
             is HomeEvents.OnRefreshInitialDates -> {
                 viewModelScope.launch {
                     dateGenerator.getDateList().collect{
-                        _dateList.value = it
+                        _dateList.value = it.toOrderedUniqueList()
                     }
                 }
             }
         }
+    }
+
+    fun List<Date>.toOrderedUniqueList() : List<Date>{
+        val set = LinkedHashSet<Date>()
+        this.forEachIndexed { index, date -> set.add(date) }
+        return set.toList()
     }
 
     private fun sortContentByText(searchText: String) {
@@ -263,7 +270,7 @@ class HomeViewModel(
         list.addAll(_dateList.value)
         list.addAll(loadNextDatesSetUseCase())
         setNextMonthIndex(list.size)
-        _dateList.value = list
+        _dateList.value = list.toOrderedUniqueList()
     }
 
     private fun setNextMonthIndex(listSize : Int) {
@@ -279,7 +286,7 @@ class HomeViewModel(
         val list = ArrayList<Date>(prevMonth)
         list.addAll(_dateList.value)
         setPreviousMonthIndex()
-        _dateList.value = list
+        _dateList.value = list.toOrderedUniqueList()
     }
 
     fun updateSheetVisibility(value : Boolean) {

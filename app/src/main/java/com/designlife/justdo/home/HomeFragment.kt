@@ -174,7 +174,7 @@ class HomeFragment : Fragment(), TaskListener {
 
             viewModel.onEvent(HomeEvents.OnProgressBarToggle(false))
         }
-        checkNotificationView()
+//        checkNotificationView()
     }
 
     private fun initBottomNavItems() {
@@ -202,10 +202,12 @@ class HomeFragment : Fragment(), TaskListener {
 
 
     private fun onNotificationAvailable() {
+        Log.i("NOTIFICATION_FLOW", "onNotificationAvailable: ")
         if (requireActivity().intent?.getBooleanExtra("fromNotification", false) == true) {
             val id = requireActivity().intent.getIntExtra("notificationId", 0)
             val title = requireActivity().intent.getStringExtra("title") ?: ""
             val type = requireActivity().intent.getStringExtra("type") ?: ""
+            Log.i("NOTIFICATION_FLOW", "onNotificationAvailable: id : ${id}, title : ${title}, type : ${type}")
             onUserNotificationEvent(id, title,type)
         }
     }

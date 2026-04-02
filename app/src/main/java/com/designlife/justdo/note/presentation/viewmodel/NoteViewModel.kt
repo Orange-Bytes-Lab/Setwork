@@ -133,6 +133,9 @@ class NoteViewModel(
                     set(Calendar.MINUTE, minute.toInt())
                 }
             }
+            is NoteEvents.LoadNoteById -> {
+
+            }
         }
     }
 

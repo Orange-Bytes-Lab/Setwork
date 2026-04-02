@@ -4,6 +4,7 @@ import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -37,6 +38,7 @@ import com.designlife.justdo.common.presentation.components.ProgressBar
 import com.designlife.justdo.common.presentation.components.ToolBarPopUpComponent
 import com.designlife.justdo.common.utils.AppServiceLocator
 import com.designlife.justdo.common.utils.constants.Constants
+import com.designlife.justdo.common.utils.constants.Constants.NOTE_VIEW
 import com.designlife.justdo.common.utils.enums.ScreenType
 import com.designlife.justdo.common.utils.enums.ViewType
 import com.designlife.justdo.note.presentation.components.NoteComponent
@@ -46,6 +48,7 @@ import com.designlife.justdo.note.presentation.events.NoteEvents
 import com.designlife.justdo.note.presentation.viewmodel.NoteViewModel
 import com.designlife.justdo.note.presentation.viewmodel.NoteViewModelFactory
 import com.designlife.justdo.setworkllm.SetworkOLLM
+import com.designlife.justdo.task.presentation.events.TaskEvents
 import com.designlife.justdo.ui.theme.UIComponentBackground
 import com.designlife.orchestrator.NotificationScheduler
 import com.designlife.orchestrator.SchedulingEngine
@@ -63,7 +66,6 @@ class NoteFragment : Fragment(), SetworkOLLM.SetworkMessage {
     private val REQUEST_EXTERNAL_STORAGE = 1
 
     private lateinit var notificationScheduler: NotificationScheduler
-
     private var isPermissionGranted : Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -87,6 +89,23 @@ class NoteFragment : Fragment(), SetworkOLLM.SetworkMessage {
             }
         }
         isPermissionGranted = checkPermission()
+        fetchFromNotification()
+    }
+
+    private fun fetchFromNotification() {
+        val noteView = arguments?.getBoolean(Constants.NOTE_VIEW) ?: false
+        val noteId = arguments?.getInt(Constants.NOTE_VIEW_ID) ?: -1
+        noteView?.let { view ->
+            noteId?.let {
+                if (view && noteId != -1){
+                    CoroutineScope(Dispatchers.IO).launch {
+                        async { viewModel.fetchCategories() }.await()
+                        noteMode = NoteMode.UPDATE
+                        viewModel.fetchNoteById(noteId.toLong())
+                    }
+                }
+            }
+        }
     }
 
     private fun checkPermission(): Boolean {

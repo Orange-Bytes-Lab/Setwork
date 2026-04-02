@@ -18,6 +18,6 @@ sealed class NoteEvents{
     data object OnReminderToggle : NoteEvents()
     data class OnDateChange(val value : String) : NoteEvents()
     data class OnTimeChange(val value : String) : NoteEvents()
-
+    data class LoadNoteById(val id : Int) : NoteEvents()
 
 }

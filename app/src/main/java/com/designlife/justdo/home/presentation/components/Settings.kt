@@ -53,7 +53,7 @@ fun Settings(
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            Spacer(modifier = Modifier.height(22.dp))
+            Spacer(modifier = Modifier.height(26.dp))
             Text(
                 modifier = Modifier.padding(start = 6.dp),
                 text = "Settings",

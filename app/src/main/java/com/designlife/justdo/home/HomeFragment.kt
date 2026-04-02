@@ -253,11 +253,11 @@ class HomeFragment : Fragment(), TaskListener {
     }
 
     override fun onUserNotificationEvent(id: Int, title: String, type: String) {
-        Log.i("NOTIFICATION_FLOW", "HomeFragment :: onUserNotificationEvent: taskId : ${id} : type : ${type} : title : ${title}")
-        Toast.makeText(requireContext(), "Setwork Orchestrator\n Title $title ::\n Id ${id} ::\n Type ${type}\n", Toast.LENGTH_SHORT).show()
+//        Log.i("NOTIFICATION_FLOW", "HomeFragment :: onUserNotificationEvent: taskId : ${id} : type : ${type} : title : ${title}")
+//        Toast.makeText(requireContext(), "Setwork Orchestrator\n Title $title ::\n Id ${id} ::\n Type ${type}\n", Toast.LENGTH_SHORT).show()
 
         if (id != -1) {
-            Log.i("NOTIFICATION_FLOW", "HomeFragment :: checkNotificationView: navigated to taskId : ${id}")
+//            Log.i("NOTIFICATION_FLOW", "HomeFragment :: checkNotificationView: navigated to taskId : ${id}")
             val notificationType = NotificationTypeI.getType(type)
             when(notificationType){
                 NotificationType.TASK_NOTIFY -> {

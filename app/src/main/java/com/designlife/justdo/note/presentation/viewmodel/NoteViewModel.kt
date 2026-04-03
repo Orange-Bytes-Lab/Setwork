@@ -6,6 +6,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.designlife.justdo.common.AppOutput
 import com.designlife.justdo.common.domain.calendar.IDateGenerator
 import com.designlife.justdo.common.domain.entities.Category
 import com.designlife.justdo.common.domain.entities.Note
@@ -25,6 +26,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Calendar
 import java.util.Date
+import kotlin.math.absoluteValue
 
 class NoteViewModel(
     private val noteRepository: NoteRepository,
@@ -137,6 +139,40 @@ class NoteViewModel(
             }
             is NoteEvents.LoadNoteById -> {
 
+            }
+            is NoteEvents.OnPdfExport -> {
+                AppOutput.exportAsPdf(
+                    context = event.context,
+                    fileName = _titleValue.value,
+                    content = _contentValue.value
+                )
+                notificationScheduler.scheduleNotification(
+                    NotificationInfo(
+                        taskId = System.currentTimeMillis().absoluteValue.hashCode(),
+                        scheduledTime = System.currentTimeMillis(),
+                        taskTitle = "Setwork Document",
+                        taskSubTitle = "${_titleValue.value}.pdf is available in downloads",
+                        notificationType = NotificationType.COMMON_NOTIFY,
+                        notificationStatus = NotificationStatus.DELIVERED
+                    )
+                )
+            }
+            is NoteEvents.OnPngExport -> {
+                AppOutput.exportAsPng(
+                    context = event.context,
+                    fileName = _titleValue.value,
+                    content = _contentValue.value
+                )
+                notificationScheduler.scheduleNotification(
+                    NotificationInfo(
+                        taskId = System.currentTimeMillis().absoluteValue.hashCode(),
+                        scheduledTime = System.currentTimeMillis(),
+                        taskTitle = "Setwork Image",
+                        taskSubTitle = "${_titleValue.value}.png is available in downloads",
+                        notificationType = NotificationType.COMMON_NOTIFY,
+                        notificationStatus = NotificationStatus.DELIVERED
+                    )
+                )
             }
         }
     }

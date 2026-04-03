@@ -35,6 +35,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import com.designlife.justdo.MainActivity
 import com.designlife.justdo.R
+import com.designlife.justdo.common.AppOutput
 import com.designlife.justdo.common.presentation.components.CommonCustomHeader
 import com.designlife.justdo.common.presentation.components.CustomAttachmentsTab
 import com.designlife.justdo.common.presentation.components.ProgressBar
@@ -283,9 +284,11 @@ class NoteFragment : Fragment(), SetworkOLLM.SetworkMessage {
                         ToolBarPopUpComponent(
                             onExportPdfEvent = {
                                 viewModel.onEvent(NoteEvents.OnThreeDotToggle(false))
+                                viewModel.onEvent(NoteEvents.OnPdfExport(requireContext()))
                             },
                             onExportPngEvent = {
                                 viewModel.onEvent(NoteEvents.OnThreeDotToggle(false))
+                                viewModel.onEvent(NoteEvents.OnPngExport(requireContext()))
                             },
                             onDeleteEvent = {
                                 viewModel.onEvent(NoteEvents.OnThreeDotToggle(false))

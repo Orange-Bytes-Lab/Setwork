@@ -197,11 +197,9 @@ class HomeViewModel(
             ViewType.TASK -> return
             ViewType.NOTE -> {
                 _searchList.value = _noteList.filter { it.title.lowercase().startsWith(searchText.lowercase()) }
-                Log.i("SEARCH", "sortContentByText: Note ${_searchList.value}")
             }
             ViewType.DECK -> {
                 _searchList.value = _deckList.value.filter { it.deckName.lowercase().startsWith(searchText.lowercase()) }
-                Log.i("SEARCH", "sortContentByText: Deck ${_searchList.value}")
             }
             else -> {}
         }
@@ -349,7 +347,6 @@ class HomeViewModel(
             val currentTime = System.currentTimeMillis()
             val todoIds = mutableListOf<Int>()
             val categoryMap = mutableMapOf<Long,Int>()
-            Log.i("TODO_DATA", "archiveTodos: ${todoList}")
             todoList.forEach { todo ->
                 if (todo.date.time <= currentTime && !todo.isCompleted){
                     todoIds.add(todo.todoId)

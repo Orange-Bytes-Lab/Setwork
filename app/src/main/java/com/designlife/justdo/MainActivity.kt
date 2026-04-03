@@ -112,7 +112,6 @@ class MainActivity : AppCompatActivity() {
         val appStore = AppServiceLocator.provideAppStoreRepository(this)
         CoroutineScope(Dispatchers.IO).launch {
             appStore.observerSettingPreferences().collectLatest {
-                Log.i("UPDATE", "observeSettingChanges: Font Update Received")
                 updateSystemFont(getFontSizeFromOrdinal(it.selectedFontSize))
                 updateSystemListSize(getListItemHeightFromOrdinal(it.selectedListItemHeight))
                 updateSystemUIMode(getAppThemeFromOrdinal(it.selectedAppTheme))

@@ -147,19 +147,15 @@ class TaskViewModel(
 
     @Transaction
     private suspend fun deleteAllTodoOccurrenceById(taskId: Int): Unit {
-        Log.i("DATA_CHECK", "deleteAllTodoOccurrenceById: Raw Todo Data List ${_rawTodos.value.size}")
         if (taskId != -1){
             val rawTodo = todoRepository.getRawTodoById(taskId)
-            Log.i("DATA_CHECK", "deleteAllTodoOccurrenceById: Raw Todo Date : ${rawTodo.date} & CreatedOn : ${rawTodo.createdOn}")
             _rawTodos
                 .value
                 .filter { todo ->
-                    Log.i("DATA_CHECK", "deleteAllTodoOccurrenceById: Each Raw Todo Date : ${todo.date} & CreatedOn : ${todo.createdOn}")
                     rawTodo.date.equals(todo.date) || rawTodo.createdOn.equals(todo.createdOn)
                 }.forEachIndexed { index, todo ->
                     todo?.let {
                         deleteTodoById(todo.todoId.toInt())
-                        Log.i("DATA_CHECK", "deleteTodoById: delete index : ${index} with db call")
                     }
                 }
         }
@@ -171,11 +167,9 @@ class TaskViewModel(
                     category?.let { category ->
                         if (todo.isCompleted){
                             val updatedCategory = category.copy(totalTodo = category.totalTodo - 1, totalCompleted = category.totalCompleted - 1)
-                            Log.i("CATEGORY", "deleteAllTodoOccurrenceById: ${updatedCategory}")
                             todoCategoryRepository.deleteTodoById(todoId = todoId,category = updatedCategory)
                         }else{
                             val updatedCategory = category.copy(totalTodo = category.totalTodo - 1)
-                            Log.i("CATEGORY", "deleteAllTodoOccurrenceById: ${updatedCategory}")
                             todoCategoryRepository.deleteTodoById(todoId = todoId,category = updatedCategory)
                         }
                     }
@@ -212,9 +206,7 @@ class TaskViewModel(
 
     private fun createTask(repeatType: RepeatType,category: Category) {
         _progressBar.value = true
-        Log.i("ERROR_CHECK","createTask: start")
         viewModelScope.launch(Dispatchers.IO) {
-            Log.i("ERROR_CHECK","createTask: viewModelScope.launch")
             val todo = Todo(
                 title = _titleValue.value,
                 note = _noteValue.value,

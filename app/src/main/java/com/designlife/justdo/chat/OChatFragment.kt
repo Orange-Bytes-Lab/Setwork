@@ -35,7 +35,6 @@ class OChatFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.i("FLOW", "onCreate: progress : started")
         chatWindowProgress.value = false
     }
 
@@ -52,7 +51,6 @@ class OChatFragment : Fragment() {
                         .background(Color.White),
                     contentAlignment = Alignment.Center
                 ) {
-                    Log.i("FLOW", "onCreateView: progress during composition : ${chatWindowProgress.value}")
                     if (!chatWindowProgress.value){
                         MainActivity.setworkChat.ChatScreenView()
                     }

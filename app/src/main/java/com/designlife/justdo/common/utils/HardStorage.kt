@@ -31,30 +31,13 @@ object HardStorage {
 //        val envExternalFileDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
 
         if (!backupFolder.exists()){
-            Log.i("BACKUP", "backupImport: Document folder Not exists")
             return false
         }
-//        val appFolder = File(envExternalFileDir, "Setwork")
-//        if (!appFolder.exists()) {
-//            Log.i("BACKUP", "backupImport: Setwork folder Not exists")
-//            return false
-//        }
-//        val backupFolder = File(appFolder, "Backup")
-//        if (!backupFolder.exists()) {
-//            Log.i("BACKUP", "backupImport: Backup folder Not exists")
-//            return false
-//        }
-
         try {
             val backupTodoFile = File(backupFolder,SetworkDatabase.BACKUP_EN_TODO)
             val backupDeckFile = File(backupFolder,SetworkDatabase.BACKUP_EN_DECK)
             val backupCategoryFile = File(backupFolder,SetworkDatabase.BACKUP_EN_CATEGORY)
             val backupNoteFile = File(backupFolder, SetworkDatabase.BACKUP_EN_NOTE)
-
-            Log.i("BACKUP", "backupImport: Backup Todo Path :${backupTodoFile.absolutePath}")
-            Log.i("BACKUP", "backupImport: Backup Todo File Exists :${backupTodoFile.exists()}")
-            Log.i("BACKUP", "backupImport: Backup Todo File Reading :${backupTodoFile.canRead()}")
-
 
             setFilePermission(backupTodoFile)
             setFilePermission(backupDeckFile)
@@ -66,13 +49,11 @@ object HardStorage {
             val noteRepository = AppServiceLocator.provideNoteRepository(context)
             val categoryRepository = AppServiceLocator.provideCategoryRepository(context)
 
-            Log.i("BACKUP", "backupImport: Backup Todo File Path :${backupTodoFile.path.toString()}")
             val todoJson = backupTodoFile.readText()
             val deckJson = backupDeckFile.readText()
             val noteJson = backupNoteFile.readText()
             val categoryJson = backupCategoryFile.readText()
 
-            Log.i("BACKUP", "backupImport: Todo Json : ${todoJson}")
             val todoListType = object : TypeToken<List<Todo>>() {}.type
             val todoList : List<Todo> = Gson().fromJson(scope.async {decrypt(todoJson)}.await(),todoListType)
 
@@ -94,13 +75,11 @@ object HardStorage {
             return true
         } catch (e: IOException) {
             e.printStackTrace()
-            Log.i("BACKUP", "backupImport: Exception : ${e.message}")
             return false
         }
     }
 
     private fun setNotifications(context : Context,taskList : List<Todo>) {
-        Log.i("ERROR_CHECK","setNotifications: setNotifications")
         val notificationInfoData = taskList.map { todo: Todo ->
             NotificationInfo(
                 taskTitle = todo.title,
@@ -118,31 +97,17 @@ object HardStorage {
                 taskId = todo.todoId.toInt()
             )
         }
-        Log.i("ERROR_CHECK","setNotifications: before taskNotificationRepository.scheduleNotification")
         SchedulingEngine(context)
             .notificationScheduler()
             .scheduleBulkNotification(notificationInfoData)
-
-        Log.i("ERROR_CHECK","setNotifications: after taskNotificationRepository.scheduleNotification")
     }
 
     suspend fun backupExport(context : Context){
         val backupFolder = File(context.getExternalFilesDir(null),"Setwork/Backup/")
-//        val envExternalFileDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
-
         if (!backupFolder.exists()){
             backupFolder.mkdirs()
         }
-//        val appFolder = File(envExternalFileDir, "Setwork")
-//        if (!appFolder.exists()) {
-//            appFolder.mkdirs();
-//        }
-//        val backupFolder = File(appFolder, "Backup")
-//        if (!backupFolder.exists()) {
-//            backupFolder.mkdirs();
-//        }
-        Log.i("BACKUP", "backupExport: backupFolder : ${backupFolder.absoluteFile}")
-//        val backupFileTodo = File(backupFolder, AppDatabase.BACKUP_EN_TODO)
+
         val backupFileTodo = File(backupFolder,SetworkDatabase.BACKUP_EN_TODO)
         val backupFileNote = File(backupFolder,SetworkDatabase.BACKUP_EN_NOTE)
         val backupFileDeck = File(backupFolder, SetworkDatabase.BACKUP_EN_DECK)
@@ -158,13 +123,11 @@ object HardStorage {
         setFilePermission(backupFileDeck)
         setFilePermission(backupFileCategory)
 
-        Log.i("BACKUP", "backupExport: backupFolder : App Database Check")
         try {
             val todoRepository = AppServiceLocator.provideTodoRepository(context)
             val deckRepository = AppServiceLocator.provideDeckRepository(context)
             val noteRepository = AppServiceLocator.provideNoteRepository(context)
             val categoryRepository = AppServiceLocator.provideCategoryRepository(context)
-            Log.i("BACKUP", "backupExport: backupFolder : App Database Repositories Fetch")
             val todoList =  todoRepository.getAllRawTodo().firstOrNull()
             val deckList = deckRepository.getAllRawDecks().firstOrNull()
             val noteList = noteRepository.getAllRawNotes().firstOrNull()
@@ -175,13 +138,9 @@ object HardStorage {
             val noteJson = Gson().toJson(noteList)
             val categoryJson = Gson().toJson(categoryList)
 
-            Log.i("BACKUP", "backupExport: backupFolder : App Database Repositories Data --> Json File --> ${backupFileTodo.exists()}")
             val todoFileWriter = FileWriter(backupFileTodo, false)
-            Log.i("BACKUP", "backupExport: backupFolder : App Database Repositories Data --> Json --> Write")
             todoFileWriter.use {
-                Log.i("BACKUP", "backupExport: todo json content : ${todoJson}")
                 it.write(scope.async { encrypt(todoJson) }.await())
-                Log.i("BACKUP", "backupExport: backupFolder : App Database Repositories Data --> Json --> Write --> Encrypt")
             }
 
 
@@ -204,11 +163,6 @@ object HardStorage {
             noteFileWriter.close()
             deckFileWriter.close()
             categoryFileWriter.close()
-//
-//            setReadOnly(backupFileTodo)
-//            setReadOnly(backupFileNote)
-//            setReadOnly(backupFileDeck)
-//            setReadOnly(backupFileCategory)
         } catch (e: IOException) {
             e.printStackTrace()
         }
@@ -227,14 +181,10 @@ object HardStorage {
     }
 
     private suspend fun encrypt(json : String) : String{
-//    val secretKey = EncryptionUtils.generateKey()
-//    return EncryptionUtils.encrypt(json,secretKey)
     return json
 }
 
     private suspend fun decrypt(json : String) : String{
-    //    val secretKey = EncryptionUtils.generateKey()
-    //    return EncryptionUtils.decrypt(json,secretKey)
         return json
     }
 

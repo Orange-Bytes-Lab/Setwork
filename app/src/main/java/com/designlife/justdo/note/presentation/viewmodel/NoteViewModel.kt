@@ -90,6 +90,8 @@ class NoteViewModel(
     private val _selectedTimeText : MutableState<String> = mutableStateOf(IDateGenerator.getGracefullyTimeFromEpoch(System.currentTimeMillis()))
     val selectedTimeText = _selectedTimeText
 
+    private var _isUpdated : MutableState<Boolean> = mutableStateOf(false)
+
     fun onEvent(event : NoteEvents){
         when(event){
             is NoteEvents.OnTitleChange -> {
@@ -156,7 +158,6 @@ class NoteViewModel(
         _progressBar.value = true
         viewModelScope.launch(Dispatchers.IO) {
             val note = noteRepository.getNoteById(noteId)
-            Log.i("FETCH", "fetchNoteById: Note Id ${noteId}")
             withContext(Dispatchers.Main.immediate){
                 note.also {
                     _titleValue.value = it.title
@@ -164,8 +165,6 @@ class NoteViewModel(
                     _noteId.value = it.noteId
                     _categoryId.value = it.categoryId
                 }
-                Log.i("FETCH", "fetchNoteById: Before bitmap ${note.coverImage}")
-                Log.i("FETCH", "fetchNoteById: ${_coverImage.value}")
                 setNoteState(note)
                 _progressBar.value = false
             }
@@ -178,13 +177,15 @@ class NoteViewModel(
     }
 
     fun insertNote(){
-        Log.i("INSERT_FLOW", "insertNote: Condition Check True")
+        if (_isUpdated.value) {
+            updateNote()
+            return
+        }
+        _isUpdated.value = true
         _hasNoteModified.value = true
         _progressBar.value = true
         CoroutineScope((Dispatchers.IO)).launch {
-            Log.i("INSERT_FLOW", "insertNote: Context Change")
             val coverImage = async { ImageConverter.getByteArrayFromBitMap(_coverImage.value) }.await()
-            Log.i("INSERT_FLOW", "insertNote: Cover Image Converted ${coverImage}")
             noteRepository.insertNote(Note(
                 title = _titleValue.value.ifEmpty { "Untitled" },
                 content = _contentValue.value,
@@ -194,7 +195,6 @@ class NoteViewModel(
                 createdTime = Date(System.currentTimeMillis()),
                 lastModified = Date(System.currentTimeMillis())
             ))
-            Log.i("INSERT_FLOW", "insertNote: Note Inserted")
             _progressBar.value = false
             _hasNoteModified.value = false
         }
@@ -204,20 +204,15 @@ class NoteViewModel(
     }
 
     fun updateNote() {
-        Log.i("UPDATE_FLOW", "updateNote: Before isNoteUpdated")
         if (isNoteUpdated()){
-            Log.i("UPDATE_FLOW", "updateNote: After isNoteUpdated")
             _hasNoteModified.value = true
             _progressBar.value = true
-            Log.i("UPDATE_FLOW", "updateNote: Cover Image ${_coverImage.value}")
-
             CoroutineScope((Dispatchers.IO)).launch {
                 val coverImage = async(Dispatchers.Default) {
                     _coverImage.value?.let {
                         ImageConverter.getByteArrayFromBitMap(it)
                     }
                 }.await()
-                Log.i("UPDATE_FLOW", "updateNote: Category ${_categoryList.value[_selectedCategoryIndex.value].name}")
                 val note = Note(
                     noteId = _noteId.value,
                     title = _titleValue.value,
@@ -262,7 +257,6 @@ class NoteViewModel(
     }
 
     private fun setNotification() {
-        Log.i("ERROR_CHECK","setNotifications: setNotifications")
         val noteNotificationInfo = NotificationInfo(
             taskTitle = _titleValue.value.ifEmpty { "Setwork Note" },
             taskSubTitle = (if (_contentValue.value.isEmpty()) "" else if (_contentValue.value.length > 25) "${
@@ -278,9 +272,7 @@ class NoteViewModel(
             notificationStatus = NotificationStatus.ACTIVE,
             taskId = _noteId.value.toInt()
         )
-        Log.i("ERROR_CHECK","setNotifications: NoteViewModel :: before scheduleNotification")
         notificationScheduler.scheduleNotification(noteNotificationInfo)
-        Log.i("ERROR_CHECK","setNotifications: NoteViewModel :: after scheduleNotification")
     }
 
 }

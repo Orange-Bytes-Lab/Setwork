@@ -62,20 +62,18 @@ class DeckViewModel(
     private val _themeColor : MutableState<Color> = mutableStateOf(ButtonPrimary.value);
     val themeColor = _themeColor
 
+    private var _isUpdated : MutableState<Boolean> = mutableStateOf(false)
+
     fun onEvent(event : DeckEvents){
         when(event){
             is DeckEvents.OnHeaderChange -> {
                 _headerTitle.value = event.value
             }
             is DeckEvents.OnCreateCard -> {
-//                val cardList = _cardList.value.toMutableList()
-//                cardList.add(FlashCard())
                 _cardList.value.add(FlashCard())
                 _deckToggle.value = true
             }
             is DeckEvents.OnCardRemove -> {
-//                val cardList = _cardList.value.toMutableList()
-//                cardList.removeAt(event.index)
                 if (event.index >= 0 && _cardList.value.size >= 1){
                     _cardList.value.removeAt(event.index)
                 }
@@ -140,6 +138,12 @@ class DeckViewModel(
 
     fun insertDeck() {
         if (_cardList.value.isNotEmpty()){
+            if (_isUpdated.value){
+                updateDeck()
+                return
+            }
+
+            _isUpdated.value = true
             _hasDeckModified.value = true
             viewModelScope.launch(Dispatchers.IO) {
                 val newDeck = Deck(
@@ -181,13 +185,13 @@ class DeckViewModel(
     }
 
     private fun isDeckUpdated(): Boolean {
-        if (_cardList.value != _decPrevState.first)
-            return true
-        if (_headerTitle.value != _decPrevState.second)
-            return true
-        if (_selectedCategoryIndex.value != _decPrevState.third)
-            return true
-        return false
+//        if (_cardList.value != _decPrevState.first)
+//            return true
+//        if (_headerTitle.value != _decPrevState.second)
+//            return true
+//        if (_selectedCategoryIndex.value != _decPrevState.third)
+//            return true
+        return true
     }
 
     suspend fun fetchCategories(){

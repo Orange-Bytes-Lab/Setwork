@@ -89,7 +89,6 @@ val ColorPaletteItem15 = Color(0xFFFF6F64)
 val ColorPaletteItem16 = Color(0xFF00FFE7)
 
 fun updateSystemColor(isSystemInDarkMode : Boolean){
-    Log.i("RECOMPOSITION", "updateSystemColor: Update Color Change")
     ButtonPrimary.value =  Color(0xFF7388FB)
     DangerButton.value =  Color(0xFFF73458)
     PrimaryCardColor.value = if (isSystemInDarkMode) DarkPrimaryCardColor else LightPrimaryCardColor

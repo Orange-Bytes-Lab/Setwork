@@ -207,7 +207,7 @@ class HomeFragment : Fragment(), TaskListener {
         val currentDate = viewModel.currentDate.value
         val index = dateList.indexOf(currentDate)
         viewModel.onEvent(HomeEvents.OnIndexSelected(index))
-        scope.launch(Dispatchers.Main.immediate) {
+        lifecycleScope.launch(Dispatchers.Main.immediate) {
             val todayDateIndex = dateList.indexOf(currentDate)
             viewModel.onEvent(HomeEvents.OnIndexSelected(todayDateIndex))
             dateListState.scrollToItem(todayDateIndex)
@@ -281,7 +281,6 @@ class HomeFragment : Fragment(), TaskListener {
                 val currentYear = viewModel.currentYear.value
                 val currentDate = viewModel.currentDate.value
                 val todayDateIndex = dateList.indexOf(currentDate)
-                Log.i("DateCheck", "onCreateView: ${todayDateIndex}")
                 val selectedDateTodoIndex = viewModel.todoIndex.value
                 val selectedCategoryIndex = viewModel.selectedCategoryIndex.value
                 val progressBar = viewModel.progressBarVisibility.value
@@ -719,10 +718,6 @@ class HomeFragment : Fragment(), TaskListener {
         val bundle = bundleOf()
         bundle.putBoolean(Constants.TASK_VIEW, true)
         bundle.putInt(Constants.TASK_VIEW_ID, todoId)
-        Log.i(
-            "NOTIFICATION_FLOW",
-            "HomeFragment :: navigateToTaskViewById: navigated to todoId : ${todoId}"
-        )
         findNavController().navigate(
             R.id.taskFragment,
             bundle,
@@ -734,10 +729,6 @@ class HomeFragment : Fragment(), TaskListener {
         val bundle = bundleOf()
         bundle.putBoolean(Constants.NOTE_VIEW, true)
         bundle.putInt(Constants.NOTE_VIEW_ID, noteId)
-        Log.i(
-            "NOTIFICATION_FLOW",
-            "HomeFragment :: navigateToNoteViewById: navigated to todoId : ${noteId}"
-        )
         findNavController().navigate(
             R.id.noteFragment,
             bundle,

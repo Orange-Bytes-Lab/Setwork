@@ -41,44 +41,32 @@ class SoftwareUpdateManager(
     private val downloadReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             val id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
-            Log.i("SoftwareUpdateManager", "onReceive: downloadReceiver :: id : $id")
-
             if (id == downloadId) {
                 handleDownloadCompleted(context, id)
             }
         }
 
         private fun handleDownloadCompleted(context: Context, id: Long) {
-            Log.i("SoftwareUpdateManager", "onReceive: handleDownloadCompleted :: id : $id")
 
             val apkFile = getDownloadedFile(context, id)
             if (apkFile == null) {
-                Log.e("SoftwareUpdateManager", "Failed to get downloaded file")
                 return
             }
 
             val calculated = sha256(apkFile)
-            Log.i("SoftwareUpdateManager", "onReceive: handleDownloadCompleted :: calculated-sha : $calculated :: existing-sha256CheckSum $sha256CheckSum")
 
             if (calculated == sha256CheckSum) {
                 val uri = getDownloadedApkUri(context, downloadId)
                 if (uri != null) {
                     try {
                         installApk(context, uri)
-                        Log.i("SoftwareUpdateManager", "APK installation intent started successfully")
                     } catch (e: Exception) {
-                        Log.e("SoftwareUpdateManager", "Failed to install APK", e)
                         apkFile.delete()
                     }
                 } else {
-                    Log.e("SoftwareUpdateManager", "Failed to get download URI")
                     apkFile.delete()
                 }
             } else {
-                Log.e(
-                    "SoftwareUpdateManager",
-                    "SHA256 checksum mismatch. Calculated: $calculated, Expected: $sha256CheckSum"
-                )
                 apkFile.delete()
             }
 
@@ -103,11 +91,9 @@ class SoftwareUpdateManager(
                             deliveredTime = 0L
                         )
                         notificationScheduler.scheduleNotification(updateNotification)
-                        Log.i("SoftwareUpdateManager", "Update available: ${appMetaResponse.tag_name}")
                     } else {
-                        Log.i("SoftwareUpdateManager", "No update available")
-                        withContext(Dispatchers.Main.immediate) {
-                            Toast.makeText(context, "Installed software version is updated", Toast.LENGTH_SHORT).show()
+                        scope.launch(Dispatchers.Main.immediate) {
+                            Toast.makeText(context, "App is updated", Toast.LENGTH_SHORT).show()
                         }                    }
                 }
             } catch (e: Exception) {
@@ -140,13 +126,11 @@ class SoftwareUpdateManager(
     fun installUpdate() {
         scope.launch(Dispatchers.IO) {
             try {
-                Log.i("SoftwareUpdateManager", "Starting installUpdate process")
                 updateRepository.fetchReleaseUpdates()?.let { appMetaResponse ->
                     appMetaResponse.assets.firstOrNull()?.let { appMeta ->
                         downloadId = downloadApk(context, appMeta.browser_download_url, appMeta.name)
                         sha256CheckSum = appMeta.digest.removePrefix("sha256:")
 
-                        Log.i("SoftwareUpdateManager", "Download started with ID: $downloadId, Expected SHA256: $sha256CheckSum")
                         scope.launch(Dispatchers.Main) {
                             registerDownloadReceiver()
                         }
@@ -161,10 +145,6 @@ class SoftwareUpdateManager(
     private fun registerDownloadReceiver() {
         if (!isReceiverRegistered) {
             try {
-                Log.i("SoftwareUpdateManager", "=== Starting Receiver Registration ===")
-                Log.i("SoftwareUpdateManager", "Context type: ${context::class.simpleName}")
-                Log.i("SoftwareUpdateManager", "Context is Activity: ${context is android.app.Activity}")
-
                 val intentFilter = IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE)
 
                 ContextCompat.registerReceiver(
@@ -175,13 +155,7 @@ class SoftwareUpdateManager(
                 )
 
                 isReceiverRegistered = true
-                Log.i("SoftwareUpdateManager", "Download receiver registered successfully")
-                Log.i("SoftwareUpdateManager", "Receiver will listen for: ${DownloadManager.ACTION_DOWNLOAD_COMPLETE}")
-                Log.i("SoftwareUpdateManager", "Download ID to match: $downloadId")
-                Log.i("SoftwareUpdateManager", "=== Receiver Registration Complete ===")
-
             } catch (e: Exception) {
-                Log.e("SoftwareUpdateManager", "Error registering download receiver", e)
                 e.printStackTrace()
                 isReceiverRegistered = false
             }
@@ -195,7 +169,6 @@ class SoftwareUpdateManager(
             try {
                 context.unregisterReceiver(downloadReceiver)
                 isReceiverRegistered = false
-                Log.i("SoftwareUpdateManager", "Download receiver unregistered")
             } catch (e: Exception) {
                 Log.e("SoftwareUpdateManager", "Error unregistering download receiver", e)
             }
@@ -276,7 +249,6 @@ class SoftwareUpdateManager(
                 addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
             }
 
-            Log.i("SoftwareUpdateManager", "Starting APK installation with URI: $contentUri")
             context.startActivity(intent)
         } catch (e: ActivityNotFoundException) {
             Log.e("SoftwareUpdateManager", "No activity found to handle APK installation", e)
@@ -306,7 +278,6 @@ class SoftwareUpdateManager(
                         val uri = Uri.parse(uriString)
                         val file = File(uri.path!!)
 
-                        Log.i("SoftwareUpdateManager", "Downloaded file found at: ${file.absolutePath}")
                         return@use file
                     } else {
                         Log.e("SoftwareUpdateManager", "Download status is not successful: $status")

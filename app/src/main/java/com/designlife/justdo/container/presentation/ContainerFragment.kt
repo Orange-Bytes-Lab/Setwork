@@ -13,7 +13,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.ComposeView
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
@@ -44,9 +46,6 @@ class ContainerFragment : Fragment() {
         val repeatRepository = AppServiceLocator.provideRepeatRepository()
         val factory = ContainerViewModelFactory(categoryRepository, repeatRepository)
         viewmodel = ViewModelProvider(requireActivity(), factory)[ContainerViewModel::class.java]
-
-
-
         arguments?.let { bundle ->
             val ordinal = bundle.getInt(Constants.SCREEN_TYPE)
             val editMode = bundle.getBoolean(Constants.EDIT_MODE)
@@ -192,8 +191,14 @@ class ContainerFragment : Fragment() {
         }
     }
 
+
+
     override fun onDestroy() {
         super.onDestroy()
+        val popData = bundleOf(Constants.CONTAINER_POP_INDEX to viewmodel.selectedCategory.value)
+        setFragmentResult(Constants.CONTAINER_VIEW, popData)
+        parentFragmentManager.popBackStack()
+
         lifecycleScope?.cancel()
     }
 }

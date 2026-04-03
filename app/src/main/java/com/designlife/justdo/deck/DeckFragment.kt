@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.expandVertically
@@ -34,6 +35,7 @@ import androidx.core.os.bundleOf
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.navArgs
 import com.designlife.justdo.R
 import com.designlife.justdo.common.domain.entities.FlashCard
 import com.designlife.justdo.common.utils.AppServiceLocator
@@ -49,6 +51,7 @@ import com.designlife.justdo.deck.presentation.events.DeckEvents
 import com.designlife.justdo.deck.presentation.viewmodel.DeckViewModel
 import com.designlife.justdo.deck.presentation.viewmodel.DeckViewModelFactory
 import com.designlife.justdo.note.presentation.enums.DeckMode
+import com.designlife.justdo.note.presentation.enums.NoteMode
 import com.designlife.justdo.ui.theme.UIComponentBackground
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -120,14 +123,18 @@ class DeckFragment : Fragment() {
                                     viewModel.onEvent(DeckEvents.OnHeaderChange(it))
                                 },
                                 onCloseEvent = {
+                                    try {
+                                        saveDeck()
+                                    }catch (e : Exception){
+                                        e.printStackTrace()
+                                    }
                                     findNavController().navigateUp()
                                 },
                                 isEdit = editState,
                                 isNew = deckMode != DeckMode.UPDATE,
                                 onAutoSaveEvent = {
-//                                    viewModel.onEvent(DeckEvents.OnEditStateChange(false))
                                     try {
-                                        viewModel.onEvent(DeckEvents.OnPersistCardChanges)
+                                        saveDeck()
                                     }catch (e : Exception){
                                         e.printStackTrace()
                                     }
@@ -251,7 +258,6 @@ class DeckFragment : Fragment() {
                             onNextCardEvent = { index ->
                                 scope.launch(Dispatchers.Main.immediate) {
                                     val nextIndex = getNextIndex(cardList, index)
-                                    Log.i("INDEX", "onCreateView: NEXT Index : $nextIndex ")
                                     editListState.animateScrollToItem(nextIndex+1)
                                     previewListState.scrollToItem(nextIndex+1)
                                     listState.scrollToItem(nextIndex+1)
@@ -261,7 +267,6 @@ class DeckFragment : Fragment() {
                             onPreviousCardEvent = {
                                 scope.launch(Dispatchers.Main.immediate) {
                                     val previousIndex = getPreviousIndex(cardList, it)
-                                    Log.i("INDEX", "onCreateView: PREVIOUS Index : $previousIndex ")
                                     editListState.animateScrollToItem(previousIndex)
                                     previewListState.scrollToItem(previousIndex)
                                     listState.scrollToItem(previousIndex)
@@ -270,6 +275,34 @@ class DeckFragment : Fragment() {
                         )
                     }
                 }
+            }
+        }
+    }
+
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        val callback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (isEnabled) {
+                    saveDeck()
+                    isEnabled = false
+                    requireActivity().onBackPressed()
+                }
+            }
+        }
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, callback)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        parentFragmentManager.setFragmentResultListener(
+            Constants.CONTAINER_VIEW,
+            this
+        ) { key, bundle ->
+            lifecycleScope.launch(Dispatchers.Main.immediate) {
+                val selectedIndex = bundle.getInt(Constants.CONTAINER_POP_INDEX)
+                viewModel.onEvent(DeckEvents.OnCategoryIndexChange(selectedIndex))
             }
         }
     }
@@ -285,8 +318,7 @@ class DeckFragment : Fragment() {
         else { cardList.lastIndex }
     }
 
-    override fun onStop() {
-        super.onStop()
+    private fun saveDeck(){
         if (deckMode == DeckMode.CREATE) {
             viewModel.insertDeck()
         } else if (deckMode == DeckMode.UPDATE) {
@@ -295,6 +327,11 @@ class DeckFragment : Fragment() {
         if (viewModel.hasDeckModified.value) {
             Toast.makeText(requireActivity(), "Card's Saved", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    override fun onStop() {
+        super.onStop()
+
     }
 
     override fun onDestroy() {

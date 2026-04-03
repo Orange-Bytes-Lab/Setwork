@@ -89,7 +89,6 @@ class TaskFragment : Fragment() {
         arguments?.let { bundle ->
             val todoId = bundle.getInt(Constants.TASK_VIEW_ID)
             val taskViewCheck = bundle.getBoolean(Constants.TASK_VIEW,false)
-            Log.i("NOTIFICATION_FLOW", "TaskFragment :: navigationArgsDateSet :: todo Id ${todoId} : taskViewCheck ${taskViewCheck}")
             taskViewCheck?.let {
                 if (it){
                     isOverview = it
@@ -137,7 +136,6 @@ class TaskFragment : Fragment() {
 //                                viewmodel.onEvent(TaskEvents.DeleteTaskEvent(taskId))
                                     viewmodel.onEvent(TaskEvents.DeleteTaskPopup(true))
                                 }else{
-                                    Log.i("ERROR_CHECK", "onCreateView: Compose Click Create Task")
                                     viewmodel.onEvent(TaskEvents.CreateTask(getRepeatType(shareViewModel.selectedRepeatIndex.value),selectedCategory))
                                     findNavController().navigateUp()
                                 }

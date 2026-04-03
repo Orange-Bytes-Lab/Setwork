@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -31,6 +32,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import com.designlife.justdo.R
 import com.designlife.justdo.common.domain.calendar.IDateGenerator
+import com.designlife.justdo.common.domain.entities.Category
 import com.designlife.justdo.common.presentation.components.CommonCustomHeader
 import com.designlife.justdo.common.presentation.components.ProgressBar
 import com.designlife.justdo.common.utils.AppServiceLocator
@@ -112,11 +114,14 @@ class TaskFragment : Fragment() {
                 val selectedDateText = viewmodel.selectedDateText.value
                 val selectedTimeText = viewmodel.selectedTimeText.value
                 val calendar = Calendar.getInstance()
-                val selectedCategory = shareViewModel.categoryList[shareViewModel.selectedCategory.value]
+                var selectedCategory = Category()
                 val selectedRepeatMode = shareViewModel.repeatList.value[shareViewModel.selectedRepeatIndex.value]
                 val calendarInstance = shareViewModel.setupRepeatList(viewmodel.rawTaskDateTimeInstance.value.time)
                 val progressBar = viewmodel.progressBar.value
                 val deletePopupState = viewmodel.deleteTaskPopup.value
+                LaunchedEffect(shareViewModel.selectedCategory.value) {
+                    selectedCategory = shareViewModel.categoryList[shareViewModel.selectedCategory.value]
+                }
                 Box(
                     modifier = Modifier
                         .fillMaxSize()

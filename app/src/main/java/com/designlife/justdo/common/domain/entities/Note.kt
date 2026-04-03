@@ -1,8 +1,9 @@
 package com.designlife.justdo.common.domain.entities
 
-import android.graphics.Bitmap
-import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.designlife.justdo.common.utils.serializer.LongSerializer
+import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.Serializable
 import java.util.Date
 
 data class Note(
@@ -31,5 +32,18 @@ data class Note(
 
     override fun hashCode(): Int {
         return coverImage?.contentHashCode() ?: 0
+    }
+
+    fun toNote() : com.designlife.justdo.common.data.entities.Note{
+        return com.designlife.justdo.common.data.entities.Note(
+             noteId = this.noteId,
+             title = this.title,
+             content = this.content,
+             emoji = this.emoji,
+             categoryId = this.categoryId,
+             coverImage = this.coverImage,
+             createdTime = this.createdTime.time,
+             lastModified = this.lastModified.time,
+            )
     }
 }

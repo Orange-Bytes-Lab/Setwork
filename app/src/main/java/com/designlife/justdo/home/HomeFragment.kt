@@ -9,6 +9,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.scaleIn
@@ -54,8 +56,10 @@ import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import com.designlife.justdo.R
 import com.designlife.justdo.common.domain.calendar.IDateGenerator
+import com.designlife.justdo.common.domain.entities.Category
 import com.designlife.justdo.common.domain.entities.Deck
 import com.designlife.justdo.common.domain.entities.Note
+import com.designlife.justdo.common.domain.entities.Todo
 import com.designlife.justdo.common.domain.repositories.appstore.AppStoreRepository
 import com.designlife.justdo.common.presentation.components.BottomSheet
 import com.designlife.justdo.common.presentation.components.ProgressBar
@@ -65,6 +69,7 @@ import com.designlife.justdo.common.utils.constants.Constants
 import com.designlife.justdo.common.utils.entity.BottomNavItem
 import com.designlife.justdo.common.utils.entity.SettingItem
 import com.designlife.justdo.common.utils.enums.ViewType
+import com.designlife.justdo.common.utils.getFormattedTimestamp
 import com.designlife.justdo.common.utils.update.SoftwareUpdateManager
 import com.designlife.justdo.home.domain.usecase.LoadIntialDatesUseCase
 import com.designlife.justdo.home.domain.usecase.LoadNextDatesSetUseCase
@@ -112,10 +117,16 @@ class HomeFragment : Fragment(), TaskListener {
     private lateinit var scope: CoroutineScope
     private lateinit var appStoreRepository: AppStoreRepository
     private lateinit var softwareUpdateManager: SoftwareUpdateManager
+
+    private lateinit var openFileLauncher: ActivityResultLauncher<Array<String>>
+    private lateinit var createFileLauncher: ActivityResultLauncher<String>
+
+
     private val settingIcons: List<SettingItem> = initSettingIcons()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         initBottomNavItems()
+        importExport()
         val dateGenerator = IDateGenerator()
         val loadDatesUseCase = LoadIntialDatesUseCase(dateGenerator)
         val loadNextDatesUseCase = LoadNextDatesSetUseCase(dateGenerator)
@@ -166,6 +177,45 @@ class HomeFragment : Fragment(), TaskListener {
                 viewModel.fetchAllDecks()
             }
             viewModel.onEvent(HomeEvents.OnProgressBarToggle(false))
+        }
+    }
+
+    private fun importExport() {
+        //        Import
+        openFileLauncher =
+            registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+                uri?.let {
+                    // Persist permission (important!)
+                    requireContext().contentResolver.takePersistableUriPermission(
+                        it,
+                        Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                                Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                    )
+
+                    readFromUri(it)
+                }
+            }
+
+        //        Export
+        createFileLauncher =
+            registerForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
+                uri?.let {
+                    requireContext().contentResolver.openOutputStream(it)?.use { stream ->
+                        val content = EXPORT_DATA
+                        Log.d("FLOW","HomeFragment :: registerForActivityResult : Data : ${content}")
+                        stream.write(content.toByteArray())
+                    }
+                }
+            }
+    }
+
+    private fun readFromUri(uri: Uri) {
+        val data = requireContext().contentResolver
+            .openInputStream(uri)
+            ?.bufferedReader()
+            ?.use { it.readText() }
+        data?.let {
+            settingViewModel.onEvent(SettingEvents.OnImportEvent(requireContext(),it))
         }
     }
 
@@ -295,6 +345,10 @@ class HomeFragment : Fragment(), TaskListener {
                 val loaderState = settingViewModel.loaderVisibility.value
                 val loaderStatus = settingViewModel.loaderStatus.value
                 val isDarkMode = SettingViewModel.Companion.darkModeStatus.value
+                todoListIE = viewModel.todoList.value
+                noteListIE = viewModel.noteList
+                deckListIE = viewModel.deckList.value
+                categoryListIE = viewModel.categoryList.value
                 LaunchedEffect(viewModel.isLoaded.value) {
                     scope.launch {
                         initialSlide()
@@ -539,20 +593,23 @@ class HomeFragment : Fragment(), TaskListener {
                                             )
                                         },
                                         onImportEvent = {
-                                            settingViewModel.onEvent(
-                                                SettingEvents.OnBackupSettingViewChange(
-                                                    AppBackup.IMPORT,
-                                                    requireContext()
-                                                )
-                                            )
+                                            openFileLauncher.launch(arrayOf("*/*"))
+//                                            settingViewModel.onEvent(SettingEvents.OnBackupSettingViewChange(
+//                                                    AppBackup.IMPORT,
+//                                                    requireContext()
+//                                                )
+//                                            )
                                         },
                                         onExportEvent = {
-                                            settingViewModel.onEvent(
-                                                SettingEvents.OnBackupSettingViewChange(
-                                                    AppBackup.EXPORT,
-                                                    requireContext()
-                                                )
-                                            )
+                                            lifecycleScope.launch {
+                                                val fileName = "Setwork_${getFormattedTimestamp(System.currentTimeMillis())}.json"
+                                                settingViewModel.onEvent(SettingEvents.OnExportEvent)
+                                                delay(600)
+                                                if (settingViewModel.isExportReady.value){
+                                                    settingViewModel.onEvent(SettingEvents.OnImportExportCompute(false))
+                                                    createFileLauncher.launch(fileName)
+                                                }
+                                            }
                                         },
                                         onHelpEvent = {
                                             helpMailToOrangeBytes()
@@ -859,5 +916,14 @@ class HomeFragment : Fragment(), TaskListener {
     override fun onDestroy() {
         super.onDestroy()
         lifecycleScope?.cancel()
+    }
+
+    companion object{
+        internal var todoListIE : List<Todo> = mutableListOf<Todo>()
+        internal var deckListIE : List<Deck> = mutableListOf<Deck>()
+        internal var noteListIE : List<Note> = mutableListOf<Note>()
+        internal var categoryListIE : List<Category> = mutableListOf<Category>()
+
+        internal var EXPORT_DATA : String = ""
     }
 }

@@ -229,7 +229,6 @@ class MainActivity : AppCompatActivity() {
             setworkChat.clean()
             lifecycleScope.cancel()
             this.viewModelStore.clear()
-            HardStorage.clear()
             AppServiceLocator.clear()
         }catch (e : Exception){
             Log.i("CLEAN_FLOW", "onDestroy: MainActivity ::Exception during state clearning")

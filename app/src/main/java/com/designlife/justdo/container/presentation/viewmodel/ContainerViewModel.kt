@@ -30,7 +30,6 @@ class ContainerViewModel(
     private val _screenType : MutableState<ScreenType> = mutableStateOf(ScreenType.CATEGORY)
     val screenType = _screenType
 
-//    private val _categoryList : MutableState<List<Category>> = mutableStateOf(listOf(Category()));
     private val _categoryList : SnapshotStateList<Category> = mutableStateListOf();
     val categoryList = _categoryList
 

@@ -1,5 +1,9 @@
 package com.designlife.justdo.common.utils
 
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+
 fun String.camelCase() : String{
     if (this.isEmpty() || this.isBlank())
         return this
@@ -8,3 +12,7 @@ fun String.camelCase() : String{
     return this
 }
 
+fun getFormattedTimestamp(epoch : Long): String {
+    val formatter = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US)
+    return formatter.format(Date(epoch))
+}

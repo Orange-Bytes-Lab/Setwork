@@ -15,4 +15,5 @@ sealed class HomeEvents{
     data class OnSearchUpdate(val searchText : String) : HomeEvents()
     object OnRefreshInitialDates : HomeEvents()
     object OnClearSearch : HomeEvents()
+    data class OnImportEvent(val data : String) : HomeEvents()
 }

@@ -18,10 +18,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.NavHostFragment
-import com.designlife.justdo.common.data.datastore.appStore
 import com.designlife.justdo.common.utils.AppServiceLocator
-import com.designlife.justdo.common.utils.HardStorage
-import com.designlife.justdo.common.utils.update.SoftwareUpdateManager
 import com.designlife.justdo.permission.PermissionHandler
 import com.designlife.justdo.settings.presentation.viewmodel.SettingViewModel
 import com.designlife.justdo.settings.presentation.viewmodel.SettingViewModel.Companion.getAppThemeFromOrdinal
@@ -32,7 +29,6 @@ import com.designlife.justdo.ui.theme.updateSystemColor
 import com.designlife.justdo.ui.theme.updateSystemFont
 import com.designlife.justdo.ui.theme.updateSystemListSize
 import com.designlife.justdo.ui.theme.updateSystemUIMode
-import com.designlife.justdo_provider.ServiceLocator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -126,6 +122,7 @@ class MainActivity : AppCompatActivity() {
         internal fun initChat(context: Context) {
             if (!::setworkChat.isInitialized){
                 setworkChat = SetworkOLLM.chatSDK(context)
+                setworkChat.clean()
                 setworkChat.init()
             }
         }

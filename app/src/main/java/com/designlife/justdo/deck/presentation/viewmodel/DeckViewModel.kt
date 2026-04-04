@@ -137,7 +137,7 @@ class DeckViewModel(
         }
     }
 
-    fun insertDeck() {
+    suspend fun insertDeck() {
         if (_isUpdated.value){
             updateDeck()
             return
@@ -145,24 +145,22 @@ class DeckViewModel(
 
         _isUpdated.value = true
         _hasDeckModified.value = true
-        CoroutineScope(Dispatchers.IO).launch {
-            val newDeck = Deck(
-                deckName = if (_headerTitle.value.isEmpty()) getFormattedTitle() else _headerTitle.value,
-                totalCards = _cardList.value.size,
-                modifiedDate = Date(System.currentTimeMillis()),
-                cards = _cardList.value,
-                categoryId = _categoryList.value[_selectedCategoryIndex.value].id
-            )
-            deckRepository.insertDeck(newDeck)
-            _hasDeckModified.value = false
-        }
+        val newDeck = Deck(
+            deckName = if (_headerTitle.value.isEmpty()) getFormattedTitle() else _headerTitle.value,
+            totalCards = _cardList.value.size,
+            modifiedDate = Date(System.currentTimeMillis()),
+            cards = _cardList.value,
+            categoryId = _categoryList.value[_selectedCategoryIndex.value].id
+        )
+        deckRepository.insertDeck(newDeck)
+        _hasDeckModified.value = false
     }
 
     private fun getFormattedTitle(): String {
         return "Untitled -${IDateGenerator.getGracefullyTimeFromEpoch(System.currentTimeMillis())}"
     }
 
-    fun updateDeck() {
+    suspend fun updateDeck() {
         if (isDeckUpdated()){
             _hasDeckModified.value = true
             val newDeck = Deck(
@@ -173,13 +171,11 @@ class DeckViewModel(
                 cards = _cardList.value,
                 categoryId = _categoryList.value[_selectedCategoryIndex.value].id
             )
-            CoroutineScope(Dispatchers.IO).launch {
-                deckRepository.updateDeck(
-                    deckId = _deckId.value,
-                    deck = newDeck
-                )
-                _hasDeckModified.value = false
-            }
+            deckRepository.updateDeck(
+                deckId = _deckId.value,
+                deck = newDeck
+            )
+            _hasDeckModified.value = false
         }
     }
 
@@ -208,4 +204,20 @@ class DeckViewModel(
         _colorMap.value = colorMap
     }
 
+    fun clean(){
+        _deckId.value = 0L
+        _headerTitle.value = ""
+        _modifiedTime.value = 0L
+        _cardList.value = mutableListOf()
+        _decPrevState = Triple<List<FlashCard>,String,Int>(emptyList(),"",-1)
+        _deckToggle.value = false
+        _editState.value = false
+        _updateCardsQueue.value = mutableMapOf()
+        _hasDeckModified.value = false
+        _categoryList.value = listOf()
+        _selectedCategoryIndex.value = -1
+        _colorMap.value = mapOf()
+        _themeColor.value = ButtonPrimary.value
+        _isUpdated.value = false
+    }
 }

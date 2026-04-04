@@ -324,12 +324,29 @@ class DeckFragment : Fragment() {
     }
 
     private fun saveDeck(){
-        if (deckMode == DeckMode.CREATE) {
-            viewModel.insertDeck()
-            deckMode = DeckMode.UPDATE
-        } else if (deckMode == DeckMode.UPDATE) {
-            viewModel.updateDeck()
+        try {
+            lifecycleScope.launch(Dispatchers.Main.immediate) {
+                if (deckMode == DeckMode.CREATE) {
+                    viewModel.insertDeck()
+                    deckMode = DeckMode.UPDATE
+                } else if (deckMode == DeckMode.UPDATE) {
+                    viewModel.updateDeck()
+                }
+            }
+        }catch (e : Exception){
+            CoroutineScope(Dispatchers.IO).launch {
+                if (deckMode == DeckMode.CREATE) {
+                    viewModel.insertDeck()
+                    deckMode = DeckMode.UPDATE
+                } else if (deckMode == DeckMode.UPDATE) {
+                    viewModel.updateDeck()
+                }
+            }
+            Log.e("FLOW", "saveDeck: saved with exception ${e.message}")
+        }finally {
+            viewModel.clean()
         }
+
     }
 
     override fun onStop() {

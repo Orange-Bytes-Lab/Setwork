@@ -398,7 +398,7 @@ class NoteFragment : Fragment(), SetworkOLLM.SetworkMessage {
             if (viewModel.hasNoteModified.value) {
                 Toast.makeText(requireContext(), "Saved", Toast.LENGTH_SHORT).show()
             }
-            lifecycleScope?.cancel()
+//            lifecycleScope?.cancel()
         }catch (e : Exception){
             e.printStackTrace()
         }

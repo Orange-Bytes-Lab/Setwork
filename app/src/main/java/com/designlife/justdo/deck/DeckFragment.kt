@@ -338,7 +338,7 @@ class DeckFragment : Fragment() {
         super.onDestroy()
         try {
             saveDeck()
-            lifecycleScope?.cancel()
+//            lifecycleScope?.cancel()
         }catch (e : Exception){
             e.printStackTrace()
         }

@@ -336,6 +336,11 @@ class DeckFragment : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-        lifecycleScope?.cancel()
+        try {
+            saveDeck()
+            lifecycleScope?.cancel()
+        }catch (e : Exception){
+            e.printStackTrace()
+        }
     }
 }

@@ -350,7 +350,12 @@ class HomeFragment : Fragment(), TaskListener {
                 deckListIE = viewModel.deckList.value
                 categoryListIE = viewModel.categoryList.value
                 LaunchedEffect(viewModel.isLoaded.value) {
-                    scope.launch {
+                    try {
+                        scope.launch {
+                            initialSlide()
+                        }
+                    }catch (e : Exception){
+                        delay(200)
                         initialSlide()
                     }
                 }

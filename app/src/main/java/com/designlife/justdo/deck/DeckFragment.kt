@@ -124,7 +124,6 @@ class DeckFragment : Fragment() {
                                 },
                                 onCloseEvent = {
                                     try {
-                                        Log.i("DECK_SAVE", "saveDeck: onCloseEvent")
                                         saveDeck()
                                     }catch (e : Exception){
                                         e.printStackTrace()
@@ -138,7 +137,6 @@ class DeckFragment : Fragment() {
                                 isNew = deckMode != DeckMode.UPDATE,
                                 onAutoSaveEvent = {
                                     try {
-                                        Log.i("DECK_SAVE", "saveDeck: onAutoSaveEvent")
                                         saveDeck()
                                     }catch (e : Exception){
                                         e.printStackTrace()
@@ -290,7 +288,6 @@ class DeckFragment : Fragment() {
         val callback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 if (isEnabled) {
-                    Log.i("DECK_SAVE", "saveDeck: handleOnBackPressed")
                     saveDeck()
                     if (viewModel.hasDeckModified.value) {
                         Toast.makeText(requireActivity(), "Card's Saved", Toast.LENGTH_SHORT).show()
@@ -328,13 +325,10 @@ class DeckFragment : Fragment() {
     }
 
     private fun saveDeck(){
-        Log.i("DECK_SAVE", "saveDeck: ")
         if (deckMode == DeckMode.CREATE) {
-            Log.i("DECK_SAVE", "saveDeck: insert")
             viewModel.insertDeck()
             deckMode = DeckMode.UPDATE
         } else if (deckMode == DeckMode.UPDATE) {
-            Log.i("DECK_SAVE", "saveDeck: update")
             viewModel.updateDeck()
         }
     }

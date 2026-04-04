@@ -138,7 +138,6 @@ class DeckViewModel(
     }
 
     fun insertDeck() {
-        Log.i("DECK_SAVE", "insertDeck: viewmodel :: is updated ${_isUpdated.value}")
         if (_isUpdated.value){
             updateDeck()
             return
@@ -147,7 +146,6 @@ class DeckViewModel(
         _isUpdated.value = true
         _hasDeckModified.value = true
         CoroutineScope(Dispatchers.IO).launch {
-            Log.i("DECK_SAVE", "insertDeck: viewmodel :: launch")
             val newDeck = Deck(
                 deckName = if (_headerTitle.value.isEmpty()) getFormattedTitle() else _headerTitle.value,
                 totalCards = _cardList.value.size,
@@ -156,7 +154,6 @@ class DeckViewModel(
                 categoryId = _categoryList.value[_selectedCategoryIndex.value].id
             )
             deckRepository.insertDeck(newDeck)
-            Log.i("DECK_SAVE", "insertDeck: viewmodel :: launch :: insert")
             _hasDeckModified.value = false
         }
     }
@@ -166,9 +163,7 @@ class DeckViewModel(
     }
 
     fun updateDeck() {
-        Log.i("DECK_SAVE", "saveDeck: is any change ${isDeckUpdated()}")
         if (isDeckUpdated()){
-            Log.i("DECK_SAVE", "saveDeck: update launch")
             _hasDeckModified.value = true
             val newDeck = Deck(
                 deckId = _deckId.value,

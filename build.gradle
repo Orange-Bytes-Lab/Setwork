@@ -14,7 +14,7 @@ buildscript {
     ext{
         orchestrator_version = 'v1.1.0'
         provider_version = 'v1.0.0'
-        ollm_version = 'v1.0.8'
+        ollm_version = 'v1.0.9'
     }
 
     dependencies {

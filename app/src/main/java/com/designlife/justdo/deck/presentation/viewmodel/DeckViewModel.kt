@@ -137,25 +137,23 @@ class DeckViewModel(
     }
 
     fun insertDeck() {
-        if (_cardList.value.isNotEmpty()){
-            if (_isUpdated.value){
-                updateDeck()
-                return
-            }
+        if (_isUpdated.value){
+            updateDeck()
+            return
+        }
 
-            _isUpdated.value = true
-            _hasDeckModified.value = true
-            viewModelScope.launch(Dispatchers.IO) {
-                val newDeck = Deck(
-                    deckName = if (_headerTitle.value.isEmpty()) getFormattedTitle() else _headerTitle.value,
-                    totalCards = _cardList.value.size,
-                    modifiedDate = Date(System.currentTimeMillis()),
-                    cards = _cardList.value,
-                    categoryId = _categoryList.value[_selectedCategoryIndex.value].id
-                )
-                deckRepository.insertDeck(newDeck)
-                _hasDeckModified.value = false
-            }
+        _isUpdated.value = true
+        _hasDeckModified.value = true
+        viewModelScope.launch(Dispatchers.IO) {
+            val newDeck = Deck(
+                deckName = if (_headerTitle.value.isEmpty()) getFormattedTitle() else _headerTitle.value,
+                totalCards = _cardList.value.size,
+                modifiedDate = Date(System.currentTimeMillis()),
+                cards = _cardList.value,
+                categoryId = _categoryList.value[_selectedCategoryIndex.value].id
+            )
+            deckRepository.insertDeck(newDeck)
+            _hasDeckModified.value = false
         }
     }
 
@@ -185,13 +183,13 @@ class DeckViewModel(
     }
 
     private fun isDeckUpdated(): Boolean {
-//        if (_cardList.value != _decPrevState.first)
-//            return true
-//        if (_headerTitle.value != _decPrevState.second)
-//            return true
-//        if (_selectedCategoryIndex.value != _decPrevState.third)
-//            return true
-        return true
+        if (_cardList.value != _decPrevState.first)
+            return true
+        if (_headerTitle.value != _decPrevState.second)
+            return true
+        if (_selectedCategoryIndex.value != _decPrevState.third)
+            return true
+        return false
     }
 
     suspend fun fetchCategories(){

@@ -197,7 +197,7 @@ class ContainerFragment : Fragment() {
         super.onDestroy()
         val popData = bundleOf(Constants.CONTAINER_POP_INDEX to viewmodel.selectedCategory.value)
         setFragmentResult(Constants.CONTAINER_VIEW, popData)
-        parentFragmentManager.popBackStack()
+//        parentFragmentManager.popBackStack()
 
         lifecycleScope?.cancel()
     }

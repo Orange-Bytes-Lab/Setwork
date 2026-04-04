@@ -45,6 +45,7 @@ import com.designlife.justdo.common.utils.constants.Constants
 import com.designlife.justdo.common.utils.constants.Constants.NOTE_VIEW
 import com.designlife.justdo.common.utils.enums.ScreenType
 import com.designlife.justdo.common.utils.enums.ViewType
+import com.designlife.justdo.deck.presentation.events.DeckEvents
 import com.designlife.justdo.note.presentation.components.NoteComponent
 import com.designlife.justdo.note.presentation.components.NoteReminderComponent
 import com.designlife.justdo.note.presentation.enums.NoteMode
@@ -325,6 +326,20 @@ class NoteFragment : Fragment(), SetworkOLLM.SetworkMessage {
             }
         }
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, callback)
+    }
+
+
+    override fun onResume() {
+        super.onResume()
+        parentFragmentManager.setFragmentResultListener(
+            Constants.CONTAINER_VIEW,
+            this
+        ) { key, bundle ->
+            lifecycleScope.launch(Dispatchers.Main.immediate) {
+                val selectedIndex = bundle.getInt(Constants.CONTAINER_POP_INDEX)
+                viewModel.onEvent(NoteEvents.OnCategoryIndexChange(selectedIndex))
+            }
+        }
     }
 
     private fun takeUserPermission() {

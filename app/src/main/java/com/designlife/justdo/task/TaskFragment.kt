@@ -43,6 +43,7 @@ import com.designlife.justdo.common.utils.enums.ScreenType
 import com.designlife.justdo.common.utils.enums.ViewType
 import com.designlife.justdo.container.presentation.viewmodel.ContainerViewModel
 import com.designlife.justdo.container.presentation.viewmodel.ContainerViewModelFactory
+import com.designlife.justdo.deck.presentation.events.DeckEvents
 import com.designlife.justdo.task.presentation.components.DeleteDialogComponent
 import com.designlife.justdo.task.presentation.components.TaskItemDate
 import com.designlife.justdo.task.presentation.components.TaskItemView
@@ -53,8 +54,10 @@ import com.designlife.justdo.ui.theme.ButtonPrimary
 import com.designlife.justdo.ui.theme.PrimaryBackgroundColor
 import com.designlife.orchestrator.NotificationScheduler
 import com.designlife.orchestrator.SchedulingEngine
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.util.Calendar
 
@@ -114,14 +117,12 @@ class TaskFragment : Fragment() {
                 val selectedDateText = viewmodel.selectedDateText.value
                 val selectedTimeText = viewmodel.selectedTimeText.value
                 val calendar = Calendar.getInstance()
-                var selectedCategory = Category()
+                var  selectedCategory = shareViewModel.categoryList[shareViewModel.selectedCategory.value]
                 val selectedRepeatMode = shareViewModel.repeatList.value[shareViewModel.selectedRepeatIndex.value]
                 val calendarInstance = shareViewModel.setupRepeatList(viewmodel.rawTaskDateTimeInstance.value.time)
                 val progressBar = viewmodel.progressBar.value
                 val deletePopupState = viewmodel.deleteTaskPopup.value
-                LaunchedEffect(shareViewModel.selectedCategory.value) {
-                    selectedCategory = shareViewModel.categoryList[shareViewModel.selectedCategory.value]
-                }
+
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -293,6 +294,20 @@ class TaskFragment : Fragment() {
                     }
                 }
 
+            }
+        }
+    }
+
+
+    override fun onResume() {
+        super.onResume()
+        parentFragmentManager.setFragmentResultListener(
+            Constants.CONTAINER_VIEW,
+            this
+        ) { key, bundle ->
+            lifecycleScope.launch(Dispatchers.Main.immediate) {
+                val selectedIndex = bundle.getInt(Constants.CONTAINER_POP_INDEX)
+                viewmodel.onEvent(TaskEvents.OnCategoryIndexChange(selectedIndex))
             }
         }
     }

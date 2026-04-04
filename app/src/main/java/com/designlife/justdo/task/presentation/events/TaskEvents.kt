@@ -16,4 +16,5 @@ sealed class TaskEvents{
     data class DeleteTaskPopup(val state : Boolean)  : TaskEvents()
     data class DeleteTasksEvent(val taskId : Int, val allOccurrence : Boolean)  : TaskEvents()
     object DeletePopToggleOff  : TaskEvents()
+    data class OnCategoryIndexChange(val index : Int)  : TaskEvents()
 }

@@ -117,13 +117,27 @@ class MainActivity : AppCompatActivity() {
 
     companion object{
         val isDarkModeTheme : MutableState<Boolean> = mutableStateOf(false);
-        lateinit var setworkChat : SetworkOLLM
+        var setworkChat : SetworkOLLM? = null
 
+        private val lock = Any()
         internal fun initChat(context: Context) {
-            if (!::setworkChat.isInitialized){
-                setworkChat = SetworkOLLM.chatSDK(context)
-                setworkChat.clean()
-                setworkChat.init()
+            val existing = setworkChat
+            if (existing != null) {
+                existing.clean()
+                existing.init()
+                return
+            }
+
+            synchronized(lock) {
+                val doubleCheck = setworkChat
+                if (doubleCheck != null) {
+                    doubleCheck.clean()
+                    doubleCheck.init()
+                } else {
+                    val sdk = SetworkOLLM.chatSDK(context)
+                    sdk.init()
+                    setworkChat = sdk
+                }
             }
         }
     }
@@ -223,12 +237,11 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         try {
-            setworkChat.clean()
             lifecycleScope.cancel()
             this.viewModelStore.clear()
             AppServiceLocator.clear()
         }catch (e : Exception){
-            Log.i("CLEAN_FLOW", "onDestroy: MainActivity ::Exception during state clearning")
+            Log.e("CLEAN_FLOW", "onDestroy: MainActivity ::Exception during state clearing")
         }
     }
 }

@@ -97,7 +97,7 @@ object HardStorage {
                 createdAt = System.currentTimeMillis()
             )
             val dataJson = Gson().toJson(data)
-            HomeFragment.EXPORT_DATA = dataJson
+            HomeFragment.EXPORT_DATA.value = dataJson
             Log.i("IE_FLOW", "backupExport: ${HomeFragment.EXPORT_DATA} ")
         } catch (e: IOException) {
             e.printStackTrace()

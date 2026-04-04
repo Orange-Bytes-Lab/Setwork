@@ -38,6 +38,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -104,6 +105,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.util.Date
 
@@ -201,9 +204,12 @@ class HomeFragment : Fragment(), TaskListener {
             registerForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
                 uri?.let {
                     requireContext().contentResolver.openOutputStream(it)?.use { stream ->
-                        val content = EXPORT_DATA
-                        Log.d("FLOW","HomeFragment :: registerForActivityResult : Data : ${content}")
-                        stream.write(content.toByteArray())
+                        lifecycleScope.launch {
+                            EXPORT_DATA.collect{ data ->
+                                Log.d("FLOW","HomeFragment :: registerForActivityResult : Data : ${data}")
+                                stream.write(data.toByteArray())
+                            }
+                        }
                     }
                 }
             }
@@ -268,7 +274,6 @@ class HomeFragment : Fragment(), TaskListener {
     }
 
     override fun onUserNotificationEvent(id: Int, title: String, type: String) {
-//        Toast.makeText(requireContext(), "Setwork Orchestrator\n Title $title ::\n Id ${id} ::\n Type ${type}\n", Toast.LENGTH_SHORT).show()
         if (id != -1) {
             val notificationType = NotificationTypeI.getType(type)
             when (notificationType) {
@@ -599,11 +604,6 @@ class HomeFragment : Fragment(), TaskListener {
                                         },
                                         onImportEvent = {
                                             openFileLauncher.launch(arrayOf("*/*"))
-//                                            settingViewModel.onEvent(SettingEvents.OnBackupSettingViewChange(
-//                                                    AppBackup.IMPORT,
-//                                                    requireContext()
-//                                                )
-//                                            )
                                         },
                                         onExportEvent = {
                                             lifecycleScope.launch {
@@ -929,6 +929,6 @@ class HomeFragment : Fragment(), TaskListener {
         internal var noteListIE : List<Note> = mutableListOf<Note>()
         internal var categoryListIE : List<Category> = mutableListOf<Category>()
 
-        internal var EXPORT_DATA : String = ""
+        internal var EXPORT_DATA : MutableStateFlow<String> = MutableStateFlow("")
     }
 }

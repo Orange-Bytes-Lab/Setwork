@@ -249,8 +249,8 @@ class DeckFragment : Fragment() {
                             onShowStackEvent = {
                                 try{
                                     viewModel.onEvent(DeckEvents.OnDeckToggle)
+                                    viewModel.onEvent(DeckEvents.OnEditStateChange(false))
                                     if (it) {
-                                        viewModel.onEvent(DeckEvents.OnEditStateChange(false))
                                         viewModel.onEvent(DeckEvents.OnPersistCardChanges)
                                     }
                                 }catch (e : Exception){
@@ -264,7 +264,6 @@ class DeckFragment : Fragment() {
                                     editListState.animateScrollToItem(nextIndex+1)
                                     previewListState.scrollToItem(nextIndex+1)
                                     listState.scrollToItem(nextIndex+1)
-
                                 }
                             },
                             onPreviousCardEvent = {

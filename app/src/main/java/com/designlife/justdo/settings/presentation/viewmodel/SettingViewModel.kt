@@ -333,12 +333,14 @@ class SettingViewModel(
         )
         viewModelScope.launch(Dispatchers.IO) {
             backupImport(context, data)
-            delay(400)
             withContext(Dispatchers.Main.immediate){
                 _loaderStatus.value = _loaderStatus.value.copy(
                     title = "Imported Data", loaderState = LoaderState.SUCCESS,
                     message = "Imported completed"
                 )
+            }
+            delay(1000)
+            withContext(Dispatchers.Main.immediate){
                 _loaderVisibility.value = false
                 _loaderStatus.value = initLoaderStatus()
             }

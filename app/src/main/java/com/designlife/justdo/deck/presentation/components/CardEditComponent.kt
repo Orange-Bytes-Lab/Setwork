@@ -67,7 +67,7 @@ fun CardEditComponent(
     val itemHeight = remember {
         mutableStateOf(1F) // // Adjust this fraction as needed
     }
-    val itemWidthFraction = 1f
+
     val frontTextScrollState = rememberScrollState()
     var rotated by remember { mutableStateOf(false) }
 
@@ -90,14 +90,13 @@ fun CardEditComponent(
         targetValue = if (rotated) deckTheme else Color.White,
         animationSpec = tween(500)
     )
-
     Box(
         modifier = Modifier
             .graphicsLayer {
                 rotationY = rotationState
                 cameraDistance = 7 * density
             }
-            .fillMaxWidth(itemWidthFraction)
+            .fillMaxWidth()
             .fillMaxHeight(itemHeight.value)
             .rippleClickable {
                 if (editState) {
@@ -118,7 +117,7 @@ fun CardEditComponent(
                         easing = LinearOutSlowInEasing
                     )
                 )
-                .fillMaxWidth(itemWidthFraction)
+                .fillMaxWidth()
                 .fillMaxHeight(itemHeight.value),
             backgroundColor = animateColor,
             shape = RoundedCornerShape(12.dp)
@@ -136,14 +135,16 @@ fun CardEditComponent(
                             .fillMaxWidth()
                             .height(40.dp)
                             .background(color = deckTheme)
-                            .padding(horizontal = 4.dp),
-                        horizontalArrangement = Arrangement.End,
+                            .padding(horizontal = 4.dp)
+                            .clip(RoundedCornerShape(100))
+                            .padding(top = 2.dp),
+                        horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         IconButton(
                             modifier = Modifier.size(22.dp),
                             onClick = {
-                                onEditStateChange(true)
+                                onEditStateChange(!editState)
                             }
                         ) {
                             Icon(

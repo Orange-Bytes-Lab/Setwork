@@ -2,8 +2,10 @@ package com.designlife.justdo.deck.presentation.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -101,23 +103,31 @@ fun EditCardListComponent(
                val backCard = remember {
                    mutableStateOf(cards[index].backContent)
                }
-               CardEditComponent(
-                   deckTheme = deckTheme,
-                   frontContent = frontCard.value,
-                   backContent = backCard.value,
-                   editState = editState,
-                   onEditStateChange = {
-                       onEditStateChange(it)
-                   },
-                   onFrontContentChange = {
-                       frontCard.value = it
-                       onUpdateEvent(index, cards[index].copy(frontContent = frontCard.value))
-                   },
-                   onBackContentChange = {
-                       backCard.value = it
-                       onUpdateEvent(index, cards[index].copy(backContent = backCard.value))
-                   }
-               )
+               Box(
+                   modifier = Modifier
+                       .fillParentMaxWidth()
+                       .fillMaxHeight(),
+                   contentAlignment = Alignment.Center
+               ){
+                   CardEditComponent(
+                       deckTheme = deckTheme,
+                       frontContent = frontCard.value,
+                       backContent = backCard.value,
+                       editState = editState,
+                       onEditStateChange = {
+                           onEditStateChange(it)
+                       },
+                       onFrontContentChange = {
+                           frontCard.value = it
+                           onUpdateEvent(index, cards[index].copy(frontContent = frontCard.value))
+                       },
+                       onBackContentChange = {
+                           backCard.value = it
+                           onUpdateEvent(index, cards[index].copy(backContent = backCard.value))
+                       }
+                   )
+               }
+
            }
        }
    }

@@ -1,7 +1,6 @@
 package com.designlife.justdo.deck.presentation.events
 
 import com.designlife.justdo.common.domain.entities.FlashCard
-import com.designlife.justdo.note.presentation.events.NoteEvents
 
 sealed class DeckEvents{
     data class OnHeaderChange(val value : String) : DeckEvents()
@@ -12,5 +11,11 @@ sealed class DeckEvents{
     data class OnUpdateCardChange(val index : Int,val card : FlashCard) : DeckEvents()
     object OnPersistCardChanges : DeckEvents()
     object OnDeckDeleteEvent : DeckEvents()
+    data object OnCategoryDemand : DeckEvents()
+    data class OnDeckDemand(val id : Long) : DeckEvents()
     data class OnCategoryIndexChange(val value : Int) : DeckEvents()
+    data class OnAtomicWriteState(val state : Boolean) : DeckEvents()
+    data object OnInsert : DeckEvents()
+    data object OnUpdate : DeckEvents()
+    data object OnClear : DeckEvents()
 }

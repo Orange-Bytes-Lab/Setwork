@@ -33,19 +33,15 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
-import com.designlife.justdo.MainActivity
 import com.designlife.justdo.R
-import com.designlife.justdo.common.AppOutput
 import com.designlife.justdo.common.presentation.components.CommonCustomHeader
 import com.designlife.justdo.common.presentation.components.CustomAttachmentsTab
 import com.designlife.justdo.common.presentation.components.ProgressBar
 import com.designlife.justdo.common.presentation.components.ToolBarPopUpComponent
 import com.designlife.justdo.common.utils.AppServiceLocator
 import com.designlife.justdo.common.utils.constants.Constants
-import com.designlife.justdo.common.utils.constants.Constants.NOTE_VIEW
 import com.designlife.justdo.common.utils.enums.ScreenType
 import com.designlife.justdo.common.utils.enums.ViewType
-import com.designlife.justdo.deck.presentation.events.DeckEvents
 import com.designlife.justdo.note.presentation.components.NoteComponent
 import com.designlife.justdo.note.presentation.components.NoteReminderComponent
 import com.designlife.justdo.note.presentation.enums.NoteMode
@@ -53,14 +49,12 @@ import com.designlife.justdo.note.presentation.events.NoteEvents
 import com.designlife.justdo.note.presentation.viewmodel.NoteViewModel
 import com.designlife.justdo.note.presentation.viewmodel.NoteViewModelFactory
 import com.designlife.justdo.setworkllm.SetworkOLLM
-import com.designlife.justdo.task.presentation.events.TaskEvents
 import com.designlife.justdo.ui.theme.UIComponentBackground
 import com.designlife.orchestrator.NotificationScheduler
 import com.designlife.orchestrator.SchedulingEngine
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import java.util.Calendar
 
@@ -75,8 +69,7 @@ class NoteFragment : Fragment(), SetworkOLLM.SetworkMessage {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        MainActivity.initChat(requireContext())
-        MainActivity.setworkChat?.protocol(this)
+        SetworkOLLM.chatSDK(requireContext()).protocol(this)
         val noteId = arguments?.getLong("noteId") ?: -1L
         val index = arguments?.getInt("categoryIndex") ?: -1
         val noteRepository = AppServiceLocator.provideNoteRepository(requireContext())
@@ -231,7 +224,7 @@ class NoteFragment : Fragment(), SetworkOLLM.SetworkMessage {
                             )
                         }
                         AnimatedVisibility(aiChatState) {
-                            MainActivity.setworkChat?.let { sdkView ->  sdkView.ChatTextView() }
+                            SetworkOLLM.ChatTextView()
                         }
                         CustomAttachmentsTab(
                             hasCover = true,
@@ -401,6 +394,8 @@ class NoteFragment : Fragment(), SetworkOLLM.SetworkMessage {
 //            lifecycleScope?.cancel()
         }catch (e : Exception){
             e.printStackTrace()
+        }finally {
+            SetworkOLLM.destroy()
         }
     }
 

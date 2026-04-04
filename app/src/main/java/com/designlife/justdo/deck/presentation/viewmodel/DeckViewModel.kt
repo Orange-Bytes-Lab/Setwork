@@ -2,6 +2,7 @@ package com.designlife.justdo.deck.presentation.viewmodel
 
 import android.util.Log
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
@@ -14,11 +15,10 @@ import com.designlife.justdo.common.domain.repositories.CategoryRepository
 import com.designlife.justdo.common.domain.repositories.DeckRepository
 import com.designlife.justdo.deck.presentation.events.DeckEvents
 import com.designlife.justdo.ui.theme.ButtonPrimary
-import com.designlife.justdo.ui.theme.PrimaryColor1
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Date
 
 class DeckViewModel(
@@ -39,7 +39,7 @@ class DeckViewModel(
     private val _cardList : MutableState<MutableList<FlashCard>> = mutableStateOf(mutableListOf());
     val cardList = _cardList
 
-    private var _decPrevState = Triple<List<FlashCard>,String,Int>(emptyList(),"",-1)
+    private var _decPrevState = Triple<List<FlashCard>,String,Int>(emptyList(),"",0)
 
     private var _deckToggle : MutableState<Boolean> = mutableStateOf(false)
     val deckToggle  = _deckToggle
@@ -47,23 +47,26 @@ class DeckViewModel(
     private var _editState : MutableState<Boolean> = mutableStateOf(false)
     val editState  = _editState
 
-    private val _updateCardsQueue : MutableState<MutableMap<Int,FlashCard>> = mutableStateOf(mutableMapOf());
+    private val _updateCardsQueue : MutableState<MutableMap<Int,FlashCard>> = mutableStateOf(mutableMapOf())
     val updateCardsQueue = _updateCardsQueue
 
     private var _hasDeckModified : MutableState<Boolean> = mutableStateOf(false)
     val hasDeckModified  = _hasDeckModified
 
-    private val _categoryList : MutableState<List<Category>> = mutableStateOf(listOf());
+    private val _categoryList : MutableState<List<Category>> = mutableStateOf(mutableListOf())
     val categoryList = _categoryList
 
-    private val _selectedCategoryIndex : MutableState<Int> = mutableStateOf(-1);
+    private val _selectedCategoryIndex : MutableState<Int> = mutableStateOf(0)
     val selectedCategoryIndex = _selectedCategoryIndex
 
-    private val _colorMap : MutableState<Map<Long, Color>> = mutableStateOf(mapOf());
-    private val _themeColor : MutableState<Color> = mutableStateOf(ButtonPrimary.value);
+    private val _colorMap : MutableState<Map<Long, Color>> = mutableStateOf(mapOf())
+    private val _themeColor : MutableState<Color> = mutableStateOf(ButtonPrimary.value)
     val themeColor = _themeColor
 
     private var _isUpdated : MutableState<Boolean> = mutableStateOf(false)
+
+    private var _atomicWrite : MutableState<Boolean> = mutableStateOf(false)
+    val atomicWrite  = _atomicWrite
 
     fun onEvent(event : DeckEvents){
         when(event){
@@ -102,6 +105,24 @@ class DeckViewModel(
             is DeckEvents.OnDeckDeleteEvent -> {
                 deleteDeckById()
             }
+            is DeckEvents.OnAtomicWriteState -> {
+                _atomicWrite.value = event.state
+            }
+            is DeckEvents.OnInsert -> {
+                insertDeck()
+            }
+            is DeckEvents.OnUpdate -> {
+                updateDeck()
+            }
+            is DeckEvents.OnClear -> {
+                clean()
+            }
+            is DeckEvents.OnCategoryDemand -> {
+                fetchCategories()
+            }
+            is DeckEvents.OnDeckDemand -> {
+                fetchDeckById(event.id)
+            }
         }
     }
 
@@ -119,12 +140,14 @@ class DeckViewModel(
     }
 
     private fun setupColor(index: Int) {
-        _colorMap.value.get(_categoryList.value[index].id)?.let {
+        if (_categoryList.value.isNotEmpty()){
+            _colorMap.value.get(_categoryList.value[index].id)?.let {
             _themeColor.value = it
+            }
         }
     }
 
-    fun fetchDeckById(deckId : Long){
+    private fun fetchDeckById(deckId : Long){
         _deckId.value = deckId
         viewModelScope.launch(Dispatchers.IO) {
             val deck = deckRepository.getDeckById(_deckId.value)
@@ -137,62 +160,85 @@ class DeckViewModel(
         }
     }
 
-    suspend fun insertDeck() {
+    private fun insertDeck() {
         if (_isUpdated.value){
             updateDeck()
             return
         }
-
+        Log.i("CATEGORY", "insertDeck: ${_categoryList.value.size}")
+        _atomicWrite.value = true
         _isUpdated.value = true
         _hasDeckModified.value = true
-        val newDeck = Deck(
-            deckName = if (_headerTitle.value.isEmpty()) getFormattedTitle() else _headerTitle.value,
-            totalCards = _cardList.value.size,
-            modifiedDate = Date(System.currentTimeMillis()),
-            cards = _cardList.value,
-            categoryId = _categoryList.value[_selectedCategoryIndex.value].id
-        )
-        deckRepository.insertDeck(newDeck)
-        _hasDeckModified.value = false
+        viewModelScope.launch(Dispatchers.IO) {
+            val id = _categoryList.value.get(_selectedCategoryIndex.value).id
+            Log.i("CATEGORY", "insertDeck: The ID : ${id}")
+            val newDeck = Deck(
+                deckName = if (_headerTitle.value.isEmpty()) getFormattedTitle() else _headerTitle.value,
+                totalCards = _cardList.value.size,
+                modifiedDate = Date(System.currentTimeMillis()),
+                cards = _cardList.value,
+                categoryId = id
+            )
+            deckRepository.insertDeck(newDeck)
+            Log.i("CATEGORY", "insertDeck: After insert : ${id}")
+            launch(Dispatchers.Main.immediate) {
+                _atomicWrite.value = false
+                _hasDeckModified.value = false
+            }
+        }
     }
 
     private fun getFormattedTitle(): String {
         return "Untitled -${IDateGenerator.getGracefullyTimeFromEpoch(System.currentTimeMillis())}"
     }
 
-    suspend fun updateDeck() {
+    private fun updateDeck() {
         if (isDeckUpdated()){
+            _atomicWrite.value = true
             _hasDeckModified.value = true
-            val newDeck = Deck(
-                deckId = _deckId.value,
-                deckName = _headerTitle.value,
-                totalCards = _cardList.value.size,
-                modifiedDate = Date(System.currentTimeMillis()),
-                cards = _cardList.value,
-                categoryId = _categoryList.value[_selectedCategoryIndex.value].id
-            )
-            deckRepository.updateDeck(
-                deckId = _deckId.value,
-                deck = newDeck
-            )
-            _hasDeckModified.value = false
+            viewModelScope.launch(Dispatchers.IO) {
+                Log.i("CATEGORY", "updateDeck: ${_categoryList.value.size}")
+                val id = _categoryList.value.get(_selectedCategoryIndex.value).id
+                Log.i("CATEGORY", "updateDeck: The ID : ${id}")
+                val newDeck = Deck(
+                    deckId = _deckId.value,
+                    deckName = _headerTitle.value,
+                    totalCards = _cardList.value.size,
+                    modifiedDate = Date(System.currentTimeMillis()),
+                    cards = _cardList.value,
+                    categoryId = id
+                )
+                deckRepository.updateDeck(
+                    deckId = _deckId.value,
+                    deck = newDeck
+                )
+                Log.i("CATEGORY", "insertDeck: After Update : ${id}")
+                launch(Dispatchers.Main.immediate) {
+                    _atomicWrite.value = false
+                    _hasDeckModified.value = false
+                }
+            }
         }
     }
 
     private fun isDeckUpdated(): Boolean {
-        if (_cardList.value != _decPrevState.first)
-            return true
-        if (_headerTitle.value != _decPrevState.second)
-            return true
-        if (_selectedCategoryIndex.value != _decPrevState.third)
-            return true
+        if (_cardList.value != _decPrevState.first) return true
+        if (_headerTitle.value != _decPrevState.second) return true
+        if (_selectedCategoryIndex.value != _decPrevState.third) return true
         return false
     }
 
-    suspend fun fetchCategories(){
-        categoryRepository.getAllCategory().firstOrNull()?.let {
-            _categoryList.value = it
-            fillColorMap(it)
+    private fun fetchCategories() {
+        viewModelScope.launch {
+            categoryRepository.getAllCategory().firstOrNull()?.let {
+                if (it.isNotEmpty()){
+                    withContext(Dispatchers.Main.immediate) {
+                        Log.i("CATEGORY", "fetchCategories: ${it.size} ")
+                        _categoryList.value = it
+                        fillColorMap(it)
+                    }
+                }
+            }
         }
     }
 
@@ -204,7 +250,7 @@ class DeckViewModel(
         _colorMap.value = colorMap
     }
 
-    fun clean(){
+    private fun clean() {
         _deckId.value = 0L
         _headerTitle.value = ""
         _modifiedTime.value = 0L
@@ -214,10 +260,11 @@ class DeckViewModel(
         _editState.value = false
         _updateCardsQueue.value = mutableMapOf()
         _hasDeckModified.value = false
-        _categoryList.value = listOf()
+        _categoryList.value = mutableListOf()
         _selectedCategoryIndex.value = -1
         _colorMap.value = mapOf()
         _themeColor.value = ButtonPrimary.value
         _isUpdated.value = false
+        onCleared()
     }
 }

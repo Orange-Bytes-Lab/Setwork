@@ -1,7 +1,6 @@
 package com.designlife.justdo.chat
 
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -16,17 +15,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.lifecycleScope
-import com.designlife.justdo.MainActivity
-import com.designlife.justdo.R
 import com.designlife.justdo.common.presentation.components.ProgressBar
 import com.designlife.justdo.setworkllm.SetworkOLLM
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-
 
 class OChatFragment : Fragment() {
 
@@ -35,6 +25,7 @@ class OChatFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        SetworkOLLM.chatSDK(requireContext())
         chatWindowProgress.value = false
     }
 
@@ -52,9 +43,7 @@ class OChatFragment : Fragment() {
                     contentAlignment = Alignment.Center
                 ) {
                     if (!chatWindowProgress.value){
-                        MainActivity.setworkChat?.let { sdkView ->
-                            sdkView.ChatScreenView()
-                        }
+                        SetworkOLLM.ChatScreenView()
                     }
                     if (chatWindowProgress.value){
                         ProgressBar()
@@ -71,5 +60,10 @@ class OChatFragment : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
+        try {
+            SetworkOLLM.destroy()
+        }catch (e : Exception){
+
+        }
     }
 }

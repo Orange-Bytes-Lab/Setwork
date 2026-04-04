@@ -51,12 +51,9 @@ import com.designlife.justdo.deck.presentation.events.DeckEvents
 import com.designlife.justdo.deck.presentation.viewmodel.DeckViewModel
 import com.designlife.justdo.deck.presentation.viewmodel.DeckViewModelFactory
 import com.designlife.justdo.note.presentation.enums.DeckMode
-import com.designlife.justdo.note.presentation.enums.NoteMode
 import com.designlife.justdo.ui.theme.UIComponentBackground
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class DeckFragment : Fragment() {
@@ -70,19 +67,17 @@ class DeckFragment : Fragment() {
             AppServiceLocator.provideCategoryRepository(requireActivity().applicationContext)
         val factory = DeckViewModelFactory(deckRepository, categoryRepository)
         viewModel = ViewModelProvider(this, factory)[DeckViewModel::class.java]
-        CoroutineScope(Dispatchers.IO).launch {
-            async {
-                viewModel.fetchCategories()
-            }.await()
-            val deckId = arguments?.getLong("deckId") ?: -1L
-            val index = arguments?.getInt("categoryIndex") ?: -1
-            if (index != -1) {
-                viewModel.onEvent(DeckEvents.OnCategoryIndexChange(index))
-            }
-            if (deckId != -1L) {
-                deckMode = DeckMode.UPDATE
-                viewModel.fetchDeckById(deckId)
-            }
+
+        viewModel.onEvent(DeckEvents.OnCategoryDemand)
+        val deckId = arguments?.getLong("deckId") ?: -1L
+        val index = arguments?.getInt("categoryIndex") ?: -1
+        if (index != -1) {
+            viewModel.onEvent(DeckEvents.OnCategoryIndexChange(index))
+        }
+
+        if (deckId != -1L) {
+            deckMode = DeckMode.UPDATE
+            viewModel.onEvent(DeckEvents.OnDeckDemand(deckId))
         }
     }
 
@@ -124,14 +119,19 @@ class DeckFragment : Fragment() {
                                 },
                                 onCloseEvent = {
                                     try {
-                                        saveDeck()
+                                        lifecycleScope.launch(Dispatchers.Main.immediate) {
+                                            saveDeck()
+                                            delay(500)
+                                            if (viewModel.hasDeckModified.value) {
+                                                Toast.makeText(requireActivity(), "Card's Saved", Toast.LENGTH_SHORT).show()
+                                            }
+                                            if (!viewModel.atomicWrite.value){
+                                                findNavController().navigateUp()
+                                            }
+                                        }
                                     }catch (e : Exception){
                                         e.printStackTrace()
                                     }
-                                    if (viewModel.hasDeckModified.value) {
-                                        Toast.makeText(requireActivity(), "Card's Saved", Toast.LENGTH_SHORT).show()
-                                    }
-                                    findNavController().navigateUp()
                                 },
                                 isEdit = editState,
                                 isNew = deckMode != DeckMode.UPDATE,
@@ -286,14 +286,24 @@ class DeckFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         val callback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                if (isEnabled) {
-                    saveDeck()
-                    if (viewModel.hasDeckModified.value) {
-                        Toast.makeText(requireActivity(), "Card's Saved", Toast.LENGTH_SHORT).show()
+                try {
+                    if (isEnabled) {
+                        lifecycleScope.launch(Dispatchers.Main.immediate) {
+                            isEnabled = false
+                            saveDeck()
+                            delay(500)
+                            if (viewModel.hasDeckModified.value) {
+                                Toast.makeText(requireActivity(), "Card's Saved", Toast.LENGTH_SHORT).show()
+                            }
+                            if (!viewModel.atomicWrite.value){
+                                requireActivity().onBackPressed()
+                            }
+                        }
                     }
-                    isEnabled = false
-                    requireActivity().onBackPressed()
+                }catch (e : Exception){
+                    e.printStackTrace()
                 }
+
             }
         }
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, callback)
@@ -325,28 +335,16 @@ class DeckFragment : Fragment() {
 
     private fun saveDeck(){
         try {
-            lifecycleScope.launch(Dispatchers.Main.immediate) {
-                if (deckMode == DeckMode.CREATE) {
-                    viewModel.insertDeck()
-                    deckMode = DeckMode.UPDATE
-                } else if (deckMode == DeckMode.UPDATE) {
-                    viewModel.updateDeck()
-                }
+            if (deckMode == DeckMode.CREATE) {
+                deckMode = DeckMode.UPDATE
+                viewModel.onEvent(DeckEvents.OnInsert)
+            } else if (deckMode == DeckMode.UPDATE) {
+                viewModel.onEvent(DeckEvents.OnUpdate)
             }
         }catch (e : Exception){
-            CoroutineScope(Dispatchers.IO).launch {
-                if (deckMode == DeckMode.CREATE) {
-                    viewModel.insertDeck()
-                    deckMode = DeckMode.UPDATE
-                } else if (deckMode == DeckMode.UPDATE) {
-                    viewModel.updateDeck()
-                }
-            }
+            e.printStackTrace()
             Log.e("FLOW", "saveDeck: saved with exception ${e.message}")
-        }finally {
-            viewModel.clean()
         }
-
     }
 
     override fun onStop() {
@@ -358,6 +356,7 @@ class DeckFragment : Fragment() {
         super.onDestroy()
         try {
             saveDeck()
+            viewModel.onEvent(DeckEvents.OnClear)
         }catch (e : Exception){
             e.printStackTrace()
         }

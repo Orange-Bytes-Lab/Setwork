@@ -2,7 +2,6 @@ package com.designlife.justdo
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.pm.PackageManager
 import android.database.CursorWindow
 import android.os.Bundle
@@ -24,7 +23,6 @@ import com.designlife.justdo.settings.presentation.viewmodel.SettingViewModel
 import com.designlife.justdo.settings.presentation.viewmodel.SettingViewModel.Companion.getAppThemeFromOrdinal
 import com.designlife.justdo.settings.presentation.viewmodel.SettingViewModel.Companion.getFontSizeFromOrdinal
 import com.designlife.justdo.settings.presentation.viewmodel.SettingViewModel.Companion.getListItemHeightFromOrdinal
-import com.designlife.justdo.setworkllm.SetworkOLLM
 import com.designlife.justdo.ui.theme.updateSystemColor
 import com.designlife.justdo.ui.theme.updateSystemFont
 import com.designlife.justdo.ui.theme.updateSystemListSize
@@ -37,7 +35,6 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.InternalSerializationApi
 import java.lang.reflect.Field
 import java.util.Calendar
-
 
 class MainActivity : AppCompatActivity() {
     private val TAG = MainActivity::class.java.simpleName
@@ -79,7 +76,6 @@ class MainActivity : AppCompatActivity() {
         observeDarkModeChanges()
         observeSettingChanges()
         checkSoftwareUpdates()
-        MainActivity.initChat(this)
     }
 
     private fun checkSoftwareUpdates() {
@@ -116,30 +112,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object{
-        val isDarkModeTheme : MutableState<Boolean> = mutableStateOf(false);
-        var setworkChat : SetworkOLLM? = null
-
-        private val lock = Any()
-        internal fun initChat(context: Context) {
-            val existing = setworkChat
-            if (existing != null) {
-                existing.clean()
-                existing.init()
-                return
-            }
-
-            synchronized(lock) {
-                val doubleCheck = setworkChat
-                if (doubleCheck != null) {
-                    doubleCheck.clean()
-                    doubleCheck.init()
-                } else {
-                    val sdk = SetworkOLLM.chatSDK(context)
-                    sdk.init()
-                    setworkChat = sdk
-                }
-            }
-        }
+        val isDarkModeTheme : MutableState<Boolean> = mutableStateOf(false)
     }
 
     // System UI Mode Observe

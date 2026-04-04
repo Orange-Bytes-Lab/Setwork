@@ -38,7 +38,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -89,7 +88,6 @@ import com.designlife.justdo.home.presentation.viewmodel.HomeViewModel
 import com.designlife.justdo.home.presentation.viewmodel.HomeViewModelFactory
 import com.designlife.justdo.settings.presentation.components.CustomLoaderComponent
 import com.designlife.justdo.settings.presentation.components.CustomPickerComponent
-import com.designlife.justdo.settings.presentation.enums.AppBackup
 import com.designlife.justdo.settings.presentation.enums.GeneralSettingView
 import com.designlife.justdo.settings.presentation.events.SettingEvents
 import com.designlife.justdo.settings.presentation.viewmodel.SettingViewModel
@@ -106,7 +104,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.util.Date
 
@@ -257,13 +254,13 @@ class HomeFragment : Fragment(), TaskListener {
         }
     }
 
-    private suspend fun initialSlide() {
+    private fun initialSlide() {
         viewModel.onEvent(HomeEvents.OnRefreshInitialDates)
         val dateList = viewModel.dateList.value
         val currentDate = viewModel.currentDate.value
         val index = dateList.indexOf(currentDate)
         viewModel.onEvent(HomeEvents.OnIndexSelected(index))
-        lifecycleScope.launch(Dispatchers.Main.immediate) {
+        scope.launch(Dispatchers.Main.immediate) {
             val todayDateIndex = dateList.indexOf(currentDate)
             viewModel.onEvent(HomeEvents.OnIndexSelected(todayDateIndex))
             dateListState.scrollToItem(todayDateIndex)
@@ -301,6 +298,15 @@ class HomeFragment : Fragment(), TaskListener {
         }
     }
 
+    suspend fun highlightToday() {
+        val date = viewModel.currentDate.value
+        val index = viewModel.dateList.value.indexOf(date)
+        viewModel.onEvent(HomeEvents.OnIndexSelected(index))
+        dateListState.scrollToItem(index)
+        viewModel.onEvent(HomeEvents.HighlightTodoByDate(index))
+        todoListState.scrollToItem(viewModel.todoIndex.value)
+    }
+
     @OptIn(
         ExperimentalMaterialApi::class, ExperimentalFoundationApi::class,
         ExperimentalAnimationApi::class, ExperimentalAnimationApi::class
@@ -311,6 +317,9 @@ class HomeFragment : Fragment(), TaskListener {
     ): View {
         return ComposeView(requireContext()).apply {
             setContent {
+                val legacyScroll = remember {
+                    mutableStateOf(true)
+                }
                 dateListState = rememberLazyListState()
                 scope = rememberCoroutineScope()
                 val bottomSheetState = rememberModalBottomSheetState(
@@ -356,15 +365,24 @@ class HomeFragment : Fragment(), TaskListener {
                 categoryListIE = viewModel.categoryList.value
                 LaunchedEffect(viewModel.isLoaded.value) {
                     try {
-                        scope.launch {
-                            initialSlide()
-                        }
+                        initialSlide()
                     }catch (e : Exception){
                         delay(200)
                         initialSlide()
                     }
                 }
 
+                LaunchedEffect(legacyScroll.value) {
+                    try {
+                        scope.launch {
+                            delay(300)
+                            legacyScroll.value = false
+                            highlightToday()
+                        }
+                    }catch (e : Exception){
+
+                    }
+                }
                 Box(
                     modifier = Modifier.Companion.fillMaxSize(),
                 ) {
@@ -400,19 +418,8 @@ class HomeFragment : Fragment(), TaskListener {
                                     HeaderComponent(
                                         headerText = "All Tasks",
                                         onEventClick = {
-                                            scope.launch(Dispatchers.Main) {
-                                                viewModel.onEvent(
-                                                    HomeEvents.OnIndexSelected(
-                                                        todayDateIndex
-                                                    )
-                                                )
-                                                dateListState.scrollToItem(todayDateIndex)
-                                                viewModel.onEvent(
-                                                    HomeEvents.HighlightTodoByDate(
-                                                        todayDateIndex
-                                                    )
-                                                )
-                                                todoListState.scrollToItem(viewModel.todoIndex.value)
+                                            scope.launch {
+                                                highlightToday()
                                             }
                                         },
                                         currentDate = Date(System.currentTimeMillis()),
@@ -774,6 +781,11 @@ class HomeFragment : Fragment(), TaskListener {
     override fun onResume() {
         super.onResume()
         viewModel.archiveTodos(viewModel.todoList.value)
+        if (::scope.isInitialized){
+            scope.launch {
+                highlightToday()
+            }
+        }
     }
 
     private fun navigateToTaskViewById(todoId: Int) {

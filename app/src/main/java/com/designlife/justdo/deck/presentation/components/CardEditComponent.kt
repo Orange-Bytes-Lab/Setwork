@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -64,13 +63,11 @@ fun CardEditComponent(
     onBackContentChange: (value: String) -> Unit,
 ) {
 
-    val screenWidth = LocalDensity.current.run {
-        (LocalConfiguration.current.screenWidthDp * density).toInt()
-    }
+
     val itemHeight = remember {
         mutableStateOf(1F) // // Adjust this fraction as needed
     }
-    val itemWidthFraction = 0.40f
+    val itemWidthFraction = 1f
     val frontTextScrollState = rememberScrollState()
     var rotated by remember { mutableStateOf(false) }
 
@@ -100,7 +97,7 @@ fun CardEditComponent(
                 rotationY = rotationState
                 cameraDistance = 7 * density
             }
-            .width((screenWidth * itemWidthFraction).dp)
+            .fillMaxWidth(itemWidthFraction)
             .fillMaxHeight(itemHeight.value)
             .rippleClickable {
                 if (editState) {
@@ -109,19 +106,19 @@ fun CardEditComponent(
                     rotated = !rotated
                 }
             }
-            .padding(horizontal = 3.dp),
+            .padding(horizontal = 2.dp),
         contentAlignment = Alignment.BottomCenter
     ) {
         Card(
             modifier = modifier
-                .padding(horizontal = 5.dp)
+                .padding(horizontal = 4.dp)
                 .animateContentSize(
                     animationSpec = tween(
                         durationMillis = 300,
                         easing = LinearOutSlowInEasing
                     )
                 )
-                .width((screenWidth * itemWidthFraction).dp)
+                .fillMaxWidth(itemWidthFraction)
                 .fillMaxHeight(itemHeight.value),
             backgroundColor = animateColor,
             shape = RoundedCornerShape(12.dp)

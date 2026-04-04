@@ -15,6 +15,7 @@ import com.designlife.justdo.common.domain.repositories.DeckRepository
 import com.designlife.justdo.deck.presentation.events.DeckEvents
 import com.designlife.justdo.ui.theme.ButtonPrimary
 import com.designlife.justdo.ui.theme.PrimaryColor1
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
@@ -137,6 +138,7 @@ class DeckViewModel(
     }
 
     fun insertDeck() {
+        Log.i("DECK_SAVE", "insertDeck: viewmodel :: is updated ${_isUpdated.value}")
         if (_isUpdated.value){
             updateDeck()
             return
@@ -144,7 +146,8 @@ class DeckViewModel(
 
         _isUpdated.value = true
         _hasDeckModified.value = true
-        viewModelScope.launch(Dispatchers.IO) {
+        CoroutineScope(Dispatchers.IO).launch {
+            Log.i("DECK_SAVE", "insertDeck: viewmodel :: launch")
             val newDeck = Deck(
                 deckName = if (_headerTitle.value.isEmpty()) getFormattedTitle() else _headerTitle.value,
                 totalCards = _cardList.value.size,
@@ -153,6 +156,7 @@ class DeckViewModel(
                 categoryId = _categoryList.value[_selectedCategoryIndex.value].id
             )
             deckRepository.insertDeck(newDeck)
+            Log.i("DECK_SAVE", "insertDeck: viewmodel :: launch :: insert")
             _hasDeckModified.value = false
         }
     }
@@ -162,7 +166,9 @@ class DeckViewModel(
     }
 
     fun updateDeck() {
+        Log.i("DECK_SAVE", "saveDeck: is any change ${isDeckUpdated()}")
         if (isDeckUpdated()){
+            Log.i("DECK_SAVE", "saveDeck: update launch")
             _hasDeckModified.value = true
             val newDeck = Deck(
                 deckId = _deckId.value,
@@ -172,7 +178,7 @@ class DeckViewModel(
                 cards = _cardList.value,
                 categoryId = _categoryList.value[_selectedCategoryIndex.value].id
             )
-            viewModelScope.launch(Dispatchers.IO) {
+            CoroutineScope(Dispatchers.IO).launch {
                 deckRepository.updateDeck(
                     deckId = _deckId.value,
                     deck = newDeck

@@ -76,7 +76,7 @@ class NoteFragment : Fragment(), SetworkOLLM.SetworkMessage {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         MainActivity.initChat(requireContext())
-        MainActivity.setworkChat.protocol(this)
+        MainActivity.setworkChat?.protocol(this)
         val noteId = arguments?.getLong("noteId") ?: -1L
         val index = arguments?.getInt("categoryIndex") ?: -1
         val noteRepository = AppServiceLocator.provideNoteRepository(requireContext())
@@ -231,7 +231,7 @@ class NoteFragment : Fragment(), SetworkOLLM.SetworkMessage {
                             )
                         }
                         AnimatedVisibility(aiChatState) {
-                            MainActivity.setworkChat.ChatTextView()
+                            MainActivity.setworkChat?.let { sdkView ->  sdkView.ChatTextView() }
                         }
                         CustomAttachmentsTab(
                             hasCover = true,

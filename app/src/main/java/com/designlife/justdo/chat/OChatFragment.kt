@@ -52,7 +52,9 @@ class OChatFragment : Fragment() {
                     contentAlignment = Alignment.Center
                 ) {
                     if (!chatWindowProgress.value){
-                        MainActivity.setworkChat.ChatScreenView()
+                        MainActivity.setworkChat?.let { sdkView ->
+                            sdkView.ChatScreenView()
+                        }
                     }
                     if (chatWindowProgress.value){
                         ProgressBar()

@@ -20,16 +20,29 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 -keepnames class com.designlife.justdo.common.utils.enums.ScreenType
-# Keep generic type info
+# Gson
 -keepattributes Signature
+-keepattributes *Annotation*
 
-# Keep Gson models
+-keep class com.google.gson.reflect.TypeToken { *; }
+-keep class * extends com.google.gson.reflect.TypeToken
+
+# Keep your models (VERY IMPORTANT)
 -keep class com.designlife.justdo.** { *; }
 
-# If using Retrofit
--keep interface * {
-    @retrofit2.http.* <methods>;
-}
+# Retrofit
+-keepattributes Signature
+-keepattributes Exceptions
 
-# Keep annotations
--keepattributes *Annotation*
+-keep class retrofit2.** { *; }
+-keep interface retrofit2.** { *; }
+
+# Keep API interfaces
+-keep interface com.designlife.justdo.** { *; }
+
+-keep class okhttp3.** { *; }
+-keep interface okhttp3.** { *; }
+
+# Room
+-keep class androidx.room.** { *; }
+-keep class * extends androidx.room.RoomDatabase

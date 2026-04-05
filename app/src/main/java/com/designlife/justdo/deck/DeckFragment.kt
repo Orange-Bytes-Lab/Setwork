@@ -44,7 +44,7 @@ import com.designlife.justdo.common.utils.enums.ScreenType
 import com.designlife.justdo.deck.presentation.components.CreateCardListComponent
 import com.designlife.justdo.deck.presentation.components.CustomCardButton
 import com.designlife.justdo.deck.presentation.components.DeckBottomBarComponent
-import com.designlife.justdo.deck.presentation.components.DeckHeader
+import com.designlife.justdo.deck.presentation.components.DeckHeaderComponent
 import com.designlife.justdo.deck.presentation.components.EditCardListComponent
 import com.designlife.justdo.deck.presentation.components.PreviewCardListComponent
 import com.designlife.justdo.deck.presentation.events.DeckEvents
@@ -53,7 +53,6 @@ import com.designlife.justdo.deck.presentation.viewmodel.DeckViewModelFactory
 import com.designlife.justdo.note.presentation.enums.DeckMode
 import com.designlife.justdo.ui.theme.UIComponentBackground
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class DeckFragment : Fragment() {
@@ -118,7 +117,7 @@ class DeckFragment : Fragment() {
                         AnimatedVisibility(
                             visible = !viewModeVisibility
                         ){
-                            DeckHeader(
+                            DeckHeaderComponent(
                                 headerTitle = headerTitle,
                                 onTitleChange = {
                                     viewModel.onEvent(DeckEvents.OnHeaderChange(it))
@@ -126,7 +125,7 @@ class DeckFragment : Fragment() {
                                 onCloseEvent = {
                                     try {
                                         lifecycleScope.launch(Dispatchers.Main.immediate) {
-                                            saveDeck()
+                                            saveDeck(false)
                                             if (viewModel.hasDeckModified.value) {
                                                 Toast.makeText(requireActivity(), "Card's Saved", Toast.LENGTH_SHORT).show()
                                             }
@@ -140,7 +139,7 @@ class DeckFragment : Fragment() {
                                 isNew = deckMode != DeckMode.UPDATE,
                                 onAutoSaveEvent = {
                                     try {
-                                        saveDeck()
+                                        saveDeck(true)
                                     }catch (e : Exception){
                                         e.printStackTrace()
                                     }
@@ -292,7 +291,7 @@ class DeckFragment : Fragment() {
                 try {
                     if (isEnabled) {
                         lifecycleScope.launch() {
-                            saveDeck()
+                            saveDeck(false)
                             isEnabled = false
                             if (viewModel.hasDeckModified.value) {
                                 Toast.makeText(requireActivity(), "Card's Saved", Toast.LENGTH_SHORT).show()
@@ -335,13 +334,13 @@ class DeckFragment : Fragment() {
         else { cardList.lastIndex }
     }
 
-    private fun saveDeck(){
+    private fun saveDeck(isAutoSave : Boolean){
         try {
             if (deckMode == DeckMode.CREATE) {
                 deckMode = DeckMode.UPDATE
-                viewModel.onEvent(DeckEvents.OnInsert)
+                viewModel.onEvent(DeckEvents.OnInsert(isAutoSave))
             } else if (deckMode == DeckMode.UPDATE) {
-                viewModel.onEvent(DeckEvents.OnUpdate)
+                viewModel.onEvent(DeckEvents.OnUpdate(isAutoSave))
             }
         }catch (e : Exception){
             e.printStackTrace()
@@ -358,7 +357,7 @@ class DeckFragment : Fragment() {
         super.onDestroy()
         try {
             lifecycleScope.launch {
-                saveDeck()
+                saveDeck(false)
                 viewModel.onEvent(DeckEvents.OnClear)
             }
         }catch (e : Exception){

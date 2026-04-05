@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -37,14 +38,15 @@ class OChatFragment : Fragment() {
                 Box(
                     modifier = Modifier
                         .padding(vertical = 20.dp)
+                        .padding(bottom = 20.dp)
                         .fillMaxSize()
                         .background(Color.White),
                     contentAlignment = Alignment.Center
                 ) {
-                    if (!chatWindowProgress.value){
+                    AnimatedVisibility(!chatWindowProgress.value) {
                         SetworkOLLM.ChatScreenView()
                     }
-                    if (chatWindowProgress.value){
+                    AnimatedVisibility(chatWindowProgress.value) {
                         ProgressBar()
                     }
                 }

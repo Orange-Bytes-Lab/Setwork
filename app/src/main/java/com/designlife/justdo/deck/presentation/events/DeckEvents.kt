@@ -14,7 +14,7 @@ sealed class DeckEvents{
     data object OnCategoryDemand : DeckEvents()
     data class OnDeckDemand(val id : Long) : DeckEvents()
     data class OnCategoryIndexChange(val value : Int) : DeckEvents()
-    data object OnInsert : DeckEvents()
-    data object OnUpdate : DeckEvents()
+    data class OnInsert(val isAutoSave : Boolean = false) : DeckEvents()
+    data class OnUpdate(val isAutoSave : Boolean = false) : DeckEvents()
     data object OnClear : DeckEvents()
 }

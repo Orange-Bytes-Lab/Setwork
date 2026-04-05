@@ -191,8 +191,6 @@ class ContainerFragment : Fragment() {
         }
     }
 
-
-
     override fun onDestroy() {
         super.onDestroy()
         val popData = bundleOf(Constants.CONTAINER_POP_INDEX to viewmodel.selectedCategory.value)

@@ -56,6 +56,7 @@ import com.designlife.orchestrator.SchedulingEngine
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import java.util.Calendar
 
@@ -279,11 +280,19 @@ class NoteFragment : Fragment(), SetworkOLLM.SetworkMessage {
                         ToolBarPopUpComponent(
                             onExportPdfEvent = {
                                 viewModel.onEvent(NoteEvents.OnThreeDotToggle(false))
-                                viewModel.onEvent(NoteEvents.OnPdfExport(requireContext()))
+                                try {
+                                    viewModel.onEvent(NoteEvents.OnPdfExport(requireContext()))
+                                }catch (e : Exception){
+                                    e.printStackTrace()
+                                }
                             },
                             onExportPngEvent = {
                                 viewModel.onEvent(NoteEvents.OnThreeDotToggle(false))
-                                viewModel.onEvent(NoteEvents.OnPngExport(requireContext()))
+                                try {
+                                    viewModel.onEvent(NoteEvents.OnPngExport(requireContext()))
+                                }catch (e : Exception){
+                                    e.printStackTrace()
+                                }
                             },
                             onDeleteEvent = {
                                 viewModel.onEvent(NoteEvents.OnThreeDotToggle(false))
@@ -401,6 +410,16 @@ class NoteFragment : Fragment(), SetworkOLLM.SetworkMessage {
     override fun onChatRelay(message: String) {
         val completeContent = viewModel.contentValue.value +"\n -- Setwork Chat --> \n" + message
         viewModel.onEvent(NoteEvents.OnContentChange(completeContent))
+        // Once copied save immediately all
+        try {
+            if (noteMode == NoteMode.CREATE) {
+                viewModel.insertNote()
+            } else {
+                viewModel.updateNote()
+            }
+        }catch (e : Exception){
+            e.printStackTrace()
+        }
     }
 
 

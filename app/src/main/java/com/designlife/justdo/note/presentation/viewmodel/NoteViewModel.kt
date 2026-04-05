@@ -141,38 +141,47 @@ class NoteViewModel(
 
             }
             is NoteEvents.OnPdfExport -> {
-                AppOutput.exportAsPdf(
-                    context = event.context,
-                    fileName = _titleValue.value,
-                    content = _contentValue.value
-                )
-                notificationScheduler.scheduleNotification(
-                    NotificationInfo(
-                        taskId = System.currentTimeMillis().absoluteValue.hashCode(),
-                        scheduledTime = System.currentTimeMillis(),
-                        taskTitle = "Setwork Document",
-                        taskSubTitle = "${_titleValue.value}.pdf is available in downloads",
-                        notificationType = NotificationType.COMMON_NOTIFY,
-                        notificationStatus = NotificationStatus.DELIVERED
+                viewModelScope.launch(Dispatchers.IO) {
+                    AppOutput.exportAsPdf(
+                        context = event.context,
+                        fileName = _titleValue.value,
+                        content = _contentValue.value
                     )
-                )
+                    withContext(Dispatchers.Main.immediate){
+                        notificationScheduler.scheduleNotification(
+                            NotificationInfo(
+                                taskId = System.currentTimeMillis().absoluteValue.hashCode(),
+                                scheduledTime = System.currentTimeMillis(),
+                                taskTitle = "Setwork Document",
+                                taskSubTitle = "${_titleValue.value}.pdf is available in downloads",
+                                notificationType = NotificationType.COMMON_NOTIFY,
+                                notificationStatus = NotificationStatus.DELIVERED
+                            )
+                        )
+                    }
+
+                }
             }
             is NoteEvents.OnPngExport -> {
-                AppOutput.exportAsPng(
-                    context = event.context,
-                    fileName = _titleValue.value,
-                    content = _contentValue.value
-                )
-                notificationScheduler.scheduleNotification(
-                    NotificationInfo(
-                        taskId = System.currentTimeMillis().absoluteValue.hashCode(),
-                        scheduledTime = System.currentTimeMillis(),
-                        taskTitle = "Setwork Image",
-                        taskSubTitle = "${_titleValue.value}.png is available in downloads",
-                        notificationType = NotificationType.COMMON_NOTIFY,
-                        notificationStatus = NotificationStatus.DELIVERED
+                viewModelScope.launch(Dispatchers.IO) {
+                    AppOutput.exportAsPng(
+                        context = event.context,
+                        fileName = _titleValue.value,
+                        content = _contentValue.value
                     )
-                )
+                    withContext(Dispatchers.Main.immediate){
+                        notificationScheduler.scheduleNotification(
+                            NotificationInfo(
+                                taskId = System.currentTimeMillis().absoluteValue.hashCode(),
+                                scheduledTime = System.currentTimeMillis(),
+                                taskTitle = "Setwork Image",
+                                taskSubTitle = "${_titleValue.value}.png is available in downloads",
+                                notificationType = NotificationType.COMMON_NOTIFY,
+                                notificationStatus = NotificationStatus.DELIVERED
+                            )
+                        )
+                    }
+                }
             }
         }
     }

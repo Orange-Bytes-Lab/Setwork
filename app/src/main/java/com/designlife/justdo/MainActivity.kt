@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.database.CursorWindow
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -70,7 +71,10 @@ class MainActivity : AppCompatActivity() {
             }
             requestPermissions()
         }
-        ollmSDK = SetworkOLLM.chatSDK(this)
+        lifecycleScope.launch {
+            ollmSDK = SetworkOLLM.chatSDK(this@MainActivity)
+        }
+        Toast.makeText(this, "Welcome", Toast.LENGTH_SHORT).show()
         resizeCursorWindow()
         setContentView(R.layout.activity_main)
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment

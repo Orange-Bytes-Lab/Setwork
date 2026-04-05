@@ -102,6 +102,7 @@ import com.designlife.orchestrator.notification.clickmanager.TaskListener
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -157,24 +158,13 @@ class HomeFragment : Fragment(), TaskListener {
         settingViewModel = ViewModelProvider(this, settingFactory)[SettingViewModel::class.java]
         lifecycleScope.launch {
             viewModel.onEvent(HomeEvents.OnProgressBarToggle(true))
-            launch(Dispatchers.IO) {
-                settingViewModel.initSettingPreferences()
-                viewModel.onEvent(HomeEvents.OnViewChange(settingViewModel.defaultScreen.value))
-            }
-            launch(Dispatchers.Main.immediate) {
-                viewModel.loadInitialDates()
-            }
-            launch(Dispatchers.IO) {
-                viewModel.fetchAllTodo()
-            }
-            launch(Dispatchers.IO) {
-                viewModel.fetchAllCategory()
-            }
-            launch(Dispatchers.IO) {
-                viewModel.fetchAllNotes()
-            }
-            launch(Dispatchers.IO) {
-                viewModel.fetchAllDecks()
+            coroutineScope {
+                launch { settingViewModel.initSettingPreferences() }
+                launch { viewModel.loadInitialDates() }
+                launch { viewModel.fetchAllTodo() }
+                launch { viewModel.fetchAllCategory() }
+                launch { viewModel.fetchAllNotes() }
+                launch { viewModel.fetchAllDecks() }
             }
             viewModel.onEvent(HomeEvents.OnProgressBarToggle(false))
         }
@@ -339,7 +329,7 @@ class HomeFragment : Fragment(), TaskListener {
                 val noteList =
                     if (searchText.isNotEmpty()) viewModel.searchList.value as List<Note> else viewModel.noteList
                 val deckList =
-                    if (searchText.isNotEmpty()) viewModel.searchList.value as List<Deck> else viewModel.deckList.value
+                    if (searchText.isNotEmpty()) viewModel.searchList.value as List<Deck> else viewModel.deckList
                 val colorMap = viewModel.colorMap.value
                 val currentMonth = viewModel.currentMonth.value
                 val currentYear = viewModel.currentYear.value
@@ -361,7 +351,7 @@ class HomeFragment : Fragment(), TaskListener {
                 val isDarkMode = SettingViewModel.Companion.darkModeStatus.value
                 todoListIE = viewModel.todoList.value
                 noteListIE = viewModel.noteList
-                deckListIE = viewModel.deckList.value
+                deckListIE = viewModel.deckList
                 categoryListIE = viewModel.categoryList.value
                 LaunchedEffect(viewModel.isLoaded.value) {
                     try {

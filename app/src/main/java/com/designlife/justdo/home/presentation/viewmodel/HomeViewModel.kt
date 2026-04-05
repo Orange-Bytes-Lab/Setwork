@@ -58,7 +58,7 @@ class HomeViewModel(
     private val _searchList : MutableState<List<Any>> = mutableStateOf(listOf());
     val searchList = _searchList
 
-    private val _deckList : MutableState<List<Deck>> = mutableStateOf(listOf());
+    private val _deckList : SnapshotStateList<Deck> = mutableStateListOf<Deck>();
     val deckList = _deckList
 
     private val _colorMap : MutableState<Map<Long, Color>> = mutableStateOf(mapOf());
@@ -203,7 +203,7 @@ class HomeViewModel(
                 _searchList.value = _noteList.filter { it.title.lowercase().startsWith(searchText.lowercase()) }
             }
             ViewType.DECK -> {
-                _searchList.value = _deckList.value.filter { it.deckName.lowercase().startsWith(searchText.lowercase()) }
+                _searchList.value = _deckList.filter { it.deckName.lowercase().startsWith(searchText.lowercase()) }
             }
             else -> {}
         }
@@ -226,8 +226,8 @@ class HomeViewModel(
 
     private fun applySortByCategory() {
         todoList.value = todoUnSortedList
-        deckList.value = deckUnSortedList
         updateNoteList(noteUnSortedList)
+        updateDeckList(deckUnSortedList)
         when(viewType.value){
             ViewType.TASK -> {
                 if (_isSorted){
@@ -236,7 +236,7 @@ class HomeViewModel(
             }
             ViewType.DECK -> {
                 if (_isSorted){
-                    deckList.value = deckList.value.filter { it.categoryId == _categoryList.value[_selectedCategoryIndex.value].id}
+                    updateDeckList(deckList.filter { it.categoryId == _categoryList.value[_selectedCategoryIndex.value].id})
                 }
             }
             ViewType.NOTE -> {
@@ -314,16 +314,11 @@ class HomeViewModel(
 
     fun fetchAllTodo() {
         viewModelScope.launch(Dispatchers.IO) {
-//            var isDone : Boolean = false
             todoRepository.getAllTodo().collect{
                 val sortedList =  it.sortedBy { it.date }
                 _todoList.value = sortedList
                 todoUnSortedList = sortedList
                 currentTodoIndex(sortedList)
-//                if (!isDone && sortedList.isNotEmpty()){
-//                    archiveTodos(sortedList)
-//                    isDone = true
-//                }
             }
         }
     }
@@ -398,10 +393,15 @@ class HomeViewModel(
         _noteList.addAll(notes)
     }
 
+    fun updateDeckList(decks : List<Deck>){
+        _deckList.clear()
+        _deckList.addAll(decks)
+    }
+
     fun fetchAllDecks() {
         viewModelScope.launch(Dispatchers.IO) {
             deckRepository.getAllDecks().collect{
-                _deckList.value = it
+                updateDeckList(it)
                 deckUnSortedList = it
             }
         }

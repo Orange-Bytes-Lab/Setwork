@@ -111,10 +111,10 @@ class DeckViewModel(
                 deleteDeckById()
             }
             is DeckEvents.OnInsert -> {
-                insertDeck()
+                insertDeck(event.isAutoSave)
             }
             is DeckEvents.OnUpdate -> {
-                updateDeck()
+                updateDeck(event.isAutoSave)
             }
             is DeckEvents.OnClear -> {
                 clean()
@@ -142,9 +142,12 @@ class DeckViewModel(
     }
 
     private fun setupColor(index: Int) {
-        if (_categoryList.value.isNotEmpty()){
-            _colorMap.value.get(_categoryList.value[index].id)?.let {
-            _themeColor.value = it
+        viewModelScope.launch {
+            categoryRepository.getAllCategory().firstOrNull()?.let {
+                _categoryList.value = it
+                _colorMap.value.get(_categoryList.value[index].id)?.let {
+                    _themeColor.value = it
+                }
             }
         }
     }
@@ -162,9 +165,9 @@ class DeckViewModel(
         }
     }
 
-    private fun insertDeck() {
+    private fun insertDeck(isAutoSave : Boolean) {
         if (_isUpdated.value) {
-            updateDeck()
+            updateDeck(isAutoSave)
             return
         }
         _isUpdated.value = true
@@ -195,7 +198,9 @@ class DeckViewModel(
             if (deck != null) {
                 _hasDeckModified.value = false
                 _progressState.value = false
-                _atomicWrite.emit(Unit)
+                if (!isAutoSave){
+                    _atomicWrite.emit(Unit)
+                }
             } else {
                 _isUpdated.value = false
                 _progressState.value = false
@@ -207,7 +212,7 @@ class DeckViewModel(
         return "Untitled -${IDateGenerator.getGracefullyTimeFromEpoch(System.currentTimeMillis())}"
     }
 
-    private fun updateDeck() {
+    private fun updateDeck(isAutoSave: Boolean) {
         if (!isDeckUpdated()) {
             viewModelScope.launch {
                 _atomicWrite.emit(Unit)
@@ -246,7 +251,9 @@ class DeckViewModel(
             _hasDeckModified.value = false
             _progressState.value = false
             if (success) {
-                _atomicWrite.emit(Unit)
+                if (!isAutoSave){
+                    _atomicWrite.emit(Unit)
+                }
             } else {
                 _isUpdated.value = false
                 Log.e("CATEGORY", "updateDeck: failed — invalid index or repo error")

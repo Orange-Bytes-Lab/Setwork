@@ -18,7 +18,7 @@ class NoteRepository(
         return noteDao.insertAllNotes(noteList)
     }
 
-    suspend fun getAllNotes(): Flow<List<Note>> {
+    fun getAllNotes(): Flow<List<Note>> {
         return noteDao.getAllNotes().map { rawNoteList ->
             rawNoteList.map { rawNote ->
                 NoteConverters.getNote(rawNote)

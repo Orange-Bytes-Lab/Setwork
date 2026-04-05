@@ -399,7 +399,7 @@ class HomeViewModel(
     }
 
     fun fetchAllDecks() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             deckRepository.getAllDecks().collect{
                 updateDeckList(it)
                 deckUnSortedList = it

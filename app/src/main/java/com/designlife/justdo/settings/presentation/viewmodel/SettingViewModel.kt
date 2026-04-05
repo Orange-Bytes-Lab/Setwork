@@ -175,13 +175,11 @@ class SettingViewModel(
     }
 
     fun initSettingPreferences() {
-        viewModelScope.launch(Dispatchers.IO) {
-            val settingPreferences = async { appStoreRepository.getSettingPreferences() }.await()
+        viewModelScope.launch {
+            val settingPreferences = appStoreRepository.getSettingPreferences()
             settingPreferences?.let {
-                withContext(Dispatchers.Main.immediate) {
-                    Log.i("SETTING_PREFERENCE", "initSettingPreferences: ${it.toString()}")
-                    setPreferenceValues(it)
-                }
+                Log.i("SETTING_PREFERENCE", "initSettingPreferences: ${it.toString()}")
+                setPreferenceValues(it)
             }
         }
     }

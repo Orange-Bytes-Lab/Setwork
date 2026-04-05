@@ -5,21 +5,23 @@ import java.util.Date
 
 object DeckConverters {
     fun getDeckEntity(deck: Deck): com.designlife.justdo.common.data.entities.Deck {
+        val cards = CardConverters.getFlashCardEntity(deck.cards)
         return com.designlife.justdo.common.data.entities.Deck(
             deckName = deck.deckName,
             totalCards = deck.totalCards,
             modifiedDate = deck.modifiedDate.time,
-            cards = CardConverters.getFlashCardEntity(deck.cards),
+            cards = cards,
             categoryId = deck.categoryId
         )
     }
 
     fun getDeck(deck: com.designlife.justdo.common.data.entities.Deck): Deck {
+        val cards = CardConverters.getFlashCard(deck.cards)
         return Deck(
             deckId = deck.deckId,
             deckName = deck.deckName,
             totalCards = deck.totalCards,
-            cards = CardConverters.getFlashCard(deck.cards),
+            cards = cards,
             modifiedDate = Date(deck.modifiedDate),
             categoryId = deck.categoryId
         )

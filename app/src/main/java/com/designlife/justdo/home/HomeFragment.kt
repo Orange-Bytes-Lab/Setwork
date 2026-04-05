@@ -160,11 +160,11 @@ class HomeFragment : Fragment(), TaskListener {
             viewModel.onEvent(HomeEvents.OnProgressBarToggle(true))
             coroutineScope {
                 launch { settingViewModel.initSettingPreferences() }
+                launch { viewModel.fetchAllDecks() }
                 launch { viewModel.loadInitialDates() }
                 launch { viewModel.fetchAllTodo() }
                 launch { viewModel.fetchAllCategory() }
                 launch { viewModel.fetchAllNotes() }
-                launch { viewModel.fetchAllDecks() }
             }
             viewModel.onEvent(HomeEvents.OnProgressBarToggle(false))
         }

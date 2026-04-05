@@ -20,3 +20,16 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 -keepnames class com.designlife.justdo.common.utils.enums.ScreenType
+# Keep generic type info
+-keepattributes Signature
+
+# Keep Gson models
+-keep class com.designlife.justdo.** { *; }
+
+# If using Retrofit
+-keep interface * {
+    @retrofit2.http.* <methods>;
+}
+
+# Keep annotations
+-keepattributes *Annotation*

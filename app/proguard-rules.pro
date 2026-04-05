@@ -42,7 +42,32 @@
 
 -keep class okhttp3.** { *; }
 -keep interface okhttp3.** { *; }
+-keep class okhttp3.ResponseBody { *; }
 
 # Room
 -keep class androidx.room.** { *; }
 -keep class * extends androidx.room.RoomDatabase
+
+
+# Fix Retrofit generic type reflection (ClassCastException fix)
+-keep,allowobfuscation,allowshrinking interface retrofit2.Call
+-keep,allowobfuscation,allowshrinking class retrofit2.Response
+-keep,allowobfuscation,allowshrinking class kotlin.coroutines.Continuation
+
+# Preserve generic signatures on ALL Retrofit API interfaces
+-keepattributes Signature
+-keepattributes Exceptions
+-keepattributes EnclosingMethod
+-keepattributes InnerClasses
+
+# Keep your specific API interface methods with their signatures
+-keepclassmembers interface com.designlife.justdo.** {
+    @retrofit2.http.* <methods>;
+}
+
+# Kotlin coroutines + Retrofit suspend functions
+-keep class kotlin.coroutines.** { *; }
+-keep interface kotlin.coroutines.** { *; }
+-keepclassmembernames class kotlinx.** {
+    volatile <fields>;
+}

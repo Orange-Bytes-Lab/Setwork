@@ -16,6 +16,8 @@ import com.designlife.justdo.common.domain.repositories.DeckRepository
 import com.designlife.justdo.deck.presentation.events.DeckEvents
 import com.designlife.justdo.ui.theme.ButtonPrimary
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -62,11 +64,14 @@ class DeckViewModel(
     private val _colorMap : MutableState<Map<Long, Color>> = mutableStateOf(mapOf())
     private val _themeColor : MutableState<Color> = mutableStateOf(ButtonPrimary.value)
     val themeColor = _themeColor
-
     private var _isUpdated : MutableState<Boolean> = mutableStateOf(false)
 
-    private var _atomicWrite : MutableState<Boolean> = mutableStateOf(false)
-    val atomicWrite  = _atomicWrite
+    private var _atomicWrite = MutableSharedFlow<Unit>()
+    val atomicWrite  = _atomicWrite.asSharedFlow()
+
+    private var _progressState : MutableState<Boolean> = mutableStateOf(false)
+    val progressState  = _progressState
+
 
     fun onEvent(event : DeckEvents){
         when(event){
@@ -104,9 +109,6 @@ class DeckViewModel(
             }
             is DeckEvents.OnDeckDeleteEvent -> {
                 deleteDeckById()
-            }
-            is DeckEvents.OnAtomicWriteState -> {
-                _atomicWrite.value = event.state
             }
             is DeckEvents.OnInsert -> {
                 insertDeck()
@@ -161,29 +163,42 @@ class DeckViewModel(
     }
 
     private fun insertDeck() {
-        if (_isUpdated.value){
+        if (_isUpdated.value) {
             updateDeck()
             return
         }
-        Log.i("CATEGORY", "insertDeck: ${_categoryList.value.size}")
-        _atomicWrite.value = true
         _isUpdated.value = true
         _hasDeckModified.value = true
-        viewModelScope.launch(Dispatchers.IO) {
-            val id = _categoryList.value.get(_selectedCategoryIndex.value).id
-            Log.i("CATEGORY", "insertDeck: The ID : ${id}")
-            val newDeck = Deck(
-                deckName = if (_headerTitle.value.isEmpty()) getFormattedTitle() else _headerTitle.value,
-                totalCards = _cardList.value.size,
-                modifiedDate = Date(System.currentTimeMillis()),
-                cards = _cardList.value,
-                categoryId = id
-            )
-            deckRepository.insertDeck(newDeck)
-            Log.i("CATEGORY", "insertDeck: After insert : ${id}")
-            launch(Dispatchers.Main.immediate) {
-                _atomicWrite.value = false
+
+        viewModelScope.launch {
+            _progressState.value = true
+
+            val deck = withContext(Dispatchers.IO) {
+                val id = _categoryList.value
+                    .getOrNull(_selectedCategoryIndex.value)?.id
+                    ?: return@withContext null
+
+                Log.i("CATEGORY", "insertDeck: The ID: $id")
+
+                Deck(
+                    deckName = _headerTitle.value.ifEmpty { getFormattedTitle() },
+                    totalCards = _cardList.value.size,
+                    modifiedDate = Date(System.currentTimeMillis()),
+                    cards = _cardList.value,
+                    categoryId = id
+                ).also { newDeck ->
+                    deckRepository.insertDeck(newDeck)
+                    Log.i("CATEGORY", "insertDeck: After insert: $id")
+                }
+            }
+
+            if (deck != null) {
                 _hasDeckModified.value = false
+                _progressState.value = false
+                _atomicWrite.emit(Unit)
+            } else {
+                _isUpdated.value = false
+                _progressState.value = false
             }
         }
     }
@@ -193,14 +208,24 @@ class DeckViewModel(
     }
 
     private fun updateDeck() {
-        if (isDeckUpdated()){
-            _atomicWrite.value = true
-            _hasDeckModified.value = true
-            viewModelScope.launch(Dispatchers.IO) {
-                Log.i("CATEGORY", "updateDeck: ${_categoryList.value.size}")
-                val id = _categoryList.value.get(_selectedCategoryIndex.value).id
-                Log.i("CATEGORY", "updateDeck: The ID : ${id}")
-                val newDeck = Deck(
+        if (!isDeckUpdated()) {
+            viewModelScope.launch {
+                _atomicWrite.emit(Unit)
+            }
+            return
+        }
+        _progressState.value = true
+        _hasDeckModified.value = true
+
+        viewModelScope.launch {
+            val success = withContext(Dispatchers.IO) {
+                val id = _categoryList.value
+                    .getOrNull(_selectedCategoryIndex.value)?.id
+                    ?: return@withContext false
+
+                Log.i("CATEGORY", "updateDeck: The ID: $id")
+
+                val updatedDeck = Deck(
                     deckId = _deckId.value,
                     deckName = _headerTitle.value,
                     totalCards = _cardList.value.size,
@@ -208,15 +233,23 @@ class DeckViewModel(
                     cards = _cardList.value,
                     categoryId = id
                 )
-                deckRepository.updateDeck(
-                    deckId = _deckId.value,
-                    deck = newDeck
-                )
-                Log.i("CATEGORY", "insertDeck: After Update : ${id}")
-                launch(Dispatchers.Main.immediate) {
-                    _atomicWrite.value = false
-                    _hasDeckModified.value = false
-                }
+
+                runCatching {
+                    deckRepository.updateDeck(
+                        deckId = _deckId.value,
+                        deck = updatedDeck
+                    )
+                    Log.i("CATEGORY", "updateDeck: After update, id: $id")
+                }.isSuccess
+            }
+
+            _hasDeckModified.value = false
+            _progressState.value = false
+            if (success) {
+                _atomicWrite.emit(Unit)
+            } else {
+                _isUpdated.value = false
+                Log.e("CATEGORY", "updateDeck: failed — invalid index or repo error")
             }
         }
     }

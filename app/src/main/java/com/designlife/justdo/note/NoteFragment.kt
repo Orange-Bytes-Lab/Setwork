@@ -33,6 +33,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
+import com.designlife.justdo.MainActivity
 import com.designlife.justdo.R
 import com.designlife.justdo.common.presentation.components.CommonCustomHeader
 import com.designlife.justdo.common.presentation.components.CustomAttachmentsTab
@@ -69,7 +70,7 @@ class NoteFragment : Fragment(), SetworkOLLM.SetworkMessage {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        SetworkOLLM.chatSDK(requireContext()).protocol(this)
+        MainActivity.ollmSDK?.protocol(this)
         val noteId = arguments?.getLong("noteId") ?: -1L
         val index = arguments?.getInt("categoryIndex") ?: -1
         val noteRepository = AppServiceLocator.provideNoteRepository(requireContext())
@@ -394,8 +395,6 @@ class NoteFragment : Fragment(), SetworkOLLM.SetworkMessage {
 //            lifecycleScope?.cancel()
         }catch (e : Exception){
             e.printStackTrace()
-        }finally {
-            SetworkOLLM.destroy()
         }
     }
 

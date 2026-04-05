@@ -25,7 +25,6 @@ class OChatFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        SetworkOLLM.chatSDK(requireContext())
         chatWindowProgress.value = false
     }
 
@@ -60,10 +59,5 @@ class OChatFragment : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-        try {
-            SetworkOLLM.destroy()
-        }catch (e : Exception){
-
-        }
     }
 }

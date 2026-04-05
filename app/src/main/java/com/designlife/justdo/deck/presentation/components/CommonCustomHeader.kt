@@ -1,5 +1,6 @@
 package com.designlife.justdo.deck.presentation.components
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -24,6 +25,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
+import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -60,6 +62,7 @@ fun DeckHeader(
     onCloseEvent: () -> Unit,
     isEdit : Boolean,
     isNew : Boolean,
+    progressState : Boolean,
     onAutoSaveEvent : () -> Unit,
     onDeleteButtonClickEvent : () -> Unit,
     categoryList : List<Category>,
@@ -89,7 +92,7 @@ fun DeckHeader(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .heightIn(min = 64.dp, max = 72.dp)
+            .heightIn(min = 66.dp, max = 74.dp)
             .clip(Shapes.cutBottomRoundedCorners(16.dp))
             .background(ComponentBackground.value),
         horizontalAlignment = Alignment.Start,
@@ -183,6 +186,9 @@ fun DeckHeader(
 
                 }
             }
+        }
+        AnimatedVisibility(progressState) {
+            LinearProgressIndicator(modifier = Modifier.fillMaxWidth().height(5.dp), color = Color.Green)
         }
     }
 }

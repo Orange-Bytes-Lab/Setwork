@@ -35,7 +35,7 @@ import androidx.core.os.bundleOf
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
-import androidx.navigation.fragment.navArgs
+import androidx.navigation.fragment.findNavController
 import com.designlife.justdo.R
 import com.designlife.justdo.common.domain.entities.FlashCard
 import com.designlife.justdo.common.utils.AppServiceLocator
@@ -79,6 +79,12 @@ class DeckFragment : Fragment() {
             deckMode = DeckMode.UPDATE
             viewModel.onEvent(DeckEvents.OnDeckDemand(deckId))
         }
+
+        lifecycleScope.launch {
+            viewModel.atomicWrite.collect {
+                findNavController().navigateUp()
+            }
+        }
     }
 
     @OptIn(ExperimentalAnimationApi::class)
@@ -121,18 +127,15 @@ class DeckFragment : Fragment() {
                                     try {
                                         lifecycleScope.launch(Dispatchers.Main.immediate) {
                                             saveDeck()
-                                            delay(500)
                                             if (viewModel.hasDeckModified.value) {
                                                 Toast.makeText(requireActivity(), "Card's Saved", Toast.LENGTH_SHORT).show()
-                                            }
-                                            if (!viewModel.atomicWrite.value){
-                                                findNavController().navigateUp()
                                             }
                                         }
                                     }catch (e : Exception){
                                         e.printStackTrace()
                                     }
                                 },
+                                progressState = viewModel.progressState.value,
                                 isEdit = editState,
                                 isNew = deckMode != DeckMode.UPDATE,
                                 onAutoSaveEvent = {
@@ -288,14 +291,13 @@ class DeckFragment : Fragment() {
             override fun handleOnBackPressed() {
                 try {
                     if (isEnabled) {
-                        lifecycleScope.launch(Dispatchers.Main.immediate) {
-                            isEnabled = false
+                        lifecycleScope.launch() {
                             saveDeck()
-                            delay(500)
+                            isEnabled = false
                             if (viewModel.hasDeckModified.value) {
                                 Toast.makeText(requireActivity(), "Card's Saved", Toast.LENGTH_SHORT).show()
                             }
-                            if (!viewModel.atomicWrite.value){
+                            viewModel.atomicWrite.collect {
                                 requireActivity().onBackPressed()
                             }
                         }
@@ -355,8 +357,10 @@ class DeckFragment : Fragment() {
     override fun onDestroy() {
         super.onDestroy()
         try {
-            saveDeck()
-            viewModel.onEvent(DeckEvents.OnClear)
+            lifecycleScope.launch {
+                saveDeck()
+                viewModel.onEvent(DeckEvents.OnClear)
+            }
         }catch (e : Exception){
             e.printStackTrace()
         }

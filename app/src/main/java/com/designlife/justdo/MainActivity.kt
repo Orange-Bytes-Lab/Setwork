@@ -23,6 +23,7 @@ import com.designlife.justdo.settings.presentation.viewmodel.SettingViewModel
 import com.designlife.justdo.settings.presentation.viewmodel.SettingViewModel.Companion.getAppThemeFromOrdinal
 import com.designlife.justdo.settings.presentation.viewmodel.SettingViewModel.Companion.getFontSizeFromOrdinal
 import com.designlife.justdo.settings.presentation.viewmodel.SettingViewModel.Companion.getListItemHeightFromOrdinal
+import com.designlife.justdo.setworkllm.SetworkOLLM
 import com.designlife.justdo.ui.theme.updateSystemColor
 import com.designlife.justdo.ui.theme.updateSystemFont
 import com.designlife.justdo.ui.theme.updateSystemListSize
@@ -69,6 +70,7 @@ class MainActivity : AppCompatActivity() {
             }
             requestPermissions()
         }
+        ollmSDK = SetworkOLLM.chatSDK(this)
         resizeCursorWindow()
         setContentView(R.layout.activity_main)
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
@@ -113,6 +115,7 @@ class MainActivity : AppCompatActivity() {
 
     companion object{
         val isDarkModeTheme : MutableState<Boolean> = mutableStateOf(false)
+        internal var ollmSDK : SetworkOLLM? = null
     }
 
     // System UI Mode Observe
@@ -210,6 +213,7 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         try {
+            SetworkOLLM.destroy()
             lifecycleScope.cancel()
             this.viewModelStore.clear()
             AppServiceLocator.clear()

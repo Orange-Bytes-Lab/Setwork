@@ -17,6 +17,7 @@ class TaskViewModelFactory(
     private val notificationScheduler: NotificationScheduler,
     private val shareViewModel: ContainerViewModel
 ) : ViewModelProvider.Factory {
+    @SuppressWarnings
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return TaskViewModel(repeatRepository,todoRepository,categoryRepository,todoCategoryRepository,notificationScheduler,shareViewModel) as T
     }

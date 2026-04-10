@@ -1,14 +1,15 @@
 package com.designlife.justdo.common.domain.calendar
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.emitAll
 import java.text.SimpleDateFormat
-import java.time.ZoneId
-import java.time.format.TextStyle
+import java.time.LocalDate
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import java.util.TimeZone
 
 
 class IDateGenerator : DateGenerator {
@@ -25,36 +26,29 @@ class IDateGenerator : DateGenerator {
     }
 
     override fun loadPreviousMonth() : List<Date>{
-        val preservedMonth = previousMonth
         previousMonth -= 1 % 12
         if (previousMonth == 0){
             prevYear -= 1;
             previousMonth = 12
         }
         val previousMonthList =  ArrayList<Date>()
-        val firstDayIndex = getFirstDayOfMonth(previousMonth,prevYear)
         for (days in 1..totalDaysInAMonth(previousMonth,prevYear)){
-            val dayIndex = (firstDayIndex + (days-1)) % daysList.size
             previousMonthList.add(getDateBy(days, previousMonth, prevYear))
         }
         return previousMonthList
     }
 
     override fun loadNextMonth() : List<Date>{
-        val preservedMonth = nextMonth
         nextMonth += 1
         if (nextMonth == 13){
             nextYear += 1
             nextMonth = 1
         }
         val nextMonthList =  arrayListOf<Date>()
-        val firstDayIndex = getFirstDayOfMonth(nextMonth,nextYear)
         for (days in 1..totalDaysInAMonth(nextMonth,nextYear)){
-            val dayIndex = (firstDayIndex + (days-1)) % daysList.size
             val date = getDateBy(days, nextMonth, nextYear)
             nextMonthList.add(date)
         }
-//        _allDateList.value.addAll(nextMonthList)
         return nextMonthList
     }
 
@@ -66,10 +60,8 @@ class IDateGenerator : DateGenerator {
     override fun setupDates() {
         val month = getCurrentMonth()
         val year = getCurrentYear()
-        val firstDayIndex = getFirstDayOfMonth(month,year)
         val datesList =  arrayListOf<Date>()
         for (days in 1..totalDaysInAMonth(month,year)){
-            val dayIndex = (firstDayIndex + (days-1)) % daysList.size
             val date = getDateBy(days,month,year)
             datesList.add(date)
 
@@ -77,20 +69,14 @@ class IDateGenerator : DateGenerator {
         _allDateList.value = datesList
     }
 
-
-
     companion object {
         val daysList =  listOf<String>( "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat")
         private val fullDayNameList =  listOf<String>( "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday")
-        val monthsList =  listOf<String>( "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
         private val fillMonthNamesList =  listOf<String>( "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December")
 
-        private fun getNoLength(value : Int) : Int{
-            return (Math.log(value as Double)+1).toInt()
-        }
 
         public fun getToday() : Date{
-            return getDateBy(getCurrentDay(), getCurrentMonth(), getCurrentYear())
+            return Date(System.currentTimeMillis())
         }
 
 

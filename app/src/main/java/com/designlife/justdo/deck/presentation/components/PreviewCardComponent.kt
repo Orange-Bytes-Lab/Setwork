@@ -20,7 +20,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.designlife.justdo.common.domain.entities.FlashCard
 import com.designlife.justdo.common.presentation.components.rippleClickable
 import com.designlife.justdo.ui.theme.cardTextStyle
 import com.designlife.justdo.ui.theme.cardTextStyleSize
@@ -28,8 +27,6 @@ import com.designlife.justdo.ui.theme.cardTextStyleSize
 @Composable
 fun PreviewCardComponent(
     modifier: Modifier = Modifier,
-    card: FlashCard,
-    isHighlighted: Boolean,
     onItemEvent: () -> Unit
 ) {
     Card(

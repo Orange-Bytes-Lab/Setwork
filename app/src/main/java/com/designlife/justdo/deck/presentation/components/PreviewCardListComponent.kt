@@ -16,7 +16,6 @@ import com.designlife.justdo.common.domain.entities.FlashCard
 fun PreviewCardListComponent(
     listState: LazyListState,
     cards: List<FlashCard>,
-    visibleItemIndex: Int,
     onPreviewCardEvent: (index: Int) -> Unit
 ) {
     LazyRow(
@@ -31,10 +30,7 @@ fun PreviewCardListComponent(
         items(
             cards.size
         ) { index ->
-            PreviewCardComponent(
-                card = cards[index],
-                isHighlighted = index == visibleItemIndex
-            ) {
+            PreviewCardComponent {
                 onPreviewCardEvent(index)
             }
         }

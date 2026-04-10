@@ -8,7 +8,6 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 
-@Serializer(forClass = Long::class)
 object LongSerializer : KSerializer<Long>{
     override val descriptor: SerialDescriptor
         get() =  PrimitiveSerialDescriptor("Long", PrimitiveKind.LONG)

@@ -153,7 +153,7 @@ class ContainerViewModel(
     }
 
     public fun getCatiegoryIndexById(categoryId : Long) : Int{
-        val categoryData = categoryList.filterIndexed { index, category -> category.id == categoryId }
+        val categoryData = categoryList.filterIndexed { _, category -> category.id == categoryId }
         return categoryList.indexOf(categoryData[0])
     }
 

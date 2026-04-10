@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -35,11 +34,9 @@ import com.designlife.justdo.ui.theme.ButtonPrimary
 import com.designlife.justdo.ui.theme.cardTextStyle
 import com.designlife.justdo.ui.theme.cardTextStyleSize
 import com.designlife.justdo.ui.theme.fontFamily
-import kotlinx.coroutines.CoroutineScope
 
 @Composable
 fun EditCardListComponent(
-    scope: CoroutineScope,
     listState: LazyListState,
     deckTheme: Color,
     editState: Boolean,
@@ -96,7 +93,6 @@ fun EditCardListComponent(
            items(
                cards.size
            ) { index ->
-               val card = cards[index]
                val frontCard = remember {
                    mutableStateOf(cards[index].frontContent)
                }

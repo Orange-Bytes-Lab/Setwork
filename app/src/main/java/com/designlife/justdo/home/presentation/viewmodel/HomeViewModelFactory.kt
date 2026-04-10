@@ -21,6 +21,7 @@ class HomeViewModelFactory (
     private val loadNextDatesSetUseCase: LoadNextDatesSetUseCase,
     private val loadPreviousDatesSetUseCase: LoadPreviousDatesSetUseCase
     ) : ViewModelProvider.Factory {
+    @SuppressWarnings
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return HomeViewModel(dateGenerator,todoRepository,categoryRepository,noteRepository,deckRepository,loadInitialDateUseCase,loadNextDatesSetUseCase, loadPreviousDatesSetUseCase) as T
     }

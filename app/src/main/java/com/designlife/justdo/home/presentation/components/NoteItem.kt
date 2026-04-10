@@ -45,7 +45,6 @@ fun NoteItem(
     noteTheme: Color,
     note: Note,
     onClick: () -> Unit,
-    onLongClick: () -> Unit
 ) {
     val hasCover = note.coverImage != null
     val modifier = if (hasCover) Modifier
@@ -71,13 +70,10 @@ fun NoteItem(
                 horizontal = if (!hasCover) 5.dp else 12.dp,
                 vertical = if (!hasCover) 0.dp else 4.dp
             )
-//            .alpha(if (deleteLock) 0.4F else 0F)
             .rippleClickable {
                 onClick()
 
-            }
-//            .combinedClickable(onClick = { onClick() }, onLongClick = { onLongClick() })
-        ,
+            },
         shape = RoundedCornerShape(12.dp),
         elevation = 10.dp
     ) {

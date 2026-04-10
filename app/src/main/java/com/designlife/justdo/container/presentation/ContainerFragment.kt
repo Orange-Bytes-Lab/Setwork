@@ -49,8 +49,8 @@ class ContainerFragment : Fragment() {
         arguments?.let { bundle ->
             val ordinal = bundle.getInt(Constants.SCREEN_TYPE)
             val editMode = bundle.getBoolean(Constants.EDIT_MODE)
-            ordinal?.let {
-                val screenType = ScreenType.values()[it]
+            ordinal.let {
+                val screenType = ScreenType.entries[it]
                 viewmodel.initialSetup(screenType, editMode)
             }
         }
@@ -69,7 +69,6 @@ class ContainerFragment : Fragment() {
                 val selectedPaletteColor = viewmodel.selectedPaletteColor.value
                 val selectedEmoji = viewmodel.selectedEmoji.value
                 val newCategoryName = viewmodel.categoryName.value
-                val editCategoryName = viewmodel.categoryTitle.value
                 val isEditMode = viewmodel.editMode.value
                 val categoryMode = viewmodel.categoryMode.value
                 val repeatList = viewmodel.repeatList.value
@@ -172,7 +171,6 @@ class ContainerFragment : Fragment() {
                             contentAlignment = Alignment.Center
                         ) {
                             CustomColorPicker(
-                                isVisible = colorPickerState,
                                 colorPaletteDialog = {
                                     viewmodel.onEvent(ContainerEvents.ColorPickerToggle(it))
                                 },
@@ -195,8 +193,6 @@ class ContainerFragment : Fragment() {
         super.onDestroy()
         val popData = bundleOf(Constants.CONTAINER_POP_INDEX to viewmodel.selectedCategory.value)
         setFragmentResult(Constants.CONTAINER_VIEW, popData)
-//        parentFragmentManager.popBackStack()
-
-        lifecycleScope?.cancel()
+        lifecycleScope.cancel()
     }
 }

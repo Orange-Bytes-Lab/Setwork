@@ -3,26 +3,13 @@ package com.designlife.justdo.common.utils
 import android.content.Context
 import android.util.Log
 import com.designlife.justdo.common.data.entities.AppData
-import com.designlife.justdo.common.data.entities.Category
-import com.designlife.justdo.common.data.entities.Deck
-import com.designlife.justdo.common.data.entities.Note
 import com.designlife.justdo.common.data.entities.Todo
-import com.designlife.justdo.common.data.room.dao.SetworkDatabase
 import com.designlife.justdo.home.HomeFragment
 import com.designlife.orchestrator.SchedulingEngine
 import com.designlife.orchestrator.data.NotificationInfo
 import com.designlife.orchestrator.data.NotificationStatus
 import com.designlife.orchestrator.data.NotificationType
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.async
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.firstOrNull
-import java.io.File
-import java.io.FileWriter
 import java.io.IOException
 
 
@@ -35,9 +22,9 @@ object HardStorage {
             val noteRepository = AppServiceLocator.provideNoteRepository(context)
             val categoryRepository = AppServiceLocator.provideCategoryRepository(context)
 
-            val data = Gson().fromJson(data, AppData::class.java)
+            val gsonData = Gson().fromJson(data, AppData::class.java)
 
-            data?.let {
+            gsonData?.let {
                 if (it.todos.isNotEmpty()){
                     val todos = it.todos.map { it.toTodo() }
                     todoRepository.insertAllImportedTodo(todos)

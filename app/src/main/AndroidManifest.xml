@@ -19,10 +19,10 @@
 
 
 
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"
+        tools:ignore="RequestInstallPackagesPolicy" />
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"
-        tools:ignore="QueryAllPackagesPermission" />
+        tools:ignore="PackageVisibilityPolicy,QueryAllPackagesPermission" />
 
     <application
         android:allowBackup="false"

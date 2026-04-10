@@ -54,7 +54,9 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
-            Log.i(TAG, "onCreate: SETWORK CRASH :: Crash happened on thread ${thread.name} ::  ${throwable.printStackTrace()}")
+            throwable.printStackTrace()
+            Log.i(TAG, "onCreate: SETWORK CRASH :: Crash happened on thread ${thread.name} ::  ${throwable.cause?.message}")
+
         }
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
@@ -77,8 +79,6 @@ class MainActivity : AppCompatActivity() {
         Toast.makeText(this, "Welcome", Toast.LENGTH_SHORT).show()
         resizeCursorWindow()
         setContentView(R.layout.activity_main)
-        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
-        val navController = navHostFragment.navController
         observeDarkModeChanges()
         observeSettingChanges()
         checkSoftwareUpdates()

@@ -1,9 +1,5 @@
 package com.designlife.justdo.common.domain.entities
 
-import androidx.room.PrimaryKey
-import com.designlife.justdo.common.utils.serializer.LongSerializer
-import com.google.gson.annotations.SerializedName
-import kotlinx.serialization.Serializable
 import java.util.Date
 
 data class Note(
@@ -15,7 +11,7 @@ data class Note(
     val coverImage : ByteArray? = null,
     val createdTime: Date = Date(System.currentTimeMillis()),
     val lastModified : Date = Date(System.currentTimeMillis()),
-) {
+) : SearchMarker(referenceId = noteId) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

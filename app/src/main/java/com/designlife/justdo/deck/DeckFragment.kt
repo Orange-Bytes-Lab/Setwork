@@ -102,7 +102,6 @@ class DeckFragment : Fragment() {
                 val viewModeVisibility = viewModel.deckToggle.value
                 val editState = viewModel.editState.value
                 val categoryList = viewModel.categoryList.value
-                val selectedCategoryIndex = viewModel.selectedCategoryIndex.value
                 val themeColor = viewModel.themeColor.value
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -136,7 +135,6 @@ class DeckFragment : Fragment() {
                                 },
                                 progressState = viewModel.progressState.value,
                                 isEdit = editState,
-                                isNew = deckMode != DeckMode.UPDATE,
                                 onAutoSaveEvent = {
                                     try {
                                         saveDeck(true)
@@ -149,11 +147,9 @@ class DeckFragment : Fragment() {
                                     findNavController().navigateUp()
                                 },
                                 categoryList = categoryList,
-                                selectedCategoryIndex = selectedCategoryIndex,
                                 onCategoryIndexChange = {
                                     viewModel.onEvent(DeckEvents.OnCategoryIndexChange(it))
                                 },
-                                onReminderEvent = {},
                                 addNewCategory = {
                                     val bundle = bundleOf()
                                     bundle.putInt(Constants.SCREEN_TYPE, ScreenType.CATEGORY.ordinal)
@@ -182,7 +178,7 @@ class DeckFragment : Fragment() {
                                         listState.animateScrollToItem(if (index + 1 == cardList.size) 0 else index + 1)
                                     }
                                 },
-                                onExpandEvent = { index ->
+                                onExpandEvent = { _ ->
                                     scope.launch {
                                         editListState.animateScrollToItem(listState.firstVisibleItemIndex)
                                     }
@@ -198,7 +194,6 @@ class DeckFragment : Fragment() {
                             PreviewCardListComponent(
                                 listState = previewListState,
                                 cards = cardList,
-                                visibleItemIndex = listState.firstVisibleItemIndex,
                                 onPreviewCardEvent = { index ->
                                     scope.launch {
                                         listState.animateScrollToItem(index + 1)
@@ -213,7 +208,6 @@ class DeckFragment : Fragment() {
                             exit = scaleOut() + shrinkVertically(shrinkTowards = Alignment.CenterVertically)
                         ) {
                             EditCardListComponent(
-                                scope = scope,
                                 listState = editListState,
                                 deckTheme = themeColor,
                                 cards = cardList,
@@ -270,7 +264,7 @@ class DeckFragment : Fragment() {
                             },
                             onPreviousCardEvent = {
                                 scope.launch(Dispatchers.Main.immediate) {
-                                    val previousIndex = getPreviousIndex(cardList, it)
+                                    val previousIndex = getPreviousIndex(it)
                                     editListState.animateScrollToItem(previousIndex)
                                     previewListState.scrollToItem(previousIndex)
                                     listState.scrollToItem(previousIndex)
@@ -288,23 +282,26 @@ class DeckFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         val callback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                try {
-                    if (isEnabled) {
+                if (isEnabled) {
+                    try {
                         lifecycleScope.launch() {
                             saveDeck(false)
-                            isEnabled = false
                             if (viewModel.hasDeckModified.value) {
                                 Toast.makeText(requireActivity(), "Card's Saved", Toast.LENGTH_SHORT).show()
                             }
+                            isEnabled = false
                             viewModel.atomicWrite.collect {
-                                requireActivity().onBackPressed()
+                                if (isEnabled) {
+                                    isEnabled = false
+                                }
+
+                                requireActivity().onBackPressedDispatcher.onBackPressed()
                             }
                         }
+                    }catch (e : Exception) {
+                        e.printStackTrace()
                     }
-                }catch (e : Exception){
-                    e.printStackTrace()
                 }
-
             }
         }
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, callback)
@@ -315,7 +312,7 @@ class DeckFragment : Fragment() {
         parentFragmentManager.setFragmentResultListener(
             Constants.CONTAINER_VIEW,
             this
-        ) { key, bundle ->
+        ) { _, bundle ->
             lifecycleScope.launch(Dispatchers.Main.immediate) {
                 val selectedIndex = bundle.getInt(Constants.CONTAINER_POP_INDEX)
                 viewModel.onEvent(DeckEvents.OnCategoryIndexChange(selectedIndex))
@@ -323,7 +320,7 @@ class DeckFragment : Fragment() {
         }
     }
 
-    private fun getPreviousIndex(cardList: MutableList<FlashCard>, index: Int): Int {
+    private fun getPreviousIndex(index: Int): Int {
         return if (index - 1 == -1) 0
         else index - 1
     }

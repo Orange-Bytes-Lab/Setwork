@@ -131,7 +131,6 @@ class NoteViewModel(
             is NoteEvents.OnTimeChange -> {
                 val(hour,minute) = event.value.split(":")
                 _selectedTimeText.value = IDateGenerator.getGracefullyTimeFrom(hour.toInt(),minute.toInt())
-                val calendar = Calendar.getInstance()
                 _rawNoteDateTimeInstance.value.apply {
                     set(Calendar.HOUR_OF_DAY, hour.toInt())
                     set(Calendar.MINUTE, minute.toInt())

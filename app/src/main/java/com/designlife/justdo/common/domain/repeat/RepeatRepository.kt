@@ -11,7 +11,7 @@ class RepeatRepository(
 
 ) {
 
-    private val monthQuadrant = listOf<String>("first","second","third","last","fifth")
+    private val monthQuadrant = listOf("first","second","third","last","fifth")
 
     fun getRepeatList(currentDate : Date) : List<Pair<String,RepeatType>>{
         val repeatList = arrayListOf<Pair<String,RepeatType>>()
@@ -41,7 +41,7 @@ class RepeatRepository(
 
     private fun createOnMonthTask(task: Todo, eventDate: Date): List<Todo> {
         todoList.clear()
-        var indexUUID = System.currentTimeMillis().hashCode().absoluteValue.toInt()
+        var indexUUID = System.currentTimeMillis().hashCode().absoluteValue
         val monthStart = IDateGenerator.getMonthNo(eventDate)
         val monthEnd = 11
         val calendar = Calendar.getInstance()
@@ -58,16 +58,17 @@ class RepeatRepository(
         return todoList
     }
 
+    @SuppressWarnings
     private fun createAnuallyTask(task: Todo, eventDate: Date): List<Todo> {
         todoList.clear()
-        var indexUUID = System.currentTimeMillis().hashCode().absoluteValue.toInt()
-        val dayStart = IDateGenerator.getDayFromDate(eventDate)
-        val lastDay = IDateGenerator.getLastDayOfMonthFromDate(eventDate)
+        var indexUUID = System.currentTimeMillis().hashCode().absoluteValue
         val calendar = Calendar.getInstance()
         calendar.time = eventDate
         val year = calendar.get(Calendar.YEAR)
         val month = calendar.get(Calendar.MONTH)
-        calendar.set(year,month,1,eventDate.hours,eventDate.minutes,eventDate.seconds)
+        val cal = Calendar.getInstance()
+        cal.time = eventDate
+        calendar.set(year, month, 1, cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), cal.get(Calendar.SECOND))
         for (yearIdx in 0..4){
             indexUUID += 1
             calendar.set(Calendar.YEAR,year+yearIdx)
@@ -82,14 +83,18 @@ class RepeatRepository(
 
     private fun createWeeklyTask(task: Todo, eventDate: Date): List<Todo> {
         todoList.clear()
-        var indexUUID = System.currentTimeMillis().hashCode().absoluteValue.toInt()
+        var indexUUID = System.currentTimeMillis().hashCode().absoluteValue
         val dayStart = IDateGenerator.getDayFromDate(eventDate)
         val lastDay = IDateGenerator.getLastDayOfMonthFromDate(eventDate)
         val calendar = Calendar.getInstance()
         calendar.time = eventDate
         val year = calendar.get(Calendar.YEAR)
         val month = calendar.get(Calendar.MONTH)
-        calendar.set(year,month,1,eventDate.hours,eventDate.minutes,eventDate.seconds)
+
+        val cal = Calendar.getInstance()
+        cal.time = eventDate
+
+        calendar.set(year, month, 1, cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), cal.get(Calendar.SECOND))
         for (day in dayStart..lastDay){
             calendar.set(Calendar.DAY_OF_MONTH,day)
             val isDaysSame = IDateGenerator.checkDays(calendar.time,eventDate)
@@ -105,9 +110,11 @@ class RepeatRepository(
         return todoList
     }
 
+    @SuppressWarnings
+
     private fun createEveryWorkingDayTask(task: Todo, eventDate: Date): List<Todo> {
         todoList.clear()
-        var indexUUID = System.currentTimeMillis().hashCode().absoluteValue.toInt()
+        var indexUUID = System.currentTimeMillis().hashCode().absoluteValue
         val dayStart = IDateGenerator.getDayFromDate(eventDate)
         val lastDay = IDateGenerator.getLastDayOfMonthFromDate(eventDate)
         val calendar = Calendar.getInstance()
@@ -130,9 +137,10 @@ class RepeatRepository(
         return todoList
     }
 
+    @SuppressWarnings
     private fun createDailyTask(task: Todo, eventDate: Date): List<Todo> {
         todoList.clear()
-        var indexUUID = System.currentTimeMillis().hashCode().absoluteValue.toInt()
+        var indexUUID = System.currentTimeMillis().hashCode().absoluteValue
         val dayStart = IDateGenerator.getDayFromDate(eventDate)
         val lastDay = IDateGenerator.getLastDayOfMonthFromDate(eventDate)
         val calendar = Calendar.getInstance()
@@ -154,7 +162,7 @@ class RepeatRepository(
 
     private fun createNoRepeatTask(task: Todo, eventDate: Date): List<Todo> {
         todoList.clear()
-        var indexUUID = System.currentTimeMillis().hashCode().absoluteValue.toInt()
+        var indexUUID = System.currentTimeMillis().hashCode().absoluteValue
         todoList.add(task.copy(
             date = eventDate,
             todoId = indexUUID

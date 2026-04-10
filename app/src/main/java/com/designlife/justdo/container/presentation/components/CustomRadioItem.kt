@@ -64,9 +64,7 @@ fun CustomRadioItem(
     onCategoryInsertEvent : () -> Unit = {},
     onSelectedEvent : () -> Unit
 ) {
-    var color by remember {
-        mutableStateOf(colorCode)
-    }
+
     Row(
         modifier = Modifier
             .padding(horizontal = 10.dp)

@@ -26,8 +26,8 @@ fun DeckItemList(
     ) {
         itemsIndexed(
             items = deckList,
-            contentType = { index, deck -> deck.categoryId },
-            key = { index, deck -> deck.deckId },
+            contentType = { _, deck -> deck.categoryId },
+            key = { _, deck -> deck.deckId },
         ) { index, deck ->
             deck.let { item ->
                 if (colorMap.containsKey(item.categoryId)) {

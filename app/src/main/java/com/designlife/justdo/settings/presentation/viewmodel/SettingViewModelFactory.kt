@@ -7,6 +7,7 @@ import com.designlife.justdo.common.domain.repositories.appstore.AppStoreReposit
 class SettingViewModelFactory(
     private val appStoreRepository: AppStoreRepository
 ) : ViewModelProvider.Factory {
+    @SuppressWarnings
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return SettingViewModel(appStoreRepository) as T
     }

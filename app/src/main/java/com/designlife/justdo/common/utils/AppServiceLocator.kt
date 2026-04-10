@@ -122,7 +122,7 @@ object AppServiceLocator {
 
     fun createSoftwareUpdateManager(context: Context): SoftwareUpdateManager {
         val scope = CoroutineScope(Dispatchers.IO)
-        val softwareService = RetrofitBuilder.networkBuilder("",context.applicationContext).create(SoftwareUpdateService::class.java)
+        val softwareService = RetrofitBuilder.networkBuilder().create(SoftwareUpdateService::class.java)
         val updateRepository = SoftwareUpdateRepository(
             softwareUpdateService = softwareService
         )

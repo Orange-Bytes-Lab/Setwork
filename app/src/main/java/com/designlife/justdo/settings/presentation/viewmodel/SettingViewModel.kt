@@ -116,6 +116,7 @@ class SettingViewModel(
                             2 -> ViewType.DECK
                             else -> ViewType.TASK
                         }
+                        updatePreferenceSetting()
                     }
 
                     GeneralSettingView.APP_THEME -> {
@@ -125,6 +126,7 @@ class SettingViewModel(
                             else -> AppTheme.LIGHT
                         }
                         updateAppTheme(_appTheme.value)
+                        updatePreferenceSetting()
                     }
 
                     GeneralSettingView.FONT_SIZE -> {
@@ -135,6 +137,7 @@ class SettingViewModel(
                             else -> AppFontSize.MEDIUM
                         }
                         updateAppFont(_fontSize.value)
+                        updatePreferenceSetting()
                     }
 
                     GeneralSettingView.LIST_HEIGHT -> {
@@ -144,10 +147,9 @@ class SettingViewModel(
                             2 -> AppListHeight.LARGE
                             else -> AppListHeight.MEDIUM
                         }
-                        updateListSize(_listHeight.value)
+                        updatePreferenceSetting()
                     }
                 }
-                updatePreferenceSetting()
             }
 
             is SettingEvents.OnLoaderToggle -> {
@@ -205,7 +207,7 @@ class SettingViewModel(
         _listHeight.value = getListItemHeightFromOrdinal(settingPreferences.listItemHeight)
         updateAppTheme(_appTheme.value)
         updateAppFont(_fontSize.value)
-        updateListSize(_listHeight.value)
+//        updateListSize(_listHeight.value)
     }
 
     private fun updateListSize(value: AppListHeight) {

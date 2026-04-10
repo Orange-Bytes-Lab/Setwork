@@ -13,6 +13,7 @@ class NoteViewModelFactory(
 
 
 ) : ViewModelProvider.Factory {
+    @SuppressWarnings
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return NoteViewModel(noteRepository,categoryRepository,notificationScheduler) as T
     }

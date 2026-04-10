@@ -1,6 +1,5 @@
 package com.designlife.justdo.common.data.network.retrofit
 
-import android.content.Context
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -12,8 +11,6 @@ object RetrofitBuilder {
     private val URL = "https://api.github.com/"
 
     fun networkBuilder(
-        token : String,
-        context: Context
     ) : Retrofit {
         val interceptor = HttpLoggingInterceptor()
         interceptor.level = HttpLoggingInterceptor.Level.BODY

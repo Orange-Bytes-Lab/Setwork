@@ -102,7 +102,6 @@ class TaskViewModel(
             is TaskEvents.OnTimeChange -> {
                 val(hour,minute) = event.value.split(":")
                 _selectedTimeText.value = IDateGenerator.getGracefullyTimeFrom(hour.toInt(),minute.toInt())
-                val calendar = Calendar.getInstance()
                 _rawTaskDateTimeInstance.value.apply {
                     set(Calendar.HOUR_OF_DAY, hour.toInt())
                     set(Calendar.MINUTE, minute.toInt())
@@ -156,18 +155,19 @@ class TaskViewModel(
                 .value
                 .filter { todo ->
                     rawTodo.date.equals(todo.date) || rawTodo.createdOn.equals(todo.createdOn)
-                }.forEachIndexed { index, todo ->
-                    todo?.let {
+                }.forEachIndexed { _, todo ->
+                    todo.let {
                         deleteTodoById(todo.todoId.toInt())
                     }
                 }
         }
     }
+    @SuppressWarnings
     private suspend fun deleteTodoById(todoId: Int) : Boolean {
         mutex.withLock {
                 val (todo,category) = todoCategoryRepository.getTodoById(todoId = todoId)
-                todo?.let { todo ->
-                    category?.let { category ->
+                todo.let { todo ->
+                    category.let { category ->
                         if (todo.isCompleted){
                             val updatedCategory = category.copy(totalTodo = category.totalTodo - 1, totalCompleted = category.totalCompleted - 1)
                             todoCategoryRepository.deleteTodoById(todoId = todoId,category = updatedCategory)

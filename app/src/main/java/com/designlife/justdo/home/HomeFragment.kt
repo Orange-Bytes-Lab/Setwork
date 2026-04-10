@@ -31,12 +31,9 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.FloatingActionButton
-import androidx.compose.material.Icon
-import androidx.compose.material.ModalBottomSheetValue
+import androidx.compose.material3.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -107,6 +104,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import java.util.Date
+import androidx.core.net.toUri
 
 class HomeFragment : Fragment(), TaskListener {
 
@@ -193,7 +191,7 @@ class HomeFragment : Fragment(), TaskListener {
                     requireContext().contentResolver.openOutputStream(it)?.use { stream ->
                         lifecycleScope.launch {
                             EXPORT_DATA.collect{ data ->
-                                Log.d("FLOW","HomeFragment :: registerForActivityResult : Data : ${data}")
+                                Log.d("FLOW","HomeFragment :: registerForActivityResult : Data : $data")
                                 stream.write(data.toByteArray())
                             }
                         }
@@ -213,7 +211,7 @@ class HomeFragment : Fragment(), TaskListener {
     }
 
     private fun initBottomNavItems() {
-        navigationItems = listOf<BottomNavItem>(
+        navigationItems = listOf(
             BottomNavItem("Tasks", R.drawable.ic_task_view),
             BottomNavItem("Notes", R.drawable.ic_notes_view),
             BottomNavItem("Decks", R.drawable.ic_deck_view),
@@ -222,7 +220,7 @@ class HomeFragment : Fragment(), TaskListener {
     }
 
     private fun initSettingIcons(): List<SettingItem> {
-        return listOf<SettingItem>(
+        return listOf(
             SettingItem("Default Screen", R.drawable.ic_default_screen),
             SettingItem("App Theme", R.drawable.ic_color_theme),
             SettingItem("Font Size", R.drawable.ic_font_size),
@@ -245,18 +243,24 @@ class HomeFragment : Fragment(), TaskListener {
     }
 
     private fun initialSlide() {
-        viewModel.onEvent(HomeEvents.OnRefreshInitialDates)
         val dateList = viewModel.dateList.value
         val currentDate = viewModel.currentDate.value
-        val index = dateList.indexOf(currentDate)
-        viewModel.onEvent(HomeEvents.OnIndexSelected(index))
+        val computeIndex = dateList.indexOf(currentDate)
+        Log.i("DATE_SLIDE", "initialSlide: ${computeIndex}")
         scope.launch(Dispatchers.Main.immediate) {
-            val todayDateIndex = dateList.indexOf(currentDate)
-            viewModel.onEvent(HomeEvents.OnIndexSelected(todayDateIndex))
-            dateListState.scrollToItem(todayDateIndex)
-            viewModel.onEvent(HomeEvents.HighlightTodoByDate(todayDateIndex))
-            todoListState.scrollToItem(viewModel.todoIndex.value)
-            scrollToRollItem(viewModel.todoIndex.value, todoListState)
+            if (dateList.isNotEmpty()){
+                computeIndex.let { index ->
+                    if (index != -1){
+                        Log.i("DATE_SLIDE", "initialSlide: ${computeIndex}")
+                        viewModel.onEvent(HomeEvents.OnIndexSelected(index))
+                        dateListState.scrollToItem(index)
+                        viewModel.onEvent(HomeEvents.HighlightTodoByDate(index))
+                    }
+                }
+            }
+            if (viewModel.todoList.value.isNotEmpty()){
+                scrollToRollItem(viewModel.todoIndex.value, todoListState)
+            }
         }
     }
 
@@ -277,7 +281,7 @@ class HomeFragment : Fragment(), TaskListener {
                 }
 
                 NotificationType.APP_UPDATE -> {
-                    if (title.equals("Software Update") && id == 10001) {
+                    if (title == "Software Update" && id == 10001) {
                         softwareUpdateManager.installUpdate()
                     }
                 }
@@ -291,10 +295,14 @@ class HomeFragment : Fragment(), TaskListener {
     suspend fun highlightToday() {
         val date = viewModel.currentDate.value
         val index = viewModel.dateList.value.indexOf(date)
-        viewModel.onEvent(HomeEvents.OnIndexSelected(index))
-        dateListState.scrollToItem(index)
-        viewModel.onEvent(HomeEvents.HighlightTodoByDate(index))
-        todoListState.scrollToItem(viewModel.todoIndex.value)
+        if (index!=-1){
+            viewModel.onEvent(HomeEvents.OnIndexSelected(index))
+            dateListState.scrollToItem(index)
+            viewModel.onEvent(HomeEvents.HighlightTodoByDate(index))
+        }
+        if (viewModel.todoIndex.value != -1){
+            todoListState.scrollToItem(viewModel.todoIndex.value)
+        }
     }
 
     @OptIn(
@@ -312,11 +320,6 @@ class HomeFragment : Fragment(), TaskListener {
                 }
                 dateListState = rememberLazyListState()
                 scope = rememberCoroutineScope()
-                val bottomSheetState = rememberModalBottomSheetState(
-                    initialValue = ModalBottomSheetValue.Hidden
-                )
-                var sheetLayoutVisible = viewModel.sheetVisibility.value
-                val currentDateIndex = viewModel.currentDateIndex.value
                 val selectedIndex = viewModel.selectedIndex.value
                 val dateList = viewModel.dateList.value
                 val categoryList = viewModel.categoryList.value
@@ -327,17 +330,14 @@ class HomeFragment : Fragment(), TaskListener {
                 val searchToggle = viewModel.searchToggle.value
                 val searchText = viewModel.searchText.value
                 val noteList =
-                    if (searchText.isNotEmpty()) viewModel.searchList.value as List<Note> else viewModel.noteList
+                    if (searchText.isNotEmpty()) viewModel.searchList.value else viewModel.noteList
                 val deckList =
-                    if (searchText.isNotEmpty()) viewModel.searchList.value as List<Deck> else viewModel.deckList
+                    if (searchText.isNotEmpty()) viewModel.searchList.value else viewModel.deckList
                 val colorMap = viewModel.colorMap.value
                 val currentMonth = viewModel.currentMonth.value
                 val currentYear = viewModel.currentYear.value
                 val currentDate = viewModel.currentDate.value
-                val todayDateIndex = dateList.indexOf(currentDate)
-                val selectedDateTodoIndex = viewModel.todoIndex.value
                 val selectedCategoryIndex = viewModel.selectedCategoryIndex.value
-                val progressBar = viewModel.progressBarVisibility.value
                 val sheetVisibility = viewModel.sheetVisibility.value
                 val isBottomSheetToggled = remember {
                     mutableStateOf(false)
@@ -357,6 +357,7 @@ class HomeFragment : Fragment(), TaskListener {
                     try {
                         initialSlide()
                     }catch (e : Exception){
+                        e.printStackTrace()
                         delay(200)
                         initialSlide()
                     }
@@ -370,7 +371,7 @@ class HomeFragment : Fragment(), TaskListener {
                             highlightToday()
                         }
                     }catch (e : Exception){
-
+                        e.printStackTrace()
                     }
                 }
                 Box(
@@ -406,7 +407,6 @@ class HomeFragment : Fragment(), TaskListener {
                             ) {
                                 AnimatedVisibility(visible = viewType != ViewType.SETTING) {
                                     HeaderComponent(
-                                        headerText = "All Tasks",
                                         onEventClick = {
                                             scope.launch {
                                                 highlightToday()
@@ -418,7 +418,6 @@ class HomeFragment : Fragment(), TaskListener {
                                         onSearchIconClick = {
                                             viewModel.onEvent(HomeEvents.OnSearchToggle(true))
                                         },
-                                        onViewChange = {},
                                         onChatIconEvent = {
                                             findNavController().navigate(
                                                 R.id.OChatFragment,
@@ -433,7 +432,6 @@ class HomeFragment : Fragment(), TaskListener {
                                 }
                                 AnimatedVisibility(visible = searchToggle) {
                                     SearchBarComponent(
-                                        isDarkMode = isDarkMode,
                                         searchText = searchText,
                                         onSearchUpdates = {
                                             viewModel.onEvent(HomeEvents.OnSearchUpdate(it))
@@ -525,9 +523,10 @@ class HomeFragment : Fragment(), TaskListener {
                                     }
                                 }
                                 AnimatedVisibility(visible = viewType == ViewType.NOTE) {
+                                    @Suppress("UNCHECKED_CAST")
                                     NoteItemList(
                                         listState = noteListState,
-                                        noteList = noteList,
+                                        noteList = noteList as List<Note>,
                                         colorMap = colorMap,
                                         onNoteClickEvent = {
                                             val bundle = bundleOf()
@@ -541,15 +540,14 @@ class HomeFragment : Fragment(), TaskListener {
                                                 bundle,
                                                 NavOptions.navOptionStack
                                             )
-                                        },
-                                        onNoteLongClickEvent = {
                                         }
                                     )
                                 }
                                 AnimatedVisibility(visible = viewType == ViewType.DECK) {
+                                    @Suppress("UNCHECKED_CAST")
                                     DeckItemList(
                                         listState = deckListState,
-                                        deckList = deckList,
+                                        deckList = deckList as List<Deck>,
                                         colorMap = colorMap,
                                         onDeckClickEvent = { index ->
                                             val bundle = bundleOf()
@@ -732,7 +730,7 @@ class HomeFragment : Fragment(), TaskListener {
                             enter = scaleIn(),
                             exit = scaleOut()
                         ) {
-                            FloatingActionButton(
+                            androidx.compose.material.FloatingActionButton(
                                 modifier = Modifier.Companion
                                     .padding(bottom = 115.dp, end = 20.dp)
                                     .wrapContentSize(),
@@ -804,10 +802,7 @@ class HomeFragment : Fragment(), TaskListener {
         val bundle = bundleOf()
         bundle.putBoolean(Constants.DECK_VIEW, true)
         bundle.putInt(Constants.DECK_VIEW_ID, deckId)
-        Log.i(
-            "NOTIFICATION_FLOW",
-            "HomeFragment :: navigateToNoteViewById: navigated to todoId : ${deckId}"
-        )
+        Log.i("NOTIFICATION_FLOW", "HomeFragment :: navigateToNoteViewById: navigated to todoId : $deckId")
         findNavController().navigate(
             R.id.deckFragment,
             bundle,
@@ -871,17 +866,19 @@ class HomeFragment : Fragment(), TaskListener {
         try {
             startActivity(gmailIntent)
         } catch (e: ActivityNotFoundException) {
+            e.printStackTrace()
 
             // 2. Fallback → show chooser with all email apps
             val fallbackIntent = Intent(Intent.ACTION_SENDTO).apply {
-                data = Uri.parse("mailto:")
+                data = "mailto:".toUri()
                 putExtra(Intent.EXTRA_EMAIL, email)
                 putExtra(Intent.EXTRA_SUBJECT, subject)
             }
 
             try {
                 startActivity(Intent.createChooser(fallbackIntent, "Write us on a mail"))
-            } catch (ex: ActivityNotFoundException) {
+            } catch (e: ActivityNotFoundException) {
+                e.printStackTrace()
                 Toast.makeText(requireContext(), "No email apps installed", Toast.LENGTH_SHORT)
                     .show()
             }
@@ -903,26 +900,27 @@ class HomeFragment : Fragment(), TaskListener {
         try {
             startActivity(gmailIntent)
         } catch (e: ActivityNotFoundException) {
+            e.printStackTrace()
 
             // 2. Fallback → show chooser with all email apps
             val fallbackIntent = Intent(Intent.ACTION_SENDTO).apply {
-                data = Uri.parse("mailto:")
+                data = "mailto:".toUri()
                 putExtra(Intent.EXTRA_EMAIL, email)
                 putExtra(Intent.EXTRA_SUBJECT, subject)
             }
 
             try {
                 startActivity(Intent.createChooser(fallbackIntent, "Write us on a mail"))
-            } catch (ex: ActivityNotFoundException) {
-                Toast.makeText(requireContext(), "No email apps installed", Toast.LENGTH_SHORT)
-                    .show()
+            } catch (exception: ActivityNotFoundException) {
+                exception.printStackTrace()
+                Toast.makeText(requireContext(), "No email apps installed", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        lifecycleScope?.cancel()
+        lifecycleScope.cancel()
     }
 
     companion object{
@@ -930,7 +928,6 @@ class HomeFragment : Fragment(), TaskListener {
         internal var deckListIE : List<Deck> = mutableListOf<Deck>()
         internal var noteListIE : List<Note> = mutableListOf<Note>()
         internal var categoryListIE : List<Category> = mutableListOf<Category>()
-
         internal var EXPORT_DATA : MutableStateFlow<String> = MutableStateFlow("")
     }
 }

@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.designlife.justdo.common.domain.entities.Note
+import com.designlife.justdo.common.domain.entities.SearchMarker
 import com.designlife.justdo.ui.theme.TaskItemLabelColor
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -22,12 +23,12 @@ fun NoteItemList(
     noteList: List<Note>,
     colorMap: Map<Long, Color>,
     onNoteClickEvent: (index: Int) -> Unit,
-    onNoteLongClickEvent: (index: Int) -> Unit
 ) {
 
     LazyVerticalStaggeredGrid(
         modifier = Modifier
             .padding(horizontal = 6.dp)
+            .padding(bottom = 120.dp)
             .fillMaxSize(),
         verticalItemSpacing = 8.dp,
         columns = StaggeredGridCells.Fixed(2),
@@ -42,9 +43,7 @@ fun NoteItemList(
                     noteTheme = color,
                     onClick = {
                         onNoteClickEvent(index)
-                              },
-                    onLongClick = {onNoteLongClickEvent(index)}
-                )
+                              })
             }
             if (index == noteList.lastIndex){
                 Spacer(modifier = Modifier.height(120.dp))

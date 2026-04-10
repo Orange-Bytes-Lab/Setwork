@@ -36,10 +36,10 @@ object ImageConverter {
         options.inSampleSize = Math.ceil((originalSizeKb / maxSizeKb).toDouble()).toInt()
 
         // Decode the bitmap with the calculated sample size
-        return BitmapFactory.decodeByteArray(getByteArrayFromBitmap(bitmap, options), 0, getByteArrayFromBitmap(bitmap, options).size, options)
+        return BitmapFactory.decodeByteArray(getByteArrayFromBitmap(bitmap), 0, getByteArrayFromBitmap(bitmap).size, options)
     }
 
-    private fun getByteArrayFromBitmap(bitmap: Bitmap, options: BitmapFactory.Options): ByteArray {
+    private fun getByteArrayFromBitmap(bitmap: Bitmap): ByteArray {
         val byteArrayOutputStream = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream)
         return byteArrayOutputStream.toByteArray()

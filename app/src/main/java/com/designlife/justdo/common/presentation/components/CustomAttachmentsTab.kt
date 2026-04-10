@@ -2,7 +2,10 @@ package com.designlife.justdo.common.presentation.components
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.ImageDecoder
+import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
+import android.os.Build
 import android.provider.MediaStore
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -42,6 +45,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import coil.ImageLoader
+import coil.request.ImageRequest
+import coil.request.SuccessResult
 import com.designlife.justdo.R
 import com.designlife.justdo.common.domain.entities.Category
 import com.designlife.justdo.common.utils.Logs
@@ -174,16 +180,19 @@ fun CustomAttachmentsTab(
 }
 
 fun getBitmapFromURI(context: Context, uri: Uri): Bitmap? {
-    try {
-        val bitmap: Bitmap? = MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
-        bitmap?.let {
-            return it
-        } ?: throw Exception("Getting Null Image Bitmap")
+    return try {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            val source = ImageDecoder.createSource(context.contentResolver, uri)
+            ImageDecoder.decodeBitmap(source)
+        } else {
+            @Suppress("DEPRECATION")
+            MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
+        }
     } catch (e: Exception) {
         e.printStackTrace()
-        Log.e(Logs.TAG_ERROR, "CustomAttachementsTab: Image Bitmap Error :: ${e.message}")
+        Log.e(Logs.TAG_ERROR, "Image Bitmap Error :: ${e.message}")
+        null
     }
-    return null
 }
 
 fun getCategoryName(name: String): String {

@@ -62,14 +62,11 @@ fun DeckHeaderComponent(
     onTitleChange: (String) -> Unit,
     onCloseEvent: () -> Unit,
     isEdit: Boolean,
-    isNew: Boolean,
     progressState: Boolean,
     onAutoSaveEvent: () -> Unit,
     onDeleteButtonClickEvent: () -> Unit,
     categoryList: List<Category>,
-    selectedCategoryIndex: Int,
     onCategoryIndexChange: (Int) -> Unit,
-    onReminderEvent: () -> Unit,
     addNewCategory: () -> Unit
 ) {
     val onClose by rememberUpdatedState(onCloseEvent)

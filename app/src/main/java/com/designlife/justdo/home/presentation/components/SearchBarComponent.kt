@@ -37,7 +37,6 @@ import com.designlife.justdo.ui.theme.noteContentStyleSize
 
 @Composable
 fun SearchBarComponent(
-    isDarkMode : Boolean,
     searchText : String,
     onSearchUpdates : (searchText : String) -> Unit,
     onClearSearch : () -> Unit

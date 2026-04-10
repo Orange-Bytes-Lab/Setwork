@@ -11,7 +11,7 @@ import com.designlife.justdo.common.data.entities.Deck
 import com.designlife.justdo.common.data.entities.Note
 import com.designlife.justdo.common.data.entities.Todo
 
-@Database(entities = [Category::class,Todo::class, Note::class, Deck::class], version = 1)
+@Database(entities = [Category::class,Todo::class, Note::class, Deck::class], version = 1, exportSchema = false)
 @TypeConverters(Converter::class)
 abstract class SetworkDatabase : RoomDatabase() {
 

@@ -41,14 +41,11 @@ import java.util.Date
 
 @Composable
 fun HeaderComponent(
-    headerText : String,
     onEventClick : () -> Unit,
     currentDate : Date,
     searchIconVisibility : Boolean,
     onSearchIconClick : () -> Unit,
-    currentDayButton : Boolean = false,
     viewType : ViewType,
-    onViewChange : (viewType : ViewType) -> Unit,
     onChatIconEvent : () -> Unit
 ) {
     Column(

@@ -9,6 +9,7 @@ class ContainerViewModelFactory(
     private val categoryRepository: CategoryRepository,
     private val repeatRepository: RepeatRepository
 ) : ViewModelProvider.Factory {
+    @SuppressWarnings
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return ContainerViewModel(categoryRepository,repeatRepository) as T
     }

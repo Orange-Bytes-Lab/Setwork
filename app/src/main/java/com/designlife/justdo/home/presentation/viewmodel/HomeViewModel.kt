@@ -13,6 +13,7 @@ import com.designlife.justdo.common.domain.calendar.IDateGenerator
 import com.designlife.justdo.common.domain.entities.Category
 import com.designlife.justdo.common.domain.entities.Deck
 import com.designlife.justdo.common.domain.entities.Note
+import com.designlife.justdo.common.domain.entities.SearchMarker
 import com.designlife.justdo.common.domain.entities.Todo
 import com.designlife.justdo.common.domain.repositories.CategoryRepository
 import com.designlife.justdo.common.domain.repositories.DeckRepository
@@ -24,10 +25,10 @@ import com.designlife.justdo.home.domain.usecase.LoadNextDatesSetUseCase
 import com.designlife.justdo.home.domain.usecase.LoadPreviousDatesSetUseCase
 import com.designlife.justdo.home.presentation.events.HomeEvents
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Calendar
 import java.util.Date
 
@@ -55,7 +56,7 @@ class HomeViewModel(
     private val _noteList : SnapshotStateList<Note> = mutableStateListOf<Note>();
     val noteList = _noteList
 
-    private val _searchList : MutableState<List<Any>> = mutableStateOf(listOf());
+    private val _searchList : MutableState<List<SearchMarker>> = mutableStateOf(listOf());
     val searchList = _searchList
 
     private val _deckList : SnapshotStateList<Deck> = mutableStateListOf<Deck>();
@@ -76,7 +77,7 @@ class HomeViewModel(
     private var _currentDateIndex : MutableState<Int> = mutableStateOf(0)
     val currentDateIndex  = _currentDateIndex
 
-    private var _selectedIndex : MutableState<Int> = mutableStateOf(-1)
+    private var _selectedIndex : MutableState<Int> = mutableStateOf(0)
     val selectedIndex  = _selectedIndex
 
     private var _todoIndex : MutableState<Int> = mutableStateOf(0)
@@ -114,14 +115,15 @@ class HomeViewModel(
             dateGenerator.getDateList().collect{
                 _dateList.value = it.toOrderedUniqueList()
             }
-            _isLoaded.value = true
         }
     }
 
     fun onEvent(event : HomeEvents){
         when(event){
             is HomeEvents.OnIndexSelected -> {
-                _selectedIndex.value = event.index
+                if (event.index != -1){
+                    _selectedIndex.value = event.index
+                }
             }
             is HomeEvents.OnTodoEvent -> {
                 _todoIndex.value = event.index
@@ -192,7 +194,7 @@ class HomeViewModel(
 
     fun List<Date>.toOrderedUniqueList() : List<Date>{
         val set = LinkedHashSet<Date>()
-        this.forEachIndexed { index, date -> set.add(date) }
+        this.forEachIndexed { _, date -> set.add(date) }
         return set.toList()
     }
 
@@ -246,10 +248,6 @@ class HomeViewModel(
             }
             else -> {}
         }
-    }
-
-    public fun fetchDateDataByDate(index : Int){
-        // call use case and perform operation
     }
 
     fun onMonthChange(date: Date) {
@@ -314,16 +312,19 @@ class HomeViewModel(
 
     fun fetchAllTodo() {
         viewModelScope.launch(Dispatchers.IO) {
-            todoRepository.getAllTodo().collect{
-                val sortedList =  it.sortedBy { it.date }
-                _todoList.value = sortedList
-                todoUnSortedList = sortedList
-                currentTodoIndex(sortedList)
+            todoRepository.getAllTodo().collect {
+                if (it.isNotEmpty()){
+                    val sortedList =  it.sortedBy { it.date }
+                    _todoList.value = sortedList
+                    todoUnSortedList = sortedList
+                    currentTodoIndex()
+                }
+                _isLoaded.value = _dateList.value.isNotEmpty()
             }
         }
     }
 
-    private fun currentTodoIndex(todos: List<Todo>) {
+    private fun currentTodoIndex() {
         val calendar = Calendar.getInstance()
         calendar.time = _currentDate.value
         val index =  getTodoIndexByDate(calendar.time)

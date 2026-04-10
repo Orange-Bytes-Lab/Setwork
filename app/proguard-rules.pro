@@ -1,71 +1,41 @@
-# Add project specific ProGuard rules here.
-# You can control the set of applied configuration files using the
-# proguardFiles setting in build.gradle.
-#
-# For more details, see
-#   http://developer.android.com/guide/developing/tools/proguard.html
-
-# If your project uses WebView with JS, uncomment the following
-# and specify the fully qualified class name to the JavaScript interface
-# class:
-#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
-#   public *;
-#}
-
-# Uncomment this to preserve the line number information for
-# debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
-
-# If you keep the line number information, uncomment this to
-# hide the original source file name.
-#-renamesourcefileattribute SourceFile
 -keepnames class com.designlife.justdo.common.utils.enums.ScreenType
-# Gson
 -keepattributes Signature
 -keepattributes *Annotation*
 
 -keep class com.google.gson.reflect.TypeToken { *; }
 -keep class * extends com.google.gson.reflect.TypeToken
 
-# Keep your models (VERY IMPORTANT)
 -keep class com.designlife.justdo.** { *; }
 
-# Retrofit
 -keepattributes Signature
 -keepattributes Exceptions
 
 -keep class retrofit2.** { *; }
 -keep interface retrofit2.** { *; }
 
-# Keep API interfaces
 -keep interface com.designlife.justdo.** { *; }
 
 -keep class okhttp3.** { *; }
 -keep interface okhttp3.** { *; }
 -keep class okhttp3.ResponseBody { *; }
 
-# Room
 -keep class androidx.room.** { *; }
 -keep class * extends androidx.room.RoomDatabase
 
 
-# Fix Retrofit generic type reflection (ClassCastException fix)
 -keep,allowobfuscation,allowshrinking interface retrofit2.Call
 -keep,allowobfuscation,allowshrinking class retrofit2.Response
 -keep,allowobfuscation,allowshrinking class kotlin.coroutines.Continuation
 
-# Preserve generic signatures on ALL Retrofit API interfaces
 -keepattributes Signature
 -keepattributes Exceptions
 -keepattributes EnclosingMethod
 -keepattributes InnerClasses
 
-# Keep your specific API interface methods with their signatures
 -keepclassmembers interface com.designlife.justdo.** {
     @retrofit2.http.* <methods>;
 }
 
-# Kotlin coroutines + Retrofit suspend functions
 -keep class kotlin.coroutines.** { *; }
 -keep interface kotlin.coroutines.** { *; }
 -keepclassmembernames class kotlinx.** {

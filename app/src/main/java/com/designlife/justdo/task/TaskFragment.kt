@@ -94,10 +94,10 @@ class TaskFragment : Fragment() {
         arguments?.let { bundle ->
             val todoId = bundle.getInt(Constants.TASK_VIEW_ID)
             val taskViewCheck = bundle.getBoolean(Constants.TASK_VIEW,false)
-            taskViewCheck?.let {
+            taskViewCheck.let {
                 if (it){
                     isOverview = it
-                    todoId?.let {
+                    todoId.let {
                         taskId = it
                         viewmodel.onEvent(TaskEvents.LoadTodoById(it))
                     }
@@ -119,7 +119,6 @@ class TaskFragment : Fragment() {
                 val calendar = Calendar.getInstance()
                 var  selectedCategory = shareViewModel.categoryList[shareViewModel.selectedCategory.value]
                 val selectedRepeatMode = shareViewModel.repeatList.value[shareViewModel.selectedRepeatIndex.value]
-                val calendarInstance = shareViewModel.setupRepeatList(viewmodel.rawTaskDateTimeInstance.value.time)
                 val progressBar = viewmodel.progressBar.value
                 val deletePopupState = viewmodel.deleteTaskPopup.value
 
@@ -304,7 +303,7 @@ class TaskFragment : Fragment() {
         parentFragmentManager.setFragmentResultListener(
             Constants.CONTAINER_VIEW,
             this
-        ) { key, bundle ->
+        ) { _, bundle ->
             lifecycleScope.launch(Dispatchers.Main.immediate) {
                 val selectedIndex = bundle.getInt(Constants.CONTAINER_POP_INDEX)
                 viewmodel.onEvent(TaskEvents.OnCategoryIndexChange(selectedIndex))
@@ -326,6 +325,6 @@ class TaskFragment : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-        lifecycleScope?.cancel()
+        lifecycleScope.cancel()
     }
 }

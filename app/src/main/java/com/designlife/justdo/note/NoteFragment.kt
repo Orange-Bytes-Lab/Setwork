@@ -19,7 +19,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -56,7 +55,6 @@ import com.designlife.orchestrator.SchedulingEngine
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import java.util.Calendar
 
@@ -101,7 +99,7 @@ class NoteFragment : Fragment(), SetworkOLLM.SetworkMessage {
 
     private fun fetchFromNotification(noteView : Boolean) {
         val noteId = arguments?.getInt(Constants.NOTE_VIEW_ID) ?: -1
-        noteId?.let {
+        noteId.let {
             if (noteView && noteId != -1){
                 CoroutineScope(Dispatchers.IO).launch {
                     async { viewModel.fetchCategories() }.await()
@@ -129,7 +127,6 @@ class NoteFragment : Fragment(), SetworkOLLM.SetworkMessage {
                 val noteContent = viewModel.contentValue.value
                 val categoryList = viewModel.categoryList.value
                 val selectedCategoryIndex = viewModel.selectedCategoryIndex.value
-                val scope = rememberCoroutineScope()
                 val progressBar = viewModel.progressBar.value
                 val threeDot = viewModel.threeDot.value
                 val aiChatState = viewModel.aiChatState.value
@@ -324,7 +321,7 @@ class NoteFragment : Fragment(), SetworkOLLM.SetworkMessage {
                         Toast.makeText(requireContext(), "Saved", Toast.LENGTH_SHORT).show()
                     }
                     isEnabled = false
-                    requireActivity().onBackPressed()
+                    requireActivity().onBackPressedDispatcher.onBackPressed()
                 }
             }
         }
@@ -337,7 +334,7 @@ class NoteFragment : Fragment(), SetworkOLLM.SetworkMessage {
         parentFragmentManager.setFragmentResultListener(
             Constants.CONTAINER_VIEW,
             this
-        ) { key, bundle ->
+        ) { _, bundle ->
             lifecycleScope.launch(Dispatchers.Main.immediate) {
                 val selectedIndex = bundle.getInt(Constants.CONTAINER_POP_INDEX)
                 viewModel.onEvent(NoteEvents.OnCategoryIndexChange(selectedIndex))
@@ -412,10 +409,12 @@ class NoteFragment : Fragment(), SetworkOLLM.SetworkMessage {
         viewModel.onEvent(NoteEvents.OnContentChange(completeContent))
         // Once copied save immediately all
         try {
-            if (noteMode == NoteMode.CREATE) {
-                viewModel.insertNote()
-            } else {
-                viewModel.updateNote()
+            lifecycleScope.launch(Dispatchers.Main) {
+                if (noteMode == NoteMode.CREATE) {
+                    viewModel.insertNote()
+                } else {
+                    viewModel.updateNote()
+                }
             }
         }catch (e : Exception){
             e.printStackTrace()

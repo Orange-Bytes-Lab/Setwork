@@ -60,11 +60,6 @@ fun DateComponent(
     loadNextTrigger : () -> Unit,
     selectedIndex : Int
 ) {
-
-    val firstVisibleIndex = remember {
-        mutableStateOf(listState.firstVisibleItemIndex)
-    }
-
     val dateListSize = remember {
         mutableStateOf(dateList.size)
     }
@@ -179,44 +174,6 @@ fun DateItem(
         )
 
     }
-}
-
-@Preview
-@Composable
-fun DateComponentPreview() {
-
-//    val dateGenerator = IDateGenerator()
-//
-//    var list = listOf<Date>()
-//    LaunchedEffect(Unit){
-//        CoroutineScope(Dispatchers.IO).launch {
-//            dateGenerator.getDateList().collect{
-//                list = it
-//            }
-//        }
-//    }
-//
-//    val currentMonth = remember {
-//        mutableStateOf(IDateGenerator.getMonthFromDate(dateGenerator.getToday()))
-//    }
-//    Column(
-//        modifier = Modifier.fillMaxWidth().background(color = Color.Gray),
-//        verticalArrangement = Arrangement.Center,
-//        horizontalAlignment = Alignment.CenterHorizontally
-//    ) {
-//
-//        DateComponent(
-//            listState = rememberLazyListState(),
-//            currentDate = dateGenerator.getToday(),
-//            currentMonth = currentMonth.value,
-//            dateList = list,
-//            onEventClick = {index -> },
-//            onChangeVisibleMonth = { month ->
-//                currentMonth.value = month
-//            }
-//        )
-//    }
-
 }
 
 fun Modifier.dashedBorder(strokeWidth: Dp, color: Color, cornerRadiusDp: Dp) = composed(

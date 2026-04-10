@@ -33,7 +33,6 @@ import com.designlife.justdo.ui.theme.*
 
 @Composable
 fun CustomColorPicker(
-    isVisible : Boolean,
     colorPaletteDialog : (visibility : Boolean) -> Unit,
     selectedColor : Color,
     onColorChange : (color : Color) -> Unit,

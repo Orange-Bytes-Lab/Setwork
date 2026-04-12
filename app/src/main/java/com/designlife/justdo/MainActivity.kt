@@ -60,7 +60,6 @@ class MainActivity : AppCompatActivity() {
         }
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
-
         if (!PermissionHandler.checkAllPermissions(this)){
             permissionLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
 //                isManageExternalStoragePermissionGranted = permissions[Manifest.permission.MANAGE_EXTERNAL_STORAGE] ?: isManageExternalStoragePermissionGranted
@@ -141,7 +140,6 @@ class MainActivity : AppCompatActivity() {
             e.printStackTrace()
         }
     }
-
 
     private fun requestPermissions() {
         isNotificationPermissionGranted = ContextCompat.checkSelfPermission(

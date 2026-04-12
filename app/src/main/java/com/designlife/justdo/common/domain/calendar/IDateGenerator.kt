@@ -74,11 +74,11 @@ class IDateGenerator : DateGenerator {
         private val fullDayNameList =  listOf<String>( "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday")
         private val fillMonthNamesList =  listOf<String>( "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December")
 
-
-        public fun getToday() : Date{
-            return Date(System.currentTimeMillis())
+        @SuppressWarnings
+        public fun getToday() : Date {
+            val date = Date(System.currentTimeMillis())
+            return Date(date.year,date.month,date.date)
         }
-
 
         private fun getDateBy(day : Int, month : Int, year : Int) : Date{
             val dateString = "$day/$month/$year"
@@ -253,7 +253,6 @@ class IDateGenerator : DateGenerator {
             calendar.set(Calendar.MINUTE, 0)
             calendar.set(Calendar.SECOND, 0)
             calendar.set(Calendar.MILLISECOND, 0)
-
             return calendar.timeInMillis / 1000
         }
 
@@ -264,11 +263,8 @@ class IDateGenerator : DateGenerator {
             calendar.set(Calendar.MINUTE, 0)
             calendar.set(Calendar.SECOND, 0)
             calendar.set(Calendar.MILLISECOND, 0)
-
             return calendar.time
         }
-
     }
-
 }
 

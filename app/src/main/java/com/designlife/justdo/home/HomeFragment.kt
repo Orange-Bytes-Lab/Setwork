@@ -244,12 +244,15 @@ class HomeFragment : Fragment(), TaskListener {
 
     private fun initialSlide() {
         val dateList = viewModel.dateList.value
+        Log.i("DATE_SLIDE", "initialSlide: date list ${dateList.size}")
         val currentDate = viewModel.currentDate.value
+        Log.i("DATE_SLIDE", "initialSlide: current date : ${currentDate} :: date list ${dateList}")
         val computeIndex = dateList.indexOf(currentDate)
         Log.i("DATE_SLIDE", "initialSlide: ${computeIndex}")
         scope.launch(Dispatchers.Main.immediate) {
             if (dateList.isNotEmpty()){
                 computeIndex.let { index ->
+                    Log.i("DATE_SLIDE", "initialSlide: computeIndex ${index}")
                     if (index != -1){
                         Log.i("DATE_SLIDE", "initialSlide: ${computeIndex}")
                         viewModel.onEvent(HomeEvents.OnIndexSelected(index))

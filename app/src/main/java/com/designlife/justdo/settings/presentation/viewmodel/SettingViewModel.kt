@@ -23,11 +23,9 @@ import com.designlife.justdo.settings.presentation.events.SettingEvents
 import com.designlife.justdo.ui.theme.updateSystemColor
 import com.designlife.justdo.ui.theme.updateSystemFont
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.jetbrains.annotations.UnknownNullability
 
 class SettingViewModel(
     private val appStoreRepository: AppStoreRepository
@@ -164,9 +162,11 @@ class SettingViewModel(
             is SettingEvents.OnExportEvent -> {
                 exportData()
             }
+
             is SettingEvents.OnImportExportCompute -> {
                 _isExportReady.value = event.state
             }
+
             is SettingEvents.OnLoaderVisibility -> {
                 _loaderVisibility.value = event.state
             }
@@ -230,11 +230,11 @@ class SettingViewModel(
         private val _darkModeStatus: MutableState<Boolean> = mutableStateOf(false)
         val darkModeStatus: State<Boolean> = _darkModeStatus
 
-        public fun updateDarkModeSetting(value: Boolean) {
+        fun updateDarkModeSetting(value: Boolean) {
             _darkModeStatus.value = value
         }
 
-        public fun getDefaultScreenFromOrdinal(ordinal: Int): ViewType {
+        fun getDefaultScreenFromOrdinal(ordinal: Int): ViewType {
             return when (ordinal) {
                 0 -> ViewType.TASK
                 1 -> ViewType.NOTE
@@ -244,7 +244,7 @@ class SettingViewModel(
             }
         }
 
-        public fun getAppThemeFromOrdinal(ordinal: Int): AppTheme {
+        fun getAppThemeFromOrdinal(ordinal: Int): AppTheme {
             return when (ordinal) {
                 0 -> AppTheme.LIGHT
                 1 -> AppTheme.DARK
@@ -252,7 +252,7 @@ class SettingViewModel(
             }
         }
 
-        public fun getFontSizeFromOrdinal(ordinal: Int): AppFontSize {
+        fun getFontSizeFromOrdinal(ordinal: Int): AppFontSize {
             return when (ordinal) {
                 0 -> AppFontSize.SMALL
                 1 -> AppFontSize.MEDIUM
@@ -261,7 +261,7 @@ class SettingViewModel(
             }
         }
 
-        public fun getListItemHeightFromOrdinal(ordinal: Int): AppListHeight {
+        fun getListItemHeightFromOrdinal(ordinal: Int): AppListHeight {
             return when (ordinal) {
                 0 -> AppListHeight.SMALL
                 1 -> AppListHeight.MEDIUM
@@ -314,7 +314,7 @@ class SettingViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             HardStorage.backupExport()
             delay(400)
-            withContext(Dispatchers.Main.immediate){
+            withContext(Dispatchers.Main.immediate) {
                 _isExportReady.value = true
                 _loaderStatus.value = _loaderStatus.value.copy(
                     title = "Exported Data", loaderState = LoaderState.SUCCESS,
@@ -334,14 +334,14 @@ class SettingViewModel(
         )
         viewModelScope.launch(Dispatchers.IO) {
             backupImport(context, data)
-            withContext(Dispatchers.Main.immediate){
+            withContext(Dispatchers.Main.immediate) {
                 _loaderStatus.value = _loaderStatus.value.copy(
                     title = "Imported Data", loaderState = LoaderState.SUCCESS,
                     message = "Imported completed"
                 )
             }
             delay(1000)
-            withContext(Dispatchers.Main.immediate){
+            withContext(Dispatchers.Main.immediate) {
                 _loaderVisibility.value = false
                 _loaderStatus.value = initLoaderStatus()
             }

@@ -1,7 +1,6 @@
 package com.designlife.justdo.home.presentation.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -34,7 +33,6 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -50,22 +48,22 @@ import java.util.Date
 
 @Composable
 fun DateComponent(
-    listState : LazyListState,
-    currentDate : Date,
-    currentMonth : String,
-    currentYear : String,
-    dateList : List<Date>,
-    onEventClick : (index : Int) -> Unit,
-    onChangeVisibleDate : (date : Date) -> Unit,
-    loadPreviousTrigger : () -> Unit,
-    loadNextTrigger : () -> Unit,
-    selectedIndex : Int
+    listState: LazyListState,
+    currentDate: Date,
+    currentMonth: String,
+    currentYear: String,
+    dateList: List<Date>,
+    onEventClick: (index: Int) -> Unit,
+    onChangeVisibleDate: (date: Date) -> Unit,
+    loadPreviousTrigger: () -> Unit,
+    loadNextTrigger: () -> Unit,
+    selectedIndex: Int
 ) {
     val dateListSize = remember {
         mutableStateOf(dateList.size)
     }
 
-    LaunchedEffect(dateList){
+    LaunchedEffect(dateList) {
         dateListSize.value = dateList.size
     }
 
@@ -76,48 +74,74 @@ fun DateComponent(
             Spacer(modifier = Modifier.width(12.dp))
             Text(text = buildAnnotatedString {
 
-                withStyle(style = SpanStyle(color = TypographyColor.value, fontSize = 10.sp, fontFamily = fontFamily, fontWeight = FontWeight.Light)){
+                withStyle(
+                    style = SpanStyle(
+                        color = TypographyColor.value,
+                        fontSize = 10.sp,
+                        fontFamily = fontFamily,
+                        fontWeight = FontWeight.Light
+                    )
+                ) {
                     append("CALENDAR ")
                 }
 
 
-                withStyle(style = SpanStyle(color = TypographyColor.value, fontSize = 12.sp, fontFamily = fontFamily, fontWeight = FontWeight.Bold)){
+                withStyle(
+                    style = SpanStyle(
+                        color = TypographyColor.value,
+                        fontSize = 12.sp,
+                        fontFamily = fontFamily,
+                        fontWeight = FontWeight.Bold
+                    )
+                ) {
                     append("$currentMonth ")
                 }
 
-                withStyle(style = SpanStyle(color = TypographyColor.value, fontSize = 10.sp, fontFamily = fontFamily, fontWeight = FontWeight.Bold)){
+                withStyle(
+                    style = SpanStyle(
+                        color = TypographyColor.value,
+                        fontSize = 10.sp,
+                        fontFamily = fontFamily,
+                        fontWeight = FontWeight.Bold
+                    )
+                ) {
                     append(currentYear)
                 }
 
             })
         }
         Spacer(modifier = Modifier.height(20.dp))
-        if (dateListSize.value != 0){
-            LazyRow(modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentSize()
-                .padding(horizontal = 12.dp),
+        if (dateListSize.value != 0) {
+            LazyRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentSize()
+                    .padding(horizontal = 12.dp),
                 state = listState
-            ){
+            ) {
                 items(
                     count = dateList.size,
-                ){ index ->
+                ) { index ->
 
-                    DateItem(isCurrent = dateList[index].time.equals(currentDate.time), isSelected = index == selectedIndex, date = dateList[index]) {
+                    DateItem(
+                        isCurrent = dateList[index].time.equals(currentDate.time),
+                        isSelected = index == selectedIndex,
+                        date = dateList[index]
+                    ) {
                         onEventClick(index)
                     }
 
-                    if (index == 0){
-                        DisposableEffect(Unit){
+                    if (index == 0) {
+                        DisposableEffect(Unit) {
                             loadPreviousTrigger()
-                            onDispose {  }
+                            onDispose { }
                         }
                     }
 
-                    if (index == dateList.size-1){
-                        DisposableEffect(Unit){
+                    if (index == dateList.size - 1) {
+                        DisposableEffect(Unit) {
                             loadNextTrigger()
-                            onDispose {  }
+                            onDispose { }
                         }
                     }
                     onChangeVisibleDate(dateList[index])
@@ -131,26 +155,31 @@ fun DateComponent(
 
 @Composable
 fun DateItem(
-    isCurrent : Boolean,
-    date : Date,
-    isSelected : Boolean,
-    onEventClick : () -> Unit
+    isCurrent: Boolean,
+    date: Date,
+    isSelected: Boolean,
+    onEventClick: () -> Unit
 ) {
 
     val pair = IDateGenerator.getDayInfoFrom(date)
-    Column(modifier = Modifier
-        .padding(horizontal = 8.dp)
-        .width(60.dp)
-        .height(76.dp)
-        .background(
-            color = if (isSelected) ButtonPrimary.value else UIComponentBackground.value,
-            shape = RoundedCornerShape(12)
-        )
-        .dashedBorder(strokeWidth = 1.dp, color = if (isCurrent && !isSelected) ButtonPrimary.value else Color.Transparent, cornerRadiusDp = 12.dp)
-        .clip(RoundedCornerShape(12))
-        .rippleClickable{
-            onEventClick()
-        },
+    Column(
+        modifier = Modifier
+            .padding(horizontal = 8.dp)
+            .width(60.dp)
+            .height(76.dp)
+            .background(
+                color = if (isSelected) ButtonPrimary.value else UIComponentBackground.value,
+                shape = RoundedCornerShape(12)
+            )
+            .dashedBorder(
+                strokeWidth = 1.dp,
+                color = if (isCurrent && !isSelected) ButtonPrimary.value else Color.Transparent,
+                cornerRadiusDp = 12.dp
+            )
+            .clip(RoundedCornerShape(12))
+            .rippleClickable {
+                onEventClick()
+            },
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {

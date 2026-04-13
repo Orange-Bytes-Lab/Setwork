@@ -148,7 +148,7 @@ class TaskViewModel(
     }
 
     @Transaction
-    private suspend fun deleteAllTodoOccurrenceById(taskId: Int): Unit {
+    private suspend fun deleteAllTodoOccurrenceById(taskId: Int) {
         if (taskId != -1){
             val rawTodo = todoRepository.getRawTodoById(taskId)
             _rawTodos
@@ -218,7 +218,7 @@ class TaskViewModel(
                 date = _rawTaskDateTimeInstance.value.time,
                 isCompleted = false,
                 createdOn = System.currentTimeMillis(),
-                todoId = System.currentTimeMillis().hashCode().absoluteValue.toInt(),
+                todoId = System.currentTimeMillis().hashCode().absoluteValue,
                 repeatIndex = shareViewModel.selectedRepeatIndex.value,
             )
             Log.i("ERROR_CHECK","createTask: createRepeatedEvents")

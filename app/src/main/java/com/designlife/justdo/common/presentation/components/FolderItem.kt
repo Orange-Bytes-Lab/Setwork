@@ -1,7 +1,6 @@
 package com.designlife.justdo.common.presentation.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -22,7 +21,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.designlife.justdo.common.utils.camelCase
-import com.designlife.justdo.ui.theme.ButtonHighLightPrimary
 import com.designlife.justdo.ui.theme.ButtonPrimary
 import com.designlife.justdo.ui.theme.TaskItemLabelColor
 import com.designlife.justdo.ui.theme.UIComponentBackground
@@ -31,11 +29,11 @@ import com.designlife.justdo.ui.theme.folderTextStyleSize
 
 @Composable
 fun FolderItem(
-    folderName : String,
-    emoji : String,
-    colorTheme : Color,
-    isSelected : Boolean,
-    onFolderEvent : () -> Unit
+    folderName: String,
+    emoji: String,
+    colorTheme: Color,
+    isSelected: Boolean,
+    onFolderEvent: () -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -43,7 +41,7 @@ fun FolderItem(
             .wrapContentWidth()
             .height(36.dp)
             .clip(RoundedCornerShape(100))
-            .rippleClickable{ onFolderEvent() }
+            .rippleClickable { onFolderEvent() }
             .background(
                 color = if (isSelected) ButtonPrimary.value else UIComponentBackground.value,
                 shape = RoundedCornerShape(100)
@@ -72,8 +70,16 @@ fun FolderItem(
         }
         Spacer(modifier = Modifier.width(4.dp))
         Text(
-            text = (if(folderName.length > 14)"${folderName.substring(0,12)} ..." else folderName).camelCase(),
-            style = folderTextStyle.value.copy(color = if (isSelected) Color.White else TaskItemLabelColor.value, fontSize = folderTextStyleSize.value)
+            text = (if (folderName.length > 14) "${
+                folderName.substring(
+                    0,
+                    12
+                )
+            } ..." else folderName).camelCase(),
+            style = folderTextStyle.value.copy(
+                color = if (isSelected) Color.White else TaskItemLabelColor.value,
+                fontSize = folderTextStyleSize.value
+            )
         )
     }
 }

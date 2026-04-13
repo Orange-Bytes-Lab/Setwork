@@ -162,7 +162,7 @@ class RepeatRepository(
 
     private fun createNoRepeatTask(task: Todo, eventDate: Date): List<Todo> {
         todoList.clear()
-        var indexUUID = System.currentTimeMillis().hashCode().absoluteValue
+        val indexUUID = System.currentTimeMillis().hashCode().absoluteValue
         todoList.add(task.copy(
             date = eventDate,
             todoId = indexUUID

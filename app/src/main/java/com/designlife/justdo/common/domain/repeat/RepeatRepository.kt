@@ -26,6 +26,7 @@ class RepeatRepository(
         return repeatList
     }
 
+    @Suppress("DEPRECATION")
     fun createRepeatedEvents(task : Todo,repeatType : RepeatType,eventDate : Date) : List<Todo>{
         return when(repeatType){
             RepeatType.NO_REPEAT -> createNoRepeatTask(task,eventDate)
@@ -58,7 +59,7 @@ class RepeatRepository(
         return todoList
     }
 
-    @SuppressWarnings
+    @Suppress("DEPRECATION")
     private fun createAnuallyTask(task: Todo, eventDate: Date): List<Todo> {
         todoList.clear()
         var indexUUID = System.currentTimeMillis().hashCode().absoluteValue
@@ -110,8 +111,7 @@ class RepeatRepository(
         return todoList
     }
 
-    @SuppressWarnings
-
+    @Suppress("DEPRECATION")
     private fun createEveryWorkingDayTask(task: Todo, eventDate: Date): List<Todo> {
         todoList.clear()
         var indexUUID = System.currentTimeMillis().hashCode().absoluteValue
@@ -137,7 +137,7 @@ class RepeatRepository(
         return todoList
     }
 
-    @SuppressWarnings
+    @Suppress("DEPRECATION")
     private fun createDailyTask(task: Todo, eventDate: Date): List<Todo> {
         todoList.clear()
         var indexUUID = System.currentTimeMillis().hashCode().absoluteValue

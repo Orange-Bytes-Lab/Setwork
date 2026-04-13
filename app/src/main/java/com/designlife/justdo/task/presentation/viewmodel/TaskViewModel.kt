@@ -166,9 +166,9 @@ class TaskViewModel(
     private suspend fun deleteTodoById(todoId: Int) : Boolean {
         mutex.withLock {
                 val (todo,category) = todoCategoryRepository.getTodoById(todoId = todoId)
-                todo.let { todo ->
+                todo.let { todoTask ->
                     category.let { category ->
-                        if (todo.isCompleted){
+                        if (todoTask.isCompleted){
                             val updatedCategory = category.copy(totalTodo = category.totalTodo - 1, totalCompleted = category.totalCompleted - 1)
                             todoCategoryRepository.deleteTodoById(todoId = todoId,category = updatedCategory)
                         }else{

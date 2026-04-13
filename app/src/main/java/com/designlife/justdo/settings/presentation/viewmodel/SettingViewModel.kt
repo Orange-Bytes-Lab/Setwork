@@ -27,6 +27,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.jetbrains.annotations.UnknownNullability
 
 class SettingViewModel(
     private val appStoreRepository: AppStoreRepository
@@ -199,6 +200,10 @@ class SettingViewModel(
         }
     }
 
+    private fun updateListSize(@Suppress("UNUSED_PARAMETER") value: AppListHeight) {
+
+    }
+
     private fun setPreferenceValues(settingPreferences: SettingPreference) {
         Log.i("SCREEN", "setPreferenceValues: ${settingPreferences}")
         _defaultScreen.value = getDefaultScreenFromOrdinal(settingPreferences.defaultScreen)
@@ -208,10 +213,6 @@ class SettingViewModel(
         updateAppTheme(_appTheme.value)
         updateAppFont(_fontSize.value)
 //        updateListSize(_listHeight.value)
-    }
-
-    private fun updateListSize(value: AppListHeight) {
-
     }
 
     private fun updateAppFont(value: AppFontSize) {

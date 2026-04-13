@@ -67,9 +67,7 @@ fun CategoryComponent(
                 append(if(viewType == ViewType.TASK) "CATEGORIES " else "FOLDERS ")
             }
         })
-
         Spacer(modifier = Modifier.height(20.dp))
-        
         LazyRow(modifier = Modifier.fillMaxWidth()){
             items(
                 count = categoryList.size,
@@ -110,14 +108,14 @@ fun CategoryItem(
     isSelected : Boolean,
     onCategoryEvent : () -> Unit
 ) {
-
     Column(
         modifier = Modifier
             .padding(horizontal = 6.dp)
             .width(200.dp)
             .height(100.dp)
-            .rippleClickable{ onCategoryEvent() }
             .alpha(if (isSelected) .8F else 1F)
+            .clip(RoundedCornerShape(20))
+            .rippleClickable{ onCategoryEvent() }
             .background(
                 color = if (isSelected) categoryTheme else UIComponentBackground.value,
                 shape = RoundedCornerShape(20)
@@ -191,12 +189,10 @@ fun AnimatedCategoryBar(
     var progress by remember {
         mutableStateOf(0f)
     }
-
     val progressBarAnimation by animateFloatAsState(
         targetValue = progress,
         animationSpec = tween(durationMillis = 1000, easing = FastOutSlowInEasing, delayMillis = 100)
     )
-
     LinearProgressIndicator(
         modifier = Modifier
             .fillMaxWidth()
@@ -206,10 +202,8 @@ fun AnimatedCategoryBar(
         backgroundColor = PrimaryBackgroundCategoryColor.value,
         progress = progressBarAnimation,
     )
-
     LaunchedEffect(Unit){
         if (totalTasks != 0F && totalCompleted != 0F)
             progress = (((totalCompleted/totalTasks)))
     }
-
 }

@@ -11,6 +11,7 @@ import com.designlife.justdo.home.domain.usecase.LoadIntialDatesUseCase
 import com.designlife.justdo.home.domain.usecase.LoadNextDatesSetUseCase
 import com.designlife.justdo.home.domain.usecase.LoadPreviousDatesSetUseCase
 
+@Suppress("UNCHECKED_CAST")
 class HomeViewModelFactory (
     private val dateGenerator: DateGenerator,
     private val todoRepository: TodoRepository,
@@ -21,7 +22,6 @@ class HomeViewModelFactory (
     private val loadNextDatesSetUseCase: LoadNextDatesSetUseCase,
     private val loadPreviousDatesSetUseCase: LoadPreviousDatesSetUseCase
     ) : ViewModelProvider.Factory {
-    @SuppressWarnings
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return HomeViewModel(dateGenerator,todoRepository,categoryRepository,noteRepository,deckRepository,loadInitialDateUseCase,loadNextDatesSetUseCase, loadPreviousDatesSetUseCase) as T
     }

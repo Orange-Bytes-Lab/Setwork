@@ -29,7 +29,6 @@ import com.designlife.justdo.ui.theme.UIComponentBackground
 import com.designlife.justdo.ui.theme.folderTextStyle
 import com.designlife.justdo.ui.theme.folderTextStyleSize
 
-
 @Composable
 fun FolderItem(
     folderName : String,
@@ -43,9 +42,12 @@ fun FolderItem(
             .padding(horizontal = 6.dp)
             .wrapContentWidth()
             .height(36.dp)
-            .rippleClickable{ onFolderEvent() }
             .clip(RoundedCornerShape(100))
-            .background(if (isSelected) ButtonPrimary.value else UIComponentBackground.value)
+            .rippleClickable{ onFolderEvent() }
+            .background(
+                color = if (isSelected) ButtonPrimary.value else UIComponentBackground.value,
+                shape = RoundedCornerShape(100)
+            )
             .padding(horizontal = 8.dp),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically

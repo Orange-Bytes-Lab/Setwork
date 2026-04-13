@@ -74,7 +74,7 @@ class IDateGenerator : DateGenerator {
         private val fullDayNameList =  listOf<String>( "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday")
         private val fillMonthNamesList =  listOf<String>( "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December")
 
-        @SuppressWarnings
+        @Suppress("DEPRECATION")
         public fun getToday() : Date {
             val date = Date(System.currentTimeMillis())
             return Date(date.year,date.month,date.date)

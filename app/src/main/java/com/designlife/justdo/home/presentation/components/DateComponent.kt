@@ -23,6 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
@@ -146,6 +147,7 @@ fun DateItem(
             shape = RoundedCornerShape(12)
         )
         .dashedBorder(strokeWidth = 1.dp, color = if (isCurrent && !isSelected) ButtonPrimary.value else Color.Transparent, cornerRadiusDp = 12.dp)
+        .clip(RoundedCornerShape(12))
         .rippleClickable{
             onEventClick()
         },

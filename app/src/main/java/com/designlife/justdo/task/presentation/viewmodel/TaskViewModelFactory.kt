@@ -9,6 +9,7 @@ import com.designlife.justdo.common.domain.repositories.TodoRepository
 import com.designlife.justdo.container.presentation.viewmodel.ContainerViewModel
 import com.designlife.orchestrator.NotificationScheduler
 
+@Suppress("UNCHECKED_CAST")
 class TaskViewModelFactory(
     private val repeatRepository: RepeatRepository,
     private val todoRepository: TodoRepository,
@@ -17,7 +18,6 @@ class TaskViewModelFactory(
     private val notificationScheduler: NotificationScheduler,
     private val shareViewModel: ContainerViewModel
 ) : ViewModelProvider.Factory {
-    @SuppressWarnings
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return TaskViewModel(repeatRepository,todoRepository,categoryRepository,todoCategoryRepository,notificationScheduler,shareViewModel) as T
     }

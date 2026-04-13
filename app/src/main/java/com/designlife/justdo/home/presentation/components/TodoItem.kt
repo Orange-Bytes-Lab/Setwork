@@ -2,7 +2,6 @@ package com.designlife.justdo.home.presentation.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -42,6 +41,7 @@ fun TodoItem(
         modifier = Modifier
             .padding(horizontal = 15.dp, vertical = todoListHeight.value)
             .fillMaxWidth()
+            .clip(RoundedCornerShape(40))
             .rippleClickable{ onTodoEvent() }
             .height(50.dp),
         shape = RoundedCornerShape(40),

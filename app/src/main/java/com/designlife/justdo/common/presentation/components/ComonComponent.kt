@@ -11,10 +11,9 @@ fun Modifier.rippleClickable(
     onClick: () -> Unit
 ): Modifier = composed {
     val interactionSource = remember { MutableInteractionSource() }
-
     this.clickable(
         interactionSource = interactionSource,
-        indication = ripple(),
-        onClick = onClick
+        indication = ripple(bounded = true),
+        onClick = onClick,
     )
 }

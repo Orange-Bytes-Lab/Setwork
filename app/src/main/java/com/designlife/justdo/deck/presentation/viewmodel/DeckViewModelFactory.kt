@@ -6,11 +6,12 @@ import com.designlife.justdo.common.domain.repositories.CategoryRepository
 import com.designlife.justdo.common.domain.repositories.DeckRepository
 import com.designlife.justdo.common.domain.repositories.NoteRepository
 
+@Suppress("UNCHECKED_CAST")
 class DeckViewModelFactory(
     private val deckRepository: DeckRepository,
     private val categoryRepository: CategoryRepository
 ) : ViewModelProvider.Factory {
-    @SuppressWarnings
+
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return DeckViewModel(deckRepository,categoryRepository) as T
     }

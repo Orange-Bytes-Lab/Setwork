@@ -1,7 +1,6 @@
 package com.designlife.justdo.home.presentation.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,7 +17,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.designlife.justdo.common.domain.calendar.IDateGenerator
@@ -43,6 +42,7 @@ fun DeckItem(
             .padding(horizontal = 15.dp, vertical = deckListHeight.value)
             .fillMaxWidth()
             .height(80.dp)
+            .clip(RoundedCornerShape(20))
             .rippleClickable{onDeckClickEvent()},
         shape = RoundedCornerShape(20)
     ) {

@@ -140,7 +140,7 @@ class IDateGenerator : DateGenerator {
         }
 
         private fun getCurrentMonth(): Int {
-            val today = Date(System.currentTimeMillis());
+            val today = Date(System.currentTimeMillis())
             val calendar = Calendar.getInstance()
             calendar.time = today
             return calendar.get(Calendar.MONTH) + 1

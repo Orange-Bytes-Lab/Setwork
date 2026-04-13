@@ -16,7 +16,6 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -67,7 +66,7 @@ class NoteFragment : Fragment(), SetworkOLLM.SetworkMessage {
     private val REQUEST_EXTERNAL_STORAGE = 1
 
     private lateinit var notificationScheduler: NotificationScheduler
-    private var isPermissionGranted : Boolean = false
+    private var isPermissionGranted: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -76,14 +75,16 @@ class NoteFragment : Fragment(), SetworkOLLM.SetworkMessage {
         val index = arguments?.getInt("categoryIndex") ?: -1
         val noteRepository = AppServiceLocator.provideNoteRepository(requireContext())
         val categoryRepository = AppServiceLocator.provideCategoryRepository(requireContext())
-        notificationScheduler = SchedulingEngine(requireActivity().applicationContext).notificationScheduler()
-        val factory = NoteViewModelFactory(noteRepository, categoryRepository,notificationScheduler)
+        notificationScheduler =
+            SchedulingEngine(requireActivity().applicationContext).notificationScheduler()
+        val factory =
+            NoteViewModelFactory(noteRepository, categoryRepository, notificationScheduler)
         viewModel = ViewModelProvider(this, factory)[NoteViewModel::class.java]
 
         val noteView = arguments?.getBoolean(Constants.NOTE_VIEW) ?: false
-        if (noteView){
+        if (noteView) {
             fetchFromNotification(noteView)
-        }else{
+        } else {
             CoroutineScope(Dispatchers.IO).launch {
                 async { viewModel.fetchCategories() }.await()
                 if (index != -1) {
@@ -99,10 +100,10 @@ class NoteFragment : Fragment(), SetworkOLLM.SetworkMessage {
 
     }
 
-    private fun fetchFromNotification(noteView : Boolean) {
+    private fun fetchFromNotification(noteView: Boolean) {
         val noteId = arguments?.getInt(Constants.NOTE_VIEW_ID) ?: -1
         noteId.let {
-            if (noteView && noteId != -1){
+            if (noteView && noteId != -1) {
                 CoroutineScope(Dispatchers.IO).launch {
                     async { viewModel.fetchCategories() }.await()
                     noteMode = NoteMode.UPDATE
@@ -158,10 +159,11 @@ class NoteFragment : Fragment(), SetworkOLLM.SetworkMessage {
                                     } else {
                                         viewModel.updateNote()
                                     }
-                                }catch (e : Exception){
+                                } catch (e: Exception) {
                                     e.printStackTrace()
-                                }finally {
-                                    Toast.makeText(requireContext(), "Saved", Toast.LENGTH_SHORT).show()
+                                } finally {
+                                    Toast.makeText(requireContext(), "Saved", Toast.LENGTH_SHORT)
+                                        .show()
                                     findNavController().navigateUp()
                                 }
 
@@ -181,7 +183,7 @@ class NoteFragment : Fragment(), SetworkOLLM.SetworkMessage {
                                     } else {
                                         viewModel.updateNote()
                                     }
-                                }catch (e : Exception){
+                                } catch (e: Exception) {
                                     e.printStackTrace()
                                 }
                             },
@@ -282,7 +284,7 @@ class NoteFragment : Fragment(), SetworkOLLM.SetworkMessage {
                                 viewModel.onEvent(NoteEvents.OnThreeDotToggle(false))
                                 try {
                                     viewModel.onEvent(NoteEvents.OnPdfExport(requireContext()))
-                                }catch (e : Exception){
+                                } catch (e: Exception) {
                                     e.printStackTrace()
                                 }
                             },
@@ -290,7 +292,7 @@ class NoteFragment : Fragment(), SetworkOLLM.SetworkMessage {
                                 viewModel.onEvent(NoteEvents.OnThreeDotToggle(false))
                                 try {
                                     viewModel.onEvent(NoteEvents.OnPngExport(requireContext()))
-                                }catch (e : Exception){
+                                } catch (e: Exception) {
                                     e.printStackTrace()
                                 }
                             },
@@ -318,9 +320,9 @@ class NoteFragment : Fragment(), SetworkOLLM.SetworkMessage {
                         } else {
                             viewModel.updateNote()
                         }
-                    }catch (e : Exception){
+                    } catch (e: Exception) {
                         e.printStackTrace()
-                    }finally {
+                    } finally {
                         Toast.makeText(requireContext(), "Saved", Toast.LENGTH_SHORT).show()
                     }
                     isEnabled = false
@@ -403,13 +405,13 @@ class NoteFragment : Fragment(), SetworkOLLM.SetworkMessage {
                 Toast.makeText(requireContext(), "Saved", Toast.LENGTH_SHORT).show()
             }
 //            lifecycleScope?.cancel()
-        }catch (e : Exception){
+        } catch (e: Exception) {
             e.printStackTrace()
         }
     }
 
     override fun onChatRelay(message: String) {
-        val completeContent = viewModel.contentValue.value +"\n -- Setwork Chat --> \n" + message
+        val completeContent = viewModel.contentValue.value + "\n -- Setwork Chat --> \n" + message
         viewModel.onEvent(NoteEvents.OnContentChange(completeContent))
         // Once copied save immediately all
         try {
@@ -420,7 +422,7 @@ class NoteFragment : Fragment(), SetworkOLLM.SetworkMessage {
                     viewModel.updateNote()
                 }
             }
-        }catch (e : Exception){
+        } catch (e: Exception) {
             e.printStackTrace()
         }
     }

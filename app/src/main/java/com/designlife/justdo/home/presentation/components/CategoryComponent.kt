@@ -1,5 +1,6 @@
 package com.designlife.justdo.home.presentation.components
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -169,7 +170,7 @@ fun CategoryItem(
     }
 }
 
-@SuppressWarnings("UNUSED_COMPOSABLE")
+@SuppressLint("UnnecessaryComposable")
 @Composable
 fun DummyCategoryItem(
     newCategoryEvent: () -> Unit

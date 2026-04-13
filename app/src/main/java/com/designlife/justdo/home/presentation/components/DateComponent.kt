@@ -1,5 +1,6 @@
 package com.designlife.justdo.home.presentation.components
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -207,6 +208,7 @@ fun DateItem(
     }
 }
 
+@SuppressLint("UnnecessaryComposedModifier")
 fun Modifier.dashedBorder(strokeWidth: Dp, color: Color, cornerRadiusDp: Dp) = composed(
     factory = {
         val density = LocalDensity.current

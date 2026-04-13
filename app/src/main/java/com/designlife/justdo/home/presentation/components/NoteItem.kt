@@ -70,6 +70,7 @@ fun NoteItem(
                 horizontal = if (!hasCover) 5.dp else 12.dp,
                 vertical = if (!hasCover) 0.dp else 4.dp
             )
+            .clip(RoundedCornerShape(12))
             .rippleClickable {
                 onClick()
 

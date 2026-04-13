@@ -16,9 +16,11 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -142,7 +144,8 @@ class NoteFragment : Fragment(), SetworkOLLM.SetworkMessage {
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(color = UIComponentBackground.value),
+                            .background(color = UIComponentBackground.value)
+                            .imePadding(),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         CommonCustomHeader(
@@ -420,6 +423,4 @@ class NoteFragment : Fragment(), SetworkOLLM.SetworkMessage {
             e.printStackTrace()
         }
     }
-
-
 }

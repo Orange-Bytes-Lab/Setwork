@@ -13,7 +13,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.designlife.justdo.common.domain.entities.Note
-import com.designlife.justdo.common.domain.entities.SearchMarker
 import com.designlife.justdo.ui.theme.TaskItemLabelColor
 
 @OptIn(ExperimentalFoundationApi::class)

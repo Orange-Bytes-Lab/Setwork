@@ -333,9 +333,9 @@ class HomeFragment : Fragment(), TaskListener {
                 val searchToggle = viewModel.searchToggle.value
                 val searchText = viewModel.searchText.value
                 val noteList =
-                    if (searchText.isNotEmpty()) viewModel.searchList.value else viewModel.noteList
+                    if (searchText.isNotEmpty()) viewModel.searchList.value else viewModel.noteList.sortedByDescending { it.lastModified.time }
                 val deckList =
-                    if (searchText.isNotEmpty()) viewModel.searchList.value else viewModel.deckList
+                    if (searchText.isNotEmpty()) viewModel.searchList.value else viewModel.deckList.sortedByDescending { it.modifiedDate.time }
                 val colorMap = viewModel.colorMap.value
                 val currentMonth = viewModel.currentMonth.value
                 val currentYear = viewModel.currentYear.value

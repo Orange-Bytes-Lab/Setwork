@@ -144,6 +144,9 @@ class NoteViewModel(
             is NoteEvents.LoadNoteById -> {
 
             }
+            is NoteEvents.OnDuplicateEvent -> {
+                duplicateNote()
+            }
             is NoteEvents.OnPdfExport -> {
                 viewModelScope.launch(Dispatchers.IO) {
                     AppOutput.exportAsPdf(
@@ -223,6 +226,23 @@ class NoteViewModel(
 
     private fun setNoteState(note: Note) {
         _notePrevState = Triple(note.copy(),_selectedCategoryIndex.value,_coverImage.value)
+    }
+
+    fun duplicateNote(){
+        CoroutineScope(Dispatchers.IO).launch {
+            val coverImage =  withContext(Dispatchers.Default) {
+                ImageConverter.getByteArrayFromBitMap(_coverImage.value)
+            }
+            noteRepository.insertNote(Note(
+                title = "Duplicate- " + _titleValue.value.ifEmpty { "Untitled" },
+                content = _contentValue.value,
+                categoryId = _categoryList.value[_selectedCategoryIndex.value].id,
+                emoji = _categoryList.value[_selectedCategoryIndex.value].emoji,
+                coverImage = coverImage,
+                createdTime = Date(System.currentTimeMillis()),
+                lastModified = Date(System.currentTimeMillis())
+            ))
+        }
     }
 
     fun insertNote(){

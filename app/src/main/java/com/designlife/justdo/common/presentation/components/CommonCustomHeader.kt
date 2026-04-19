@@ -84,7 +84,7 @@ fun CommonCustomHeader(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .heightIn(min = 64.dp, max = 72.dp)
+            .heightIn(min = 64.dp, max = 74.dp)
             .clip(Shapes.cutBottomRoundedCorners(16.dp))
             .background(ComponentBackground.value),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -92,7 +92,7 @@ fun CommonCustomHeader(
     ) {
         Row(
             modifier = Modifier
-                .padding(top = 16.dp)
+                .padding(top = 18.dp)
                 .fillMaxWidth()
                 .fillMaxHeight(),
             verticalAlignment = Alignment.CenterVertically,

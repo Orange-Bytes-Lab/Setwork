@@ -15,6 +15,7 @@ sealed class NoteEvents{
     data class OnDeleteNote(val context: Context) : NoteEvents()
     data class OnThreeDotToggle(val state : Boolean) : NoteEvents()
     data class OnPdfExport(val context : Context) : NoteEvents()
+    data object OnDuplicateEvent : NoteEvents()
     data class OnPngExport(val context : Context) : NoteEvents()
     data object OnAIChatToggle : NoteEvents()
     data object OnReminderToggle : NoteEvents()

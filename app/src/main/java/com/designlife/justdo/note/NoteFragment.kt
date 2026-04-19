@@ -2,6 +2,9 @@ package com.designlife.justdo.note
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
@@ -25,6 +28,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.text.AnnotatedString
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker
@@ -284,6 +289,25 @@ class NoteFragment : Fragment(), SetworkOLLM.SetworkMessage {
                         exit = scaleOut() + shrinkVertically(shrinkTowards = Alignment.CenterVertically)
                     ) {
                         ToolBarPopUpComponent(
+                            onCloseEvent = {
+                                viewModel.onEvent(NoteEvents.OnThreeDotToggle(false))
+                            },
+                            onCopyEvent = {
+                                viewModel.onEvent(NoteEvents.OnThreeDotToggle(false))
+                                try {
+                                    copyToClipboard(noteContent)
+                                } catch (e: Exception) {
+                                    e.printStackTrace()
+                                }
+                            },
+                            onDuplicateEvent = {
+                                viewModel.onEvent(NoteEvents.OnThreeDotToggle(false))
+                                try {
+                                    viewModel.onEvent(NoteEvents.OnDuplicateEvent)
+                                } catch (e: Exception) {
+                                    e.printStackTrace()
+                                }
+                            },
                             onExportPdfEvent = {
                                 viewModel.onEvent(NoteEvents.OnThreeDotToggle(false))
                                 try {
@@ -311,6 +335,13 @@ class NoteFragment : Fragment(), SetworkOLLM.SetworkMessage {
                 }
             }
         }
+    }
+
+    private fun copyToClipboard(text: String) {
+        val clipboard = requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clip = ClipData.newPlainText("Setwork Note Copy", text)
+        clipboard.setPrimaryClip(clip)
+        Toast.makeText(requireContext(), "Note copied to clipboard", Toast.LENGTH_SHORT).show()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

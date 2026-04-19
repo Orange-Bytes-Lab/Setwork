@@ -5,13 +5,23 @@
         name="downloads"
         path="Download/" />
 
-    <!-- Alternative if you use cache directory -->
+    <external-path
+        name="public_downloads"
+        path="Download/" />
+
     <cache-path
         name="cache"
         path="/" />
 
-    <!-- External storage cache directory -->
     <external-cache-path
         name="external_cache"
         path="/" />
+
+    <external-files-path
+        name="app_external_downloads"
+        path="Download/" />
+
+    <files-path
+        name="app_internal_files"
+        path="." />
 </paths>

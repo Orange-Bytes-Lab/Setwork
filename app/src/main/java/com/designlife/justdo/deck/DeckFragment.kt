@@ -123,12 +123,11 @@ class DeckFragment : Fragment() {
                                 },
                                 onCloseEvent = {
                                     try {
-                                        lifecycleScope.launch(Dispatchers.Main.immediate) {
-                                            saveDeck(false)
-                                            if (viewModel.hasDeckModified.value) {
-                                                Toast.makeText(requireActivity(), "Card's Saved", Toast.LENGTH_SHORT).show()
-                                            }
+                                        saveDeck(false)
+                                        if (viewModel.hasDeckModified.value) {
+                                            Toast.makeText(requireActivity(), "Card's Saved", Toast.LENGTH_SHORT).show()
                                         }
+                                        findNavController().navigateUp()
                                     }catch (e : Exception){
                                         e.printStackTrace()
                                     }
@@ -284,23 +283,16 @@ class DeckFragment : Fragment() {
             override fun handleOnBackPressed() {
                 if (isEnabled) {
                     try {
-                        lifecycleScope.launch() {
-                            saveDeck(false)
-                            if (viewModel.hasDeckModified.value) {
-                                Toast.makeText(requireActivity(), "Card's Saved", Toast.LENGTH_SHORT).show()
-                            }
-                            isEnabled = false
-                            viewModel.atomicWrite.collect {
-                                if (isEnabled) {
-                                    isEnabled = false
-                                }
-
-                                requireActivity().onBackPressedDispatcher.onBackPressed()
-                            }
-                        }
+                        saveDeck(false)
                     }catch (e : Exception) {
                         e.printStackTrace()
+                    }finally {
+                        if (viewModel.hasDeckModified.value) {
+                            Toast.makeText(requireActivity(), "Card's Saved", Toast.LENGTH_SHORT).show()
+                        }
                     }
+                    isEnabled = false
+                    requireActivity().onBackPressedDispatcher.onBackPressed()
                 }
             }
         }

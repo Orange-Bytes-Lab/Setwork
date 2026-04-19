@@ -2,7 +2,6 @@ package com.designlife.justdo.deck.presentation.viewmodel
 
 import android.util.Log
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
@@ -15,6 +14,7 @@ import com.designlife.justdo.common.domain.repositories.CategoryRepository
 import com.designlife.justdo.common.domain.repositories.DeckRepository
 import com.designlife.justdo.deck.presentation.events.DeckEvents
 import com.designlife.justdo.ui.theme.ButtonPrimary
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -172,38 +172,23 @@ class DeckViewModel(
         }
         _isUpdated.value = true
         _hasDeckModified.value = true
-
-        viewModelScope.launch {
-            _progressState.value = true
-
-            val deck = withContext(Dispatchers.IO) {
-                val id = _categoryList.value
-                    .getOrNull(_selectedCategoryIndex.value)?.id
-                    ?: return@withContext null
-
-                Log.i("CATEGORY", "insertDeck: The ID: $id")
-
-                Deck(
-                    deckName = _headerTitle.value.ifEmpty { getFormattedTitle() },
-                    totalCards = _cardList.value.size,
-                    modifiedDate = Date(System.currentTimeMillis()),
-                    cards = _cardList.value,
-                    categoryId = id
-                ).also { newDeck ->
-                    deckRepository.insertDeck(newDeck)
-                    Log.i("CATEGORY", "insertDeck: After insert: $id")
-                }
+        _progressState.value = true
+        CoroutineScope(Dispatchers.IO).launch {
+            val id = _categoryList.value
+                .getOrNull(_selectedCategoryIndex.value)?.id
+                ?: return@launch
+            Deck(
+                deckName = _headerTitle.value.ifEmpty { getFormattedTitle() },
+                totalCards = _cardList.value.size,
+                modifiedDate = Date(System.currentTimeMillis()),
+                cards = _cardList.value,
+                categoryId = id
+            ).also { newDeck ->
+                deckRepository.insertDeck(newDeck)
             }
-
-            if (deck != null) {
+            withContext(Dispatchers.Main){
+                _progressState.value = false
                 _hasDeckModified.value = false
-                _progressState.value = false
-                if (!isAutoSave){
-                    _atomicWrite.emit(Unit)
-                }
-            } else {
-                _isUpdated.value = false
-                _progressState.value = false
             }
         }
     }
@@ -214,49 +199,35 @@ class DeckViewModel(
 
     private fun updateDeck(isAutoSave: Boolean) {
         if (!isDeckUpdated()) {
-            viewModelScope.launch {
-                _atomicWrite.emit(Unit)
-            }
             return
         }
         _progressState.value = true
         _hasDeckModified.value = true
+        CoroutineScope(Dispatchers.IO).launch {
+            val id = _categoryList.value
+                .getOrNull(_selectedCategoryIndex.value)?.id
+                ?: return@launch
 
-        viewModelScope.launch {
-            val success = withContext(Dispatchers.IO) {
-                val id = _categoryList.value
-                    .getOrNull(_selectedCategoryIndex.value)?.id
-                    ?: return@withContext false
+            Log.i("CATEGORY", "updateDeck: The ID: $id")
 
-                Log.i("CATEGORY", "updateDeck: The ID: $id")
+            val updatedDeck = Deck(
+                deckId = _deckId.value,
+                deckName = _headerTitle.value,
+                totalCards = _cardList.value.size,
+                modifiedDate = Date(System.currentTimeMillis()),
+                cards = _cardList.value,
+                categoryId = id
+            )
 
-                val updatedDeck = Deck(
-                    deckId = _deckId.value,
-                    deckName = _headerTitle.value,
-                    totalCards = _cardList.value.size,
-                    modifiedDate = Date(System.currentTimeMillis()),
-                    cards = _cardList.value,
-                    categoryId = id
-                )
+            deckRepository.updateDeck(
+                deckId = _deckId.value,
+                deck = updatedDeck
+            )
 
-                runCatching {
-                    deckRepository.updateDeck(
-                        deckId = _deckId.value,
-                        deck = updatedDeck
-                    )
-                    Log.i("CATEGORY", "updateDeck: After update, id: $id")
-                }.isSuccess
-            }
-
-            _hasDeckModified.value = false
-            _progressState.value = false
-            if (success) {
-                if (!isAutoSave){
-                    _atomicWrite.emit(Unit)
-                }
-            } else {
+            withContext(Dispatchers.Main){
+                _hasDeckModified.value = false
+                _progressState.value = false
                 _isUpdated.value = false
-                Log.e("CATEGORY", "updateDeck: failed — invalid index or repo error")
             }
         }
     }

@@ -15,8 +15,8 @@ import kotlinx.serialization.Serializable
 data class AppStore(
     @SerialName("todoId") val todoId : Int = -1,
     @SerialName("selectedScreen") val selectedScreen : Int = 0,
-    @SerialName("appTheme") val selectedAppTheme: Int = 0,
-    @SerialName("fontSize") val selectedFontSize: Int = 1,
+    @SerialName("appTheme") val selectedAppTheme: Int = 1,
+    @SerialName("fontSize") val selectedFontSize: Int = 2,
     @SerialName("listItemHeight") val selectedListItemHeight: Int = 0,
     @SerialName("isUpdateBotChecked") val isUpdateBotChecked: Boolean = false
 ){

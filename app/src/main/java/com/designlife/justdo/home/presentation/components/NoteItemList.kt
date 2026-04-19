@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.lazy.staggeredgrid.itemsIndexed
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -27,27 +28,27 @@ fun NoteItemList(
     LazyVerticalStaggeredGrid(
         modifier = Modifier
             .padding(horizontal = 6.dp)
-            .padding(bottom = 120.dp)
             .fillMaxSize(),
         verticalItemSpacing = 8.dp,
         columns = StaggeredGridCells.Fixed(2),
         state = listState
     ) {
-        items(noteList.size) { index: Int ->
-            val item = noteList[index]
-            if (colorMap.containsKey(item.categoryId)) {
-                val color: Color = colorMap.get(item.categoryId) ?: TaskItemLabelColor.value
+        itemsIndexed(
+            items = noteList,
+            contentType = { _, note -> note.noteId },
+            key = { _, note -> note.noteId },
+        ) { index, note ->
+            if (colorMap.containsKey(note.categoryId)) {
+                val color: Color = colorMap.get(note.categoryId) ?: TaskItemLabelColor.value
                 NoteItem(
-                    note = noteList[index],
+                    note = note,
                     noteTheme = color,
-                    onClick = {
-                        onNoteClickEvent(index)
-                              })
-            }
-            if (index == noteList.lastIndex){
-                Spacer(modifier = Modifier.height(120.dp))
+                    onClick = { onNoteClickEvent(index) }
+                )
             }
         }
-
+        item {
+            Spacer(modifier = Modifier.height(350.dp))
+        }
     }
 }

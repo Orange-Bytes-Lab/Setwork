@@ -61,10 +61,12 @@ fun CommonCustomHeader(
     onButtonClickEvent: () -> Unit
 ) {
 
-    LaunchedEffect(viewType == ViewType.NOTE) {
+    LaunchedEffect(Unit) {
         if (viewType == ViewType.NOTE) {
-            delay(15000)
-            onAutoSaveEvent()
+            while (true){
+                delay(15000)
+                onAutoSaveEvent()
+            }
         }
     }
 

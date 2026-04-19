@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import androidx.core.graphics.createBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.designlife.justdo.common.AppOutput
@@ -94,6 +95,8 @@ class NoteViewModel(
 
     private var _isUpdated : MutableState<Boolean> = mutableStateOf(false)
 
+    private val _notifierAttached : MutableState<Boolean> = mutableStateOf(false)
+
     fun onEvent(event : NoteEvents){
         when(event){
             is NoteEvents.OnTitleChange -> {
@@ -127,6 +130,7 @@ class NoteViewModel(
                 val(day,month,year) = event.value.split("/")
                 _selectedDateText.value = IDateGenerator.getGracefullyDateFrom(day.toInt(),month.toInt(),year.toInt())
                 rawNoteDateTimeInstance.value.set(year.toInt(), month.toInt() - 1, day.toInt())
+                _notifierAttached.value = true
             }
             is NoteEvents.OnTimeChange -> {
                 val(hour,minute) = event.value.split(":")
@@ -135,6 +139,7 @@ class NoteViewModel(
                     set(Calendar.HOUR_OF_DAY, hour.toInt())
                     set(Calendar.MINUTE, minute.toInt())
                 }
+                _notifierAttached.value = true
             }
             is NoteEvents.LoadNoteById -> {
 
@@ -226,10 +231,12 @@ class NoteViewModel(
             return
         }
         _isUpdated.value = true
-        _hasNoteModified.value = true
         _progressBar.value = true
-        CoroutineScope((Dispatchers.IO)).launch {
-            val coverImage = async { ImageConverter.getByteArrayFromBitMap(_coverImage.value) }.await()
+        _hasNoteModified.value = true
+        CoroutineScope(Dispatchers.IO).launch {
+            val coverImage =  withContext(Dispatchers.Default) {
+                ImageConverter.getByteArrayFromBitMap(_coverImage.value)
+            }
             noteRepository.insertNote(Note(
                 title = _titleValue.value.ifEmpty { "Untitled" },
                 content = _contentValue.value,
@@ -239,8 +246,8 @@ class NoteViewModel(
                 createdTime = Date(System.currentTimeMillis()),
                 lastModified = Date(System.currentTimeMillis())
             ))
-            _progressBar.value = false
             _hasNoteModified.value = false
+            _progressBar.value = false
         }
         if (_rawNoteDateTimeInstanceCompute.value.equals(_rawNoteDateTimeInstance.value) == false){
             setNotification()
@@ -250,13 +257,10 @@ class NoteViewModel(
     fun updateNote() {
         if (isNoteUpdated()){
             _hasNoteModified.value = true
-            _progressBar.value = true
-            CoroutineScope((Dispatchers.IO)).launch {
-                val coverImage = async(Dispatchers.Default) {
-                    _coverImage.value?.let {
-                        ImageConverter.getByteArrayFromBitMap(it)
-                    }
-                }.await()
+            CoroutineScope(Dispatchers.IO).launch {
+                val coverImage =  withContext(Dispatchers.Default) {
+                    ImageConverter.getByteArrayFromBitMap(_coverImage.value)
+                }
                 val note = Note(
                     noteId = _noteId.value,
                     title = _titleValue.value,
@@ -271,12 +275,12 @@ class NoteViewModel(
                     _noteId.value,
                     note
                 )
-                _progressBar.value = false
                 _hasNoteModified.value = false
             }
         }
-        if (_rawNoteDateTimeInstanceCompute.value.equals(_rawNoteDateTimeInstance.value) == false){
+        if (_rawNoteDateTimeInstanceCompute.value.equals(_rawNoteDateTimeInstance.value) == false && _notifierAttached.value){
             setNotification()
+            _notifierAttached.value = false
         }
     }
 

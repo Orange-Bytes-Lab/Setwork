@@ -15,6 +15,7 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.TextView
 import androidx.annotation.ColorInt
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -38,6 +39,7 @@ import com.designlife.justdo.note.ListAutoFormatWatcher
 import com.designlife.justdo.ui.theme.ButtonHighLightPrimary
 import com.designlife.justdo.ui.theme.ButtonPrimary
 import com.designlife.justdo.ui.theme.TypographyColor
+import com.designlife.justdo.ui.theme.UIComponentBackground
 import com.designlife.justdo.ui.theme.noteContentStyleSize
 import com.designlife.justdo.ui.theme.noteTitleStyle
 import com.designlife.justdo.ui.theme.noteTitleStyleSize
@@ -56,7 +58,6 @@ fun NoteComponent(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .imePadding()
     ) {
         HorizontalDivider(color = ButtonHighLightPrimary.value, thickness = 0.7.dp)
         TitleField(
@@ -66,14 +67,19 @@ fun NoteComponent(
             cursorColor = cursorColor
         )
         HorizontalDivider(color = ButtonHighLightPrimary.value, thickness = 0.7.dp)
-        NoteEditor(
-            noteText = noteText,
-            onNoteUpdate = onNoteUpdate,
-            textColor = textColor,
-            cursorColor = cursorColor,
-            contentSizeSp = contentSizeSp,
-            lineColor = lineColor
-        )
+        Column(modifier = Modifier
+            .fillMaxSize()
+            .imePadding()
+        ) {
+            NoteEditor(
+                noteText = noteText,
+                onNoteUpdate = onNoteUpdate,
+                textColor = textColor,
+                cursorColor = cursorColor,
+                contentSizeSp = contentSizeSp,
+                lineColor = lineColor
+            )
+        }
     }
 }
 
@@ -125,29 +131,46 @@ private fun NoteEditor(
             .nestedScroll(rememberNestedScrollInteropConnection()),
         factory = { ctx ->
             object : androidx.appcompat.widget.AppCompatEditText(ctx) {
+                private val density = resources.displayMetrics.density
                 private val linePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
                     color = lineColor.toArgb()
-                    strokeWidth = 0.5f * resources.displayMetrics.density
-                    style = Paint.Style.STROKE
+                    strokeWidth = 0.5f * density
                 }
-
+                private var lineHeightCached = 0f
                 override fun onDraw(canvas: Canvas) {
-                    val lineCount = layout?.lineCount ?: 0
-                    for (i in 0 until lineCount) {
-                        val baseline = layout.getLineBaseline(i).toFloat() + totalPaddingTop
-                        canvas.drawLine(0f, baseline, width.toFloat(), baseline, linePaint)
+                    val layout = layout ?: return super.onDraw(canvas)
+                    super.onDraw(canvas)
+                    val scrollY = scrollY
+                    val height = height
+                    val firstVisibleLine = layout.getLineForVertical(scrollY)
+                    val lastVisibleLine = layout.getLineForVertical(scrollY + height)
+                    if (lineHeightCached == 0f && layout.lineCount > 0) {
+                        lineHeightCached =
+                            (layout.getLineBottom(0) - layout.getLineTop(0)).toFloat()
                     }
-                    if (lineCount > 0) {
-                        val lineHeight = layout.getLineBottom(0) - layout.getLineTop(0).toFloat()
-                        val lastBaseline =
-                            layout.getLineBaseline(lineCount - 1).toFloat() + totalPaddingTop
-                        var y = lastBaseline + lineHeight
-                        while (y < height) {
-                            canvas.drawLine(0f, y, width.toFloat(), y, linePaint)
-                            y += lineHeight
+                    val left = paddingLeft.toFloat()
+                    val right = (width - paddingRight).toFloat()
+                    for (i in firstVisibleLine..lastVisibleLine) {
+                        val baseline =
+                            layout.getLineBaseline(i).toFloat() + totalPaddingTop
+
+                        canvas.drawLine(
+                            left,
+                            baseline + 1f,
+                            right,
+                            baseline + 1f,
+                            linePaint
+                        )
+                    }
+                    if (lastVisibleLine >= layout.lineCount - 1 && lineHeightCached > 0f) {
+                        var y = layout.getLineBaseline(layout.lineCount - 1).toFloat() +
+                                totalPaddingTop + lineHeightCached
+                        val bottom = scrollY + height
+                        while (y < bottom) {
+                            canvas.drawLine(left, y, right, y, linePaint)
+                            y += lineHeightCached
                         }
                     }
-                    super.onDraw(canvas)
                 }
             }.apply {
                 layoutParams = ViewGroup.LayoutParams(
@@ -161,7 +184,7 @@ private fun NoteEditor(
                     16.dp.toPxInt(),
                     12.dp.toPxInt(),
                     16.dp.toPxInt(),
-                    60.dp.toPxInt()
+                    20.dp.toPxInt()
                 )
                 setCursorColor(cursorColor.toArgb())
                 inputType = InputType.TYPE_CLASS_TEXT or
@@ -172,7 +195,6 @@ private fun NoteEditor(
                 maxLines = Int.MAX_VALUE
                 movementMethod = ScrollingMovementMethod()
                 overScrollMode = View.OVER_SCROLL_NEVER
-                // Use exact spacing — no multiplier drift
                 setLineSpacing(0f, 1f)
                 setText(noteText)
                 setSelection(noteText.length)

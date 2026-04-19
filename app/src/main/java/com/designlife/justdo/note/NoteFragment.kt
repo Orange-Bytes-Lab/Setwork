@@ -4,6 +4,7 @@ import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -178,9 +179,12 @@ class NoteFragment : Fragment(), SetworkOLLM.SetworkMessage {
                             },
                             onAutoSaveEvent = {
                                 try {
+                                    Log.i("UPDATE", "onCreateView: onAutoSaveEvent")
                                     if (noteMode == NoteMode.CREATE) {
+                                        Log.i("UPDATE", "onCreateView: onAutoSaveEvent : NoteMode.CREATE")
                                         viewModel.insertNote()
                                     } else {
+                                        Log.i("UPDATE", "onCreateView: onAutoSaveEvent : NoteMode.UPDATE")
                                         viewModel.updateNote()
                                     }
                                 } catch (e: Exception) {

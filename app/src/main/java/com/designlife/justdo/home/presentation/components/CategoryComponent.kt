@@ -4,9 +4,11 @@ import android.annotation.SuppressLint
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -34,12 +36,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
+import com.designlife.justdo.R
 import com.designlife.justdo.common.domain.entities.Category
 import com.designlife.justdo.common.presentation.components.FolderItem
 import com.designlife.justdo.common.presentation.components.rippleClickable
@@ -139,34 +145,48 @@ fun CategoryItem(
             )
             .padding(horizontal = 8.dp),
     ) {
-        Spacer(modifier = Modifier.height(10.dp))
-        Text(
-            text = "${totalTasks} Task's",
-            style = contentStyle_One.value.copy(
-                color = if (isSelected) Color.White else TypographyColor.value,
-                fontSize = contentStyle_OneSize.value
+
+        Box(modifier = Modifier
+            .fillMaxSize()
+        ) {
+            Image(
+                painter = painterResource(R.drawable.bc_one_op),
+                contentDescription = "Dot Background",
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.FillBounds
             )
-        )
-        Spacer(modifier = Modifier.height(2.dp))
-        Text(
-            text = (if (categoryName.length >= 10) "${
-                categoryName.substring(
-                    0,
-                    8
+            Column {
+                Spacer(modifier = Modifier.height(10.dp))
+                Text(
+                    text = "${totalTasks} Task's",
+                    style = contentStyle_One.value.copy(
+                        color = if (isSelected) Color.White else TypographyColor.value,
+                        fontSize = contentStyle_OneSize.value
+                    )
                 )
-            }..." else categoryName).uppercase(),
-            style = headerStyle.value.copy(
-                fontSize = 18.sp,
-                fontWeight = FontWeight.ExtraBold,
-                color = if (isSelected) Color.White else TypographyColor.value
-            )
-        )
-        Spacer(modifier = Modifier.height(30.dp))
-        AnimatedCategoryBar(
-            totalTasks = totalTasks.toFloat(),
-            totalCompleted = totalCompleted.toFloat(),
-            color = if (isSelected) Color.White else categoryTheme
-        )
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = (if (categoryName.length >= 10) "${
+                        categoryName.substring(
+                            0,
+                            8
+                        )
+                    }..." else categoryName).uppercase(),
+                    style = headerStyle.value.copy(
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = if (isSelected) Color.White else TypographyColor.value
+                    )
+                )
+                Spacer(modifier = Modifier.height(30.dp))
+                AnimatedCategoryBar(
+                    totalTasks = totalTasks.toFloat(),
+                    totalCompleted = totalCompleted.toFloat(),
+                    color = if (isSelected) Color.White else categoryTheme
+                )
+            }
+        }
+
     }
 }
 

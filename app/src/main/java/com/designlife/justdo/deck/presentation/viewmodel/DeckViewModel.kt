@@ -111,10 +111,10 @@ class DeckViewModel(
                 deleteDeckById()
             }
             is DeckEvents.OnInsert -> {
-                insertDeck(event.isAutoSave)
+                insertDeck()
             }
             is DeckEvents.OnUpdate -> {
-                updateDeck(event.isAutoSave)
+                updateDeck()
             }
             is DeckEvents.OnClear -> {
                 clean()
@@ -165,9 +165,9 @@ class DeckViewModel(
         }
     }
 
-    private fun insertDeck(isAutoSave : Boolean) {
+    private fun insertDeck() {
         if (_isUpdated.value) {
-            updateDeck(isAutoSave)
+            updateDeck()
             return
         }
         _isUpdated.value = true
@@ -197,7 +197,7 @@ class DeckViewModel(
         return "Untitled -${IDateGenerator.getGracefullyTimeFromEpoch(System.currentTimeMillis())}"
     }
 
-    private fun updateDeck(isAutoSave: Boolean) {
+    private fun updateDeck() {
         if (!isDeckUpdated()) {
             return
         }
@@ -207,8 +207,6 @@ class DeckViewModel(
             val id = _categoryList.value
                 .getOrNull(_selectedCategoryIndex.value)?.id
                 ?: return@launch
-
-            Log.i("CATEGORY", "updateDeck: The ID: $id")
 
             val updatedDeck = Deck(
                 deckId = _deckId.value,

@@ -2,8 +2,7 @@ package com.designlife.justdo.note.presentation.events
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.net.Uri
-import com.designlife.justdo.task.presentation.events.TaskEvents
+
 
 sealed class NoteEvents{
     data class OnTitleChange(val value : String) : NoteEvents()

@@ -3,7 +3,6 @@ package com.designlife.justdo.common.presentation.components
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,7 +33,6 @@ import androidx.compose.ui.unit.dp
 import com.designlife.justdo.R
 import com.designlife.justdo.ui.theme.ComponentBackground
 import com.designlife.justdo.ui.theme.LightButtonPrimary
-import com.designlife.justdo.ui.theme.LightPrimaryCardColor
 import com.designlife.justdo.ui.theme.NotePopUpItemStyle
 import com.designlife.justdo.ui.theme.TypographyColor
 

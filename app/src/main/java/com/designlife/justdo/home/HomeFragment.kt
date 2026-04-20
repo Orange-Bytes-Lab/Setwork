@@ -105,6 +105,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import java.util.Date
 import androidx.core.net.toUri
+import com.designlife.justdo.common.presentation.components.appBackground
+import com.designlife.justdo.common.presentation.components.galaxyBackground
 
 class HomeFragment : Fragment(), TaskListener {
 
@@ -407,6 +409,8 @@ class HomeFragment : Fragment(), TaskListener {
                                             )
                                         )
                                     )
+                                    .appBackground()
+
                             ) {
                                 AnimatedVisibility(visible = viewType != ViewType.SETTING) {
                                     HeaderComponent(

@@ -36,6 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
@@ -44,7 +45,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
 import com.designlife.justdo.R
 import com.designlife.justdo.common.domain.entities.Category
 import com.designlife.justdo.common.presentation.components.FolderItem
@@ -150,10 +150,11 @@ fun CategoryItem(
             .fillMaxSize()
         ) {
             Image(
+                modifier = Modifier.padding(bottom = 6.dp).fillMaxSize().alpha(0.2F),
                 painter = painterResource(R.drawable.bc_one_op),
                 contentDescription = "Dot Background",
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.FillBounds
+                contentScale = ContentScale.FillBounds,
+                colorFilter = ColorFilter.tint(color = categoryTheme)
             )
             Column {
                 Spacer(modifier = Modifier.height(10.dp))

@@ -17,7 +17,6 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.NavHostFragment
 import com.designlife.justdo.common.utils.AppServiceLocator
 import com.designlife.justdo.permission.PermissionHandler
 import com.designlife.justdo.settings.presentation.viewmodel.SettingViewModel

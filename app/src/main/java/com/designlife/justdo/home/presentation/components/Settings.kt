@@ -17,6 +17,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.designlife.justdo.common.presentation.components.appBackground
 import com.designlife.justdo.common.utils.entity.SettingItem
 import com.designlife.justdo.ui.theme.ButtonHighLightPrimary
 import com.designlife.justdo.ui.theme.SettingHeaderStyle
@@ -48,6 +49,7 @@ fun Settings(
             .background(UIComponentBackground.value)
             .alpha(if (pickerState || loaderState) 0.7F else 1F)
             .blur(radius = if (pickerState || loaderState) 7.dp else 0.dp)
+            .appBackground()
     )
     {
         Column(

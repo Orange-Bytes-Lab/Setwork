@@ -49,7 +49,7 @@ fun Settings(
             .background(UIComponentBackground.value)
             .alpha(if (pickerState || loaderState) 0.7F else 1F)
             .blur(radius = if (pickerState || loaderState) 7.dp else 0.dp)
-            .appBackground()
+            .appBackground(enable = true)
     )
     {
         Column(

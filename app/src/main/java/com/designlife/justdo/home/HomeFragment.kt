@@ -408,7 +408,7 @@ class HomeFragment : Fragment(), TaskListener {
                                             )
                                         )
                                     )
-                                    .appBackground()
+                                    .appBackground(enable = viewType != ViewType.SETTING)
 
                             ) {
                                 AnimatedVisibility(visible = viewType != ViewType.SETTING) {

@@ -27,6 +27,9 @@ class ContainerViewModel(
     private val repeatRepository: RepeatRepository
 ) : ViewModel() {
 
+    val unloadedCategory = Category()
+    val unloadedRepeatMode : Pair<String,RepeatType> = Pair<String,RepeatType>("", RepeatType.NO_REPEAT)
+
     private val _screenType : MutableState<ScreenType> = mutableStateOf(ScreenType.CATEGORY)
     val screenType = _screenType
 

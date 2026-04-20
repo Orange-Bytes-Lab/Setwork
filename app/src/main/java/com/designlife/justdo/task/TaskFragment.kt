@@ -44,6 +44,7 @@ import com.designlife.justdo.common.utils.enums.ViewType
 import com.designlife.justdo.container.presentation.viewmodel.ContainerViewModel
 import com.designlife.justdo.container.presentation.viewmodel.ContainerViewModelFactory
 import com.designlife.justdo.deck.presentation.events.DeckEvents
+import com.designlife.justdo.home.presentation.components.CategoryItem
 import com.designlife.justdo.task.presentation.components.DeleteDialogComponent
 import com.designlife.justdo.task.presentation.components.TaskItemDate
 import com.designlife.justdo.task.presentation.components.TaskItemView
@@ -87,6 +88,7 @@ class TaskFragment : Fragment() {
         val factory = TaskViewModelFactory(repeatRepository,todoRepository,categoryRepository,todoCategoryRepository,notificationScheduler,shareViewModel)
         viewmodel = ViewModelProvider(this,factory)[TaskViewModel::class.java]
         shareViewModel.setupRepeatList(IDateGenerator.getToday())
+        Log.i("FLOW", "TaskFragment:: onCreate: Todo Id :: navigationArgsDateSet")
         navigationArgsDateSet()
     }
 
@@ -101,6 +103,7 @@ class TaskFragment : Fragment() {
                         taskId = it
                         viewmodel.onEvent(TaskEvents.LoadTodoById(it))
                     }
+                    Log.i("FLOW", "TaskFragment:: navigationArgsDateSet: Todo Id :: ${todoId}")
                 }
             }
         }
@@ -117,8 +120,8 @@ class TaskFragment : Fragment() {
                 val selectedDateText = viewmodel.selectedDateText.value
                 val selectedTimeText = viewmodel.selectedTimeText.value
                 val calendar = Calendar.getInstance()
-                var  selectedCategory = shareViewModel.categoryList[shareViewModel.selectedCategory.value]
-                val selectedRepeatMode = shareViewModel.repeatList.value[shareViewModel.selectedRepeatIndex.value]
+                var  selectedCategory = if (shareViewModel.categoryList.isEmpty()) shareViewModel.unloadedCategory else shareViewModel.categoryList[shareViewModel.selectedCategory.value]
+                val selectedRepeatMode = if (shareViewModel.repeatList.value.isEmpty()) shareViewModel.unloadedRepeatMode else shareViewModel.repeatList.value[shareViewModel.selectedRepeatIndex.value]
                 val progressBar = viewmodel.progressBar.value
                 val deletePopupState = viewmodel.deleteTaskPopup.value
 

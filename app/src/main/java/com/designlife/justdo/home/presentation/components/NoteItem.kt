@@ -5,12 +5,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
@@ -62,7 +64,7 @@ fun NoteItem(
             if (!hasCover) {
                 Modifier
                     .padding(horizontal = 10.dp, vertical = noteListHeight.value)
-                    .height(180.dp)
+                    .height(186.dp)
                     .shadow(
                         elevation = 7.dp,
                         shape = shape,
@@ -177,22 +179,29 @@ fun NoteItem(
                     getGracefullyTimeFromEpoch(note.lastModified.time)
                 }
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceAround
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Bottom,
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(
-                        text = formattedTime,
-                        style = noteItemContentStyle.value.copy(
-                            fontSize = noteItemContentStyleSize.value,
-                            textAlign = TextAlign.Start
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight(),
+                        horizontalArrangement = Arrangement.SpaceAround
+                    ) {
+                        Text(
+                            text = formattedTime,
+                            style = noteItemContentStyle.value.copy(
+                                fontSize = noteItemContentStyleSize.value,
+                                textAlign = TextAlign.Start
+                            )
                         )
-                    )
-                    Spacer(modifier = Modifier.width(1.dp))
-                    Icon(modifier = Modifier.size(12.dp), imageVector = Icons.Default.Edit, contentDescription = "Edit", tint = Color.Gray)
+                        Spacer(modifier = Modifier.width(1.dp))
+                        Icon(modifier = Modifier.size(12.dp), imageVector = Icons.Default.Edit, contentDescription = "Edit", tint = Color.Gray)
+                    }
+                    Spacer(modifier = Modifier.height(2.dp))
                 }
-
-                Spacer(modifier = Modifier.height(6.dp))
             }
         }
     }

@@ -53,6 +53,7 @@ import com.designlife.justdo.task.presentation.viewmodel.TaskViewModel
 import com.designlife.justdo.task.presentation.viewmodel.TaskViewModelFactory
 import com.designlife.justdo.ui.theme.ButtonPrimary
 import com.designlife.justdo.ui.theme.PrimaryBackgroundColor
+import com.designlife.justdo_provider.SetworkProvider
 import com.designlife.orchestrator.NotificationScheduler
 import com.designlife.orchestrator.SchedulingEngine
 import kotlinx.coroutines.Dispatchers
@@ -76,6 +77,7 @@ class TaskFragment : Fragment() {
         super.onCreate(savedInstanceState)
         alarmManager = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
         notificationManager = requireContext().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val setworkProvider = SetworkProvider(requireContext())
         val repeatRepository = AppServiceLocator.provideRepeatRepository()
         val todoRepository = AppServiceLocator.provideTodoRepository(requireActivity().applicationContext)
         val categoryRepository = AppServiceLocator.provideCategoryRepository(requireActivity().applicationContext)
@@ -85,7 +87,7 @@ class TaskFragment : Fragment() {
 //        NotificationClickManager.setListener(this)
         val shareViewModelFactory = ContainerViewModelFactory(categoryRepository,repeatRepository)
         shareViewModel = ViewModelProvider(requireActivity(),shareViewModelFactory)[ContainerViewModel::class.java]
-        val factory = TaskViewModelFactory(repeatRepository,todoRepository,categoryRepository,todoCategoryRepository,notificationScheduler,shareViewModel)
+        val factory = TaskViewModelFactory(setworkProvider,repeatRepository,todoRepository,categoryRepository,todoCategoryRepository,notificationScheduler,shareViewModel)
         viewmodel = ViewModelProvider(this,factory)[TaskViewModel::class.java]
         shareViewModel.setupRepeatList(IDateGenerator.getToday())
         Log.i("FLOW", "TaskFragment:: onCreate: Todo Id :: navigationArgsDateSet")

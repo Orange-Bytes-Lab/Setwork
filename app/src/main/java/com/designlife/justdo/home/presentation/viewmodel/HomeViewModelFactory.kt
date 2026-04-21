@@ -10,9 +10,11 @@ import com.designlife.justdo.common.domain.repositories.TodoRepository
 import com.designlife.justdo.home.domain.usecase.LoadIntialDatesUseCase
 import com.designlife.justdo.home.domain.usecase.LoadNextDatesSetUseCase
 import com.designlife.justdo.home.domain.usecase.LoadPreviousDatesSetUseCase
+import com.designlife.justdo_provider.SetworkProvider
 
 @Suppress("UNCHECKED_CAST")
 class HomeViewModelFactory (
+    private val setworkProvider: SetworkProvider,
     private val dateGenerator: DateGenerator,
     private val todoRepository: TodoRepository,
     private val categoryRepository: CategoryRepository,
@@ -23,6 +25,6 @@ class HomeViewModelFactory (
     private val loadPreviousDatesSetUseCase: LoadPreviousDatesSetUseCase
     ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        return HomeViewModel(dateGenerator,todoRepository,categoryRepository,noteRepository,deckRepository,loadInitialDateUseCase,loadNextDatesSetUseCase, loadPreviousDatesSetUseCase) as T
+        return HomeViewModel(setworkProvider,dateGenerator,todoRepository,categoryRepository,noteRepository,deckRepository,loadInitialDateUseCase,loadNextDatesSetUseCase, loadPreviousDatesSetUseCase) as T
     }
 }

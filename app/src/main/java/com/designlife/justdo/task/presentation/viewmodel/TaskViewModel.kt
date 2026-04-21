@@ -3,6 +3,7 @@ package com.designlife.justdo.task.presentation.viewmodel
 import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.room.Transaction
@@ -17,6 +18,8 @@ import com.designlife.justdo.common.domain.repositories.TodoRepository
 import com.designlife.justdo.common.utils.enums.RepeatType
 import com.designlife.justdo.container.presentation.viewmodel.ContainerViewModel
 import com.designlife.justdo.task.presentation.events.TaskEvents
+import com.designlife.justdo_provider.SetworkProvider
+import com.designlife.justdo_provider.data.ProviderTask
 import com.designlife.orchestrator.NotificationScheduler
 import com.designlife.orchestrator.data.NotificationInfo
 import com.designlife.orchestrator.data.NotificationStatus
@@ -34,6 +37,7 @@ import java.util.Date
 import kotlin.math.absoluteValue
 
 class TaskViewModel(
+    private val setworkProvider: SetworkProvider,
     private val repeatRepository: RepeatRepository,
     private val todoRepository: TodoRepository,
     private val categoryRepository: CategoryRepository,
@@ -164,20 +168,26 @@ class TaskViewModel(
     }
     @SuppressWarnings
     private suspend fun deleteTodoById(todoId: Int) : Boolean {
-        mutex.withLock {
-                val (todo,category) = todoCategoryRepository.getTodoById(todoId = todoId)
-                todo.let { todoTask ->
-                    category.let { category ->
-                        if (todoTask.isCompleted){
-                            val updatedCategory = category.copy(totalTodo = category.totalTodo - 1, totalCompleted = category.totalCompleted - 1)
-                            todoCategoryRepository.deleteTodoById(todoId = todoId,category = updatedCategory)
-                        }else{
-                            val updatedCategory = category.copy(totalTodo = category.totalTodo - 1)
-                            todoCategoryRepository.deleteTodoById(todoId = todoId,category = updatedCategory)
+            try {
+                mutex.withLock {
+                    val (todo,category) = todoCategoryRepository.getTodoById(todoId = todoId)
+                    todo.let { todoTask ->
+                        category.let { category ->
+                            if (todoTask.isCompleted){
+                                val updatedCategory = category.copy(totalTodo = category.totalTodo - 1, totalCompleted = category.totalCompleted - 1)
+                                todoCategoryRepository.deleteTodoById(todoId = todoId,category = updatedCategory)
+                            }else{
+                                val updatedCategory = category.copy(totalTodo = category.totalTodo - 1)
+                                todoCategoryRepository.deleteTodoById(todoId = todoId,category = updatedCategory)
+                            }
+                            setworkProvider.removeTask(ProviderTask(id = todoId.toLong()))
                         }
                     }
+                    return true
                 }
-                return true
+            }catch (e : Exception){
+                e.printStackTrace()
+                return false
             }
         }
 
@@ -230,6 +240,14 @@ class TaskViewModel(
             todoRepository.insertAllTodo(taskList)
             Log.i("ERROR_CHECK","createTask: setNotifications")
             setNotifications(taskList)
+            setworkProvider.addTask(ProviderTask(
+                id = todo.todoId.toLong(),
+                title = todo.title,
+                color = category.color,
+                description = todo.note,
+                completed = false,
+                time = todo.date.time,
+            ))
             _progressBar.value = false
         }
     }

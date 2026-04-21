@@ -1,6 +1,7 @@
 package com.designlife.justdo.home.presentation.viewmodel
 
 import android.util.Log
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -23,16 +24,20 @@ import com.designlife.justdo.common.utils.enums.ViewType
 import com.designlife.justdo.home.domain.usecase.LoadIntialDatesUseCase
 import com.designlife.justdo.home.domain.usecase.LoadNextDatesSetUseCase
 import com.designlife.justdo.home.domain.usecase.LoadPreviousDatesSetUseCase
+import com.designlife.justdo.home.presentation.components.TodoItem
 import com.designlife.justdo.home.presentation.events.HomeEvents
+import com.designlife.justdo.ui.theme.TaskItemLabelColor
+import com.designlife.justdo_provider.SetworkProvider
+import com.designlife.justdo_provider.data.ProviderTask
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.util.Calendar
 import java.util.Date
 
 class HomeViewModel(
+    private val setworkProvider: SetworkProvider,
     private val dateGenerator: DateGenerator,
     private val todoRepository: TodoRepository,
     private val categoryRepository: CategoryRepository,
@@ -311,16 +316,43 @@ class HomeViewModel(
     }
 
     fun fetchAllTodo() {
-        viewModelScope.launch(Dispatchers.IO) {
-            todoRepository.getAllTodo().collect {
-                if (it.isNotEmpty()){
-                    val sortedList =  it.sortedBy { it.date }
-                    _todoList.value = sortedList
-                    todoUnSortedList = sortedList
-                    currentTodoIndex()
+        try {
+            viewModelScope.launch(Dispatchers.IO) {
+                todoRepository.getAllTodo().collect {
+                    if (it.isNotEmpty()){
+                        val sortedList =  it.sortedBy { it.date }
+                        _todoList.value = sortedList
+                        todoUnSortedList = sortedList
+                        currentTodoIndex()
+                        addProviderTasks(sortedList)
+                    }
+                    _isLoaded.value = _dateList.value.isNotEmpty()
                 }
-                _isLoaded.value = _dateList.value.isNotEmpty()
             }
+        }catch (e : Exception){
+            e.printStackTrace()
+        }
+
+    }
+
+    private fun  addProviderTasks(sortedList: List<Todo>) {
+        try {
+            val task = sortedList
+                .filter { todo -> !todo.isCompleted }
+                .map { todo ->
+
+                    val color = colorMap.value.get(todo.categoryId) ?: TaskItemLabelColor.value
+                    ProviderTask(
+                        id = todo.todoId.toLong(),
+                        title = todo.title,
+                        color = color,
+                        description = todo.note,
+                        completed = todo.isCompleted,
+                        time = todo.date.time)
+                }
+            setworkProvider.addTaskList(task)
+        }catch (e : Exception) {
+            e.printStackTrace()
         }
     }
 

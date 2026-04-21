@@ -106,6 +106,7 @@ import kotlinx.coroutines.launch
 import java.util.Date
 import androidx.core.net.toUri
 import com.designlife.justdo.common.presentation.components.appBackground
+import com.designlife.justdo_provider.SetworkProvider
 
 class HomeFragment : Fragment(), TaskListener {
 
@@ -139,7 +140,9 @@ class HomeFragment : Fragment(), TaskListener {
             AppServiceLocator.provideNoteRepository(requireActivity().applicationContext)
         val deckRepository =
             AppServiceLocator.provideDeckRepository(requireActivity().applicationContext)
+        val setworkProvider = SetworkProvider(requireContext())
         val factory = HomeViewModelFactory(
+            setworkProvider,
             dateGenerator,
             todoRepository,
             categoryRepository,
@@ -153,6 +156,7 @@ class HomeFragment : Fragment(), TaskListener {
         appStoreRepository = AppServiceLocator.provideAppStoreRepository(requireContext())
         softwareUpdateManager = AppServiceLocator.provideSoftwareUpdateManager(requireContext())
         onNotificationAvailable()
+        onSetworkProviderInitialise()
         val settingFactory = SettingViewModelFactory(appStoreRepository)
         settingViewModel = ViewModelProvider(this, settingFactory)[SettingViewModel::class.java]
         lifecycleScope.launch {
@@ -166,6 +170,14 @@ class HomeFragment : Fragment(), TaskListener {
                 launch { viewModel.fetchAllNotes() }
             }
             viewModel.onEvent(HomeEvents.OnProgressBarToggle(false))
+        }
+    }
+
+    private fun onSetworkProviderInitialise() {
+        if (requireActivity().intent?.getBooleanExtra("fromProvider", false) == true) {
+            val actionId = requireActivity().intent.getIntExtra("actionId", 0)
+            val taskId = requireActivity().intent.getIntExtra("taskId", 0)
+            onUserProviderEvent(actionId,taskId)
         }
     }
 
@@ -265,6 +277,30 @@ class HomeFragment : Fragment(), TaskListener {
             if (viewModel.todoList.value.isNotEmpty()){
                 scrollToRollItem(viewModel.todoIndex.value, todoListState)
             }
+        }
+    }
+
+    fun onUserProviderEvent(actionId: Int,taskId : Int) {
+        val bundle = bundleOf()
+        if (actionId == -1) {
+            bundle.putBoolean(Constants.TASK_VIEW, false)
+            findNavController().navigate(
+                R.id.taskFragment,
+                bundle,
+                NavOptions.navOptionStack
+            )
+        }
+
+        if (actionId == -2){
+            findNavController().navigate(
+                R.id.OChatFragment,
+                bundle,
+                NavOptions.navOptionStack
+            )
+        }
+        Log.i("PROVIDER_FLOW", "onUserProviderEvent: actionId : ${actionId} taskId : ${taskId}")
+        if (actionId == -3){
+            navigateToTaskViewById(taskId)
         }
     }
 

@@ -34,7 +34,7 @@ fun TodoItemList(
                     onDragEnd = {
                         // gesture finished
                     },
-                    onHorizontalDrag = { change, dragAmount ->
+                    onHorizontalDrag = { _, dragAmount ->
                         if (dragAmount > 0) {
                             onSwipeLeftEvent()
                         } else {

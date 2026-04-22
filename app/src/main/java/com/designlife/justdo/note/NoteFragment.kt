@@ -14,6 +14,7 @@ import android.view.ViewGroup
 import android.widget.DatePicker
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.addCallback
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.scaleIn
@@ -37,8 +38,10 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import com.designlife.justdo.MainActivity
 import com.designlife.justdo.R
+import com.designlife.justdo.common.domain.calendar.IDateGenerator
 import com.designlife.justdo.common.presentation.components.CommonCustomHeader
 import com.designlife.justdo.common.presentation.components.CustomAttachmentsTab
 import com.designlife.justdo.common.presentation.components.ProgressBar
@@ -62,201 +65,113 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import java.util.Calendar
+import java.util.Date
 
 class NoteFragment : Fragment(), SetworkOLLM.SetworkMessage {
-    private lateinit var viewModel: NoteViewModel
-    private var noteMode = NoteMode.CREATE
-    private val READ_EXTERNAL_STORAGE_PERMISSION = android.Manifest.permission.READ_EXTERNAL_STORAGE
-    private val REQUEST_EXTERNAL_STORAGE = 1
 
-    private lateinit var notificationScheduler: NotificationScheduler
-    private var isPermissionGranted: Boolean = false
+    private lateinit var viewModel: NoteViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         MainActivity.ollmSDK?.protocol(this)
-        val noteId = arguments?.getLong("noteId") ?: -1L
-        val index = arguments?.getInt("categoryIndex") ?: -1
-        val noteRepository = AppServiceLocator.provideNoteRepository(requireContext())
-        val categoryRepository = AppServiceLocator.provideCategoryRepository(requireContext())
-        notificationScheduler =
-            SchedulingEngine(requireActivity().applicationContext).notificationScheduler()
-        val factory =
-            NoteViewModelFactory(noteRepository, categoryRepository, notificationScheduler)
+        val factory = NoteViewModelFactory(
+            AppServiceLocator.provideNoteRepository(requireContext()),
+            AppServiceLocator.provideCategoryRepository(requireContext()),
+            SchedulingEngine(requireContext()).notificationScheduler()
+        )
+
         viewModel = ViewModelProvider(this, factory)[NoteViewModel::class.java]
 
+
         val noteView = arguments?.getBoolean(Constants.NOTE_VIEW) ?: false
-        if (noteView) {
-            fetchFromNotification(noteView)
-        } else {
-            CoroutineScope(Dispatchers.IO).launch {
-                async { viewModel.fetchCategories() }.await()
-                if (index != -1) {
-                    viewModel.onEvent(NoteEvents.OnCategoryIndexChange(index))
-                }
-                if (noteId != -1L) {
-                    noteMode = NoteMode.UPDATE
-                    viewModel.fetchNoteById(noteId)
-                }
-            }
-        }
-        isPermissionGranted = checkPermission()
-
-    }
-
-    private fun fetchFromNotification(noteView: Boolean) {
         val noteId = arguments?.getInt(Constants.NOTE_VIEW_ID) ?: -1
-        noteId.let {
-            if (noteView && noteId != -1) {
-                CoroutineScope(Dispatchers.IO).launch {
-                    async { viewModel.fetchCategories() }.await()
-                    noteMode = NoteMode.UPDATE
-                    viewModel.fetchNoteById(noteId.toLong())
-                }
-            }
-        }
-    }
 
-    private fun checkPermission(): Boolean {
-        return checkSelfPermission(
-            requireContext(),
-            READ_EXTERNAL_STORAGE_PERMISSION
-        ) == PermissionChecker.PERMISSION_GRANTED
+        if (noteView && noteId != -1) {
+            viewModel.initExisting(noteId.toLong())
+        }else{
+            viewModel.init(
+                arguments?.getLong("noteId"),
+                arguments?.getInt("categoryIndex")
+            )
+        }
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
+    ): View? {
         return ComposeView(requireContext()).apply {
             setContent {
-                val noteTitle = viewModel.titleValue.value
-                val noteContent = viewModel.contentValue.value
-                val categoryList = viewModel.categoryList.value
-                val selectedCategoryIndex = viewModel.selectedCategoryIndex.value
-                val progressBar = viewModel.progressBar.value
-                val threeDot = viewModel.threeDot.value
-                val aiChatState = viewModel.aiChatState.value
-                val reminderState = viewModel.reminderState.value
+                val state = viewModel.state.value
                 val calendar = Calendar.getInstance()
-                val selectedDateText = viewModel.selectedDateText.value
-                val selectedTimeText = viewModel.selectedTimeText.value
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .alpha(if (progressBar) .4F else 1F)
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(color = UIComponentBackground.value)
-                            .imePadding(),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
+                Box(Modifier
+                    .fillMaxSize()
+                    .background(color = UIComponentBackground.value)) {
+                    Column {
                         CommonCustomHeader(
-                            headerTitle = noteTitle.ifEmpty { "New Note" },
+                            headerTitle = state.title.ifEmpty { "New Note" },
                             onCloseEvent = {
-                                // save updates
-                                try {
-                                    if (noteMode == NoteMode.CREATE) {
-                                        viewModel.insertNote()
-                                    } else {
-                                        viewModel.updateNote()
-                                    }
-                                } catch (e: Exception) {
-                                    e.printStackTrace()
-                                } finally {
-                                    Toast.makeText(requireContext(), "Saved", Toast.LENGTH_SHORT)
-                                        .show()
-                                    findNavController().navigateUp()
-                                }
-
-                            },
-                            hasDone = noteMode == NoteMode.UPDATE,
-                            forTask = noteMode == NoteMode.UPDATE,
-                            isOverview = noteMode == NoteMode.UPDATE,
-                            viewType = ViewType.NOTE,
-                            onReminderEvent = {
-                                viewModel.onEvent(NoteEvents.OnReminderToggle)
-
+                                viewModel.saveNow()
+                                findNavController().navigateUp()
                             },
                             onAutoSaveEvent = {
-                                try {
-                                    Log.i("UPDATE", "onCreateView: onAutoSaveEvent")
-                                    if (noteMode == NoteMode.CREATE) {
-                                        Log.i("UPDATE", "onCreateView: onAutoSaveEvent : NoteMode.CREATE")
-                                        viewModel.insertNote()
-                                    } else {
-                                        Log.i("UPDATE", "onCreateView: onAutoSaveEvent : NoteMode.UPDATE")
-                                        viewModel.updateNote()
-                                    }
-                                } catch (e: Exception) {
-                                    e.printStackTrace()
-                                }
+                                viewModel.saveNow()
+                            },
+                            onReminderEvent = {
+                                viewModel.toggleReminder()
                             },
                             onAIChatEvent = {
-                                viewModel.onEvent(NoteEvents.OnAIChatToggle)
+                                viewModel.toggleAI()
                             },
                             onThreeDotEvent = {
-                                viewModel.onEvent(NoteEvents.OnThreeDotToggle(!threeDot))
-                            }
-                        ) {
-
-                        }
-                        AnimatedVisibility(reminderState) {
+                                viewModel.toggleToolbar()
+                            },
+                            hasDone = false,
+                            forTask = false,
+                            isOverview = true,
+                            viewType = ViewType.NOTE,
+                            onButtonClickEvent = {}
+                        )
+                        AnimatedVisibility(state.reminderEnabled) {
                             NoteReminderComponent(
-                                dateText = selectedDateText,
-                                timeText = selectedTimeText,
+                                dateText = IDateGenerator.getGracefullyDateFromDate(Date()),
+                                timeText = IDateGenerator.getGracefullyTimeFromEpoch(System.currentTimeMillis()),
                                 onDateChange = {
-                                    val year = calendar[Calendar.YEAR]
-                                    val month = calendar[Calendar.MONTH]
-                                    val dayOfMonth = calendar[Calendar.DAY_OF_MONTH]
-                                    val datePicker = DatePickerDialog(
+                                    DatePickerDialog(
                                         context,
                                         R.style.CustomDatePickerTheme,
-                                        { _: DatePicker, selectedYear: Int, selectedMonth: Int, selectedDayOfMonth: Int ->
-                                            viewModel.onEvent(NoteEvents.OnDateChange("$selectedDayOfMonth/${selectedMonth + 1}/$selectedYear"))
-                                        }, year, month, dayOfMonth
-                                    )
-                                    datePicker.show()
+                                        { _, y, m, d ->
+                                            viewModel.onDateChange(d, m + 1, y)
+                                        },
+                                        calendar[Calendar.YEAR],
+                                        calendar[Calendar.MONTH],
+                                        calendar[Calendar.DAY_OF_MONTH]
+                                    ).show()
                                 },
                                 onTimeChange = {
-                                    val hour = calendar[Calendar.HOUR_OF_DAY]
-                                    val minute = calendar[Calendar.MINUTE]
-                                    val timePicker = TimePickerDialog(
+                                    TimePickerDialog(
                                         context,
                                         R.style.CustomTimePickerTheme,
-                                        { _, selectedHour: Int, selectedMinute: Int ->
-                                            viewModel.onEvent(NoteEvents.OnTimeChange("$selectedHour:$selectedMinute"))
-                                        }, hour, minute, false
-                                    )
-                                    timePicker.show()
+                                        { _, h, m ->
+                                            viewModel.onTimeChange(h, m)
+                                        },
+                                        calendar[Calendar.HOUR_OF_DAY],
+                                        calendar[Calendar.MINUTE],
+                                        false
+                                    ).show()
                                 }
                             )
                         }
-                        AnimatedVisibility(aiChatState) {
+                        AnimatedVisibility(state.aiEnabled) {
                             SetworkOLLM.ChatTextView()
                         }
                         CustomAttachmentsTab(
                             hasCover = true,
-                            onGalleryEvent = { bitMap ->
-                                if (!isPermissionGranted) {
-                                    takeUserPermission()
-                                }
-                                if (isPermissionGranted) {
-                                    viewModel.onEvent(NoteEvents.OnCoverChange(bitMap))
-                                    Toast.makeText(
-                                        requireContext(),
-                                        getString(R.string.image_picked),
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                }
-                            },
-                            categoryList = categoryList,
-                            selectedCategoryIndex = selectedCategoryIndex,
-                            onCategoryEvent = {
-                                viewModel.onEvent(NoteEvents.OnCategoryIndexChange(it))
-                            },
+                            onGalleryEvent = { viewModel.onCoverChange(it) },
+                            categoryList = state.categories,
+                            selectedCategoryIndex = state.selectedCategoryIndex,
+                            onCategoryEvent = viewModel::onCategoryChange,
                             addCategoryEvent = {
                                 val bundle = bundleOf()
                                 bundle.putInt(Constants.SCREEN_TYPE, ScreenType.CATEGORY.ordinal)
@@ -267,196 +182,72 @@ class NoteFragment : Fragment(), SetworkOLLM.SetworkMessage {
                             }
                         )
                         NoteComponent(
-                            title = noteTitle,
-                            onTitleUpdate = {
-                                viewModel.onEvent(NoteEvents.OnTitleChange(it))
-                            },
-                            noteText = noteContent,
-                            onNoteUpdate = {
-                                viewModel.onEvent(NoteEvents.OnContentChange(it))
-                            }
+                            title = state.title,
+                            noteText = state.content,
+                            onTitleUpdate = viewModel::onTitleChange,
+                            onNoteUpdate = viewModel::onContentChange
                         )
                     }
-                    if (progressBar) {
+
+                    if (state.isLoading) {
                         ProgressBar()
                     }
 
                     AnimatedVisibility(
-                        threeDot,
+                        state.toolbarVisible,
                         enter = scaleIn() + expandVertically(expandFrom = Alignment.CenterVertically),
                         exit = scaleOut() + shrinkVertically(shrinkTowards = Alignment.CenterVertically)
                     ) {
                         ToolBarPopUpComponent(
-                            onCloseEvent = {
-                                viewModel.onEvent(NoteEvents.OnThreeDotToggle(false))
-                            },
+                            onCloseEvent = { viewModel.toggleToolbar() },
                             onCopyEvent = {
-                                viewModel.onEvent(NoteEvents.OnThreeDotToggle(false))
-                                try {
-                                    copyToClipboard(noteContent)
-                                } catch (e: Exception) {
-                                    e.printStackTrace()
-                                }
+                                viewModel.toggleToolbar()
+                                copy(state.content)
                             },
                             onDuplicateEvent = {
-                                viewModel.onEvent(NoteEvents.OnThreeDotToggle(false))
-                                try {
-                                    viewModel.onEvent(NoteEvents.OnDuplicateEvent)
-                                } catch (e: Exception) {
-                                    e.printStackTrace()
-                                }
+                                viewModel.toggleToolbar()
+                                viewModel.duplicateNote()
                             },
                             onExportPdfEvent = {
-                                viewModel.onEvent(NoteEvents.OnThreeDotToggle(false))
-                                try {
-                                    viewModel.onEvent(NoteEvents.OnPdfExport(requireContext()))
-                                } catch (e: Exception) {
-                                    e.printStackTrace()
-                                }
+                                viewModel.toggleToolbar()
+                                viewModel.exportPdf(requireContext())
                             },
                             onExportPngEvent = {
-                                viewModel.onEvent(NoteEvents.OnThreeDotToggle(false))
-                                try {
-                                    viewModel.onEvent(NoteEvents.OnPngExport(requireContext()))
-                                } catch (e: Exception) {
-                                    e.printStackTrace()
-                                }
+                                viewModel.toggleToolbar()
+                                viewModel.exportPng(requireContext())
                             },
                             onDeleteEvent = {
-                                viewModel.onEvent(NoteEvents.OnThreeDotToggle(false))
-                                viewModel.onEvent(NoteEvents.OnDeleteNote(requireContext()))
+                                viewModel.deleteNote()
                                 findNavController().navigateUp()
                             }
                         )
                     }
-
                 }
             }
         }
-    }
-
-    private fun copyToClipboard(text: String) {
-        val clipboard = requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        val clip = ClipData.newPlainText("Setwork Note Copy", text)
-        clipboard.setPrimaryClip(clip)
-        Toast.makeText(requireContext(), "Note copied to clipboard", Toast.LENGTH_SHORT).show()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        val callback = object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                if (isEnabled) {
-                    try {
-                        if (noteMode == NoteMode.CREATE) {
-                            viewModel.insertNote()
-                        } else {
-                            viewModel.updateNote()
-                        }
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    } finally {
-                        Toast.makeText(requireContext(), "Saved", Toast.LENGTH_SHORT).show()
-                    }
-                    isEnabled = false
-                    requireActivity().onBackPressedDispatcher.onBackPressed()
-                }
-            }
-        }
-        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, callback)
-    }
-
-
-    override fun onResume() {
-        super.onResume()
-        parentFragmentManager.setFragmentResultListener(
-            Constants.CONTAINER_VIEW,
-            this
-        ) { _, bundle ->
-            lifecycleScope.launch(Dispatchers.Main.immediate) {
-                val selectedIndex = bundle.getInt(Constants.CONTAINER_POP_INDEX)
-                viewModel.onEvent(NoteEvents.OnCategoryIndexChange(selectedIndex))
-            }
-        }
-    }
-
-    private fun takeUserPermission() {
-        if (ContextCompat.checkSelfPermission(requireActivity(), READ_EXTERNAL_STORAGE_PERMISSION)
-            != PackageManager.PERMISSION_GRANTED
-        ) {
-            // Permission hasn't been granted, request it
-            ActivityCompat.requestPermissions(
-                requireActivity(),
-                arrayOf(READ_EXTERNAL_STORAGE_PERMISSION),
-                REQUEST_EXTERNAL_STORAGE
-            )
-        } else {
-            isPermissionGranted = true
-        }
-    }
-
-    @Deprecated("Deprecated in Java")
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        when (requestCode) {
-            REQUEST_EXTERNAL_STORAGE -> {
-                // If request is cancelled, the result arrays are empty.
-                if ((grantResults.isNotEmpty() &&
-                            grantResults[0] == PackageManager.PERMISSION_GRANTED)
-                ) {
-                    isPermissionGranted = true
-                } else {
-                    isPermissionGranted = false
-                    Toast.makeText(
-                        requireActivity(),
-                        "Permission Not Granted :/\nGo to settings --> Apps --> Setwork --> App Permission",
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
-                return
-            }
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
+            viewModel.saveNow()
+            findNavController().navigateUp()
         }
     }
 
     override fun onStop() {
         super.onStop()
+        viewModel.saveNow()
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        // save updates
-        try {
-            if (noteMode == NoteMode.CREATE) {
-//            viewModel.insertNote()
-            } else {
-                viewModel.updateNote()
-            }
-            if (viewModel.hasNoteModified.value) {
-                Toast.makeText(requireContext(), "Saved", Toast.LENGTH_SHORT).show()
-            }
-//            lifecycleScope?.cancel()
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+    private fun copy(text: String) {
+        val clipboard = requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        clipboard.setPrimaryClip(ClipData.newPlainText("note", text))
     }
 
     override fun onChatRelay(message: String) {
-        val completeContent = viewModel.contentValue.value + "\n -- Setwork Chat --> \n" + message
-        viewModel.onEvent(NoteEvents.OnContentChange(completeContent))
-        // Once copied save immediately all
-        try {
-            lifecycleScope.launch(Dispatchers.Main) {
-                if (noteMode == NoteMode.CREATE) {
-                    viewModel.insertNote()
-                } else {
-                    viewModel.updateNote()
-                }
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+        Log.i("AI_FLOW", "onChatRelay: REPONSE FROM AI ::: ${message}")
+        val updated = viewModel.state.value.content + "\n\n$message\n\n\n"
+        viewModel.onContentChange(updated)
+        viewModel.saveNow()
     }
 }

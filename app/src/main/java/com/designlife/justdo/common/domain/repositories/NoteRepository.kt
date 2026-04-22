@@ -34,6 +34,10 @@ class NoteRepository(
         return NoteConverters.getNote(noteDao.getNoteById(noteId))
     }
 
+    suspend fun findNoteByTitleAndContent(title: String,description : String): Note {
+        return NoteConverters.getNote(noteDao.findNoteByTitleAndContent(title,description))
+    }
+
     suspend fun updateNote(noteId: Long, note: Note): Unit {
         note.let {
             NoteConverters.getNoteEntity(it).let { note ->

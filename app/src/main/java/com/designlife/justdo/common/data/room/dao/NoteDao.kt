@@ -28,6 +28,10 @@ interface NoteDao {
     suspend fun getNoteById(noteId : Long) : Note
 
     @Transaction
+    @Query("SELECT * FROM NOTE WHERE title=:title AND content=:description")
+    suspend fun findNoteByTitleAndContent(title: String,description : String) : Note
+
+    @Transaction
     @Query("UPDATE NOTE SET title=:title ,content=:content ,emoji=:emoji ,categoryId=:categoryId ,coverImage=:coverImage WHERE noteId=:noteId")
     suspend fun updateNoteById(noteId : Long,title : String,content : String,emoji : String,categoryId : Long,coverImage : ByteArray?)
 

@@ -13,8 +13,13 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.expandVertically
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideIn
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -609,7 +614,11 @@ class HomeFragment : Fragment(), TaskListener {
                                         }
                                     )
                                 }
-                                AnimatedVisibility(visible = viewType == ViewType.SETTING) {
+                                AnimatedVisibility(
+                                    visible = viewType == ViewType.SETTING,
+                                    enter = slideInVertically() + expandVertically(expandFrom = Alignment.Bottom),
+                                    exit = slideOutVertically() + shrinkVertically(shrinkTowards = Alignment.Bottom)
+                                ) {
                                     Settings(
                                         iconList = settingIcons,
                                         pickerState = pickerState,

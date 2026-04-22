@@ -714,11 +714,7 @@ class HomeFragment : Fragment(), TaskListener {
                                             )
                                         },
                                         onBackupSettingItemClick = {
-                                            settingViewModel.onEvent(
-                                                SettingEvents.OnLoaderToggle(
-                                                    true
-                                                )
-                                            )
+                                            settingViewModel.onEvent(SettingEvents.OnLoaderToggle(true))
                                         }
                                     )
                                 }
@@ -829,6 +825,7 @@ class HomeFragment : Fragment(), TaskListener {
         }
     }
 
+
     private fun swipeActionEvent(viewType: ViewType){
         viewModel.onEvent(HomeEvents.OnViewChange(viewType))
         viewModel.onEvent(HomeEvents.OnClearSearch)
@@ -853,6 +850,7 @@ class HomeFragment : Fragment(), TaskListener {
 
     override fun onResume() {
         super.onResume()
+        settingViewModel.onEvent(SettingEvents.OnLoaderToggle(false))
         viewModel.archiveTodos(viewModel.todoList.value)
         if (::scope.isInitialized){
             scope.launch {

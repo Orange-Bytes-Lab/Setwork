@@ -2,8 +2,10 @@ package com.designlife.justdo
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.pm.PackageManager
 import android.database.CursorWindow
+import android.location.LocationManager
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -14,6 +16,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.platform.ComposeView
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
@@ -42,11 +45,15 @@ class MainActivity : AppCompatActivity() {
     private lateinit var permissionLauncher: ActivityResultLauncher<Array<String>>
     private var isNotificationPermissionGranted = false
     private var isStorageWritePermissionGranted = false
-    private var isStorageReadPermissionGranted = false
-//    private var isStorageReadImagePermissionGranted = false
+    private var isLocationPermissionGranted = false
+
+    //    private var isStorageReadImagePermissionGranted = false
 //    private var isStorageReadVideoPermissionGranted = false
 //    private var isStorageReadAudioPermissionGranted = false
 //    private var isManageExternalStoragePermissionGranted = false
+
+
+    private var isStorageReadPermissionGranted = false
 
 
     @SuppressLint("MissingInflatedId")
@@ -65,6 +72,7 @@ class MainActivity : AppCompatActivity() {
 //                isStorageReadImagePermissionGranted = permissions[Manifest.permission.READ_MEDIA_IMAGES] ?: isStorageReadImagePermissionGranted
 //                isStorageReadVideoPermissionGranted = permissions[Manifest.permission.READ_MEDIA_VIDEO] ?: isStorageReadVideoPermissionGranted
 //                isStorageReadAudioPermissionGranted = permissions[Manifest.permission.READ_MEDIA_AUDIO] ?: isStorageReadAudioPermissionGranted
+                isLocationPermissionGranted = permissions[Manifest.permission.ACCESS_COARSE_LOCATION] ?: isLocationPermissionGranted
                 isStorageWritePermissionGranted = permissions[Manifest.permission.WRITE_EXTERNAL_STORAGE] ?: isStorageWritePermissionGranted
                 isStorageReadPermissionGranted = permissions[Manifest.permission.READ_EXTERNAL_STORAGE] ?: isStorageReadPermissionGranted
                 isNotificationPermissionGranted = permissions[Manifest.permission.POST_NOTIFICATIONS] ?: isNotificationPermissionGranted
@@ -80,8 +88,36 @@ class MainActivity : AppCompatActivity() {
         observeDarkModeChanges()
         observeSettingChanges()
         checkSoftwareUpdates()
+        deviceKnown()
     }
 
+    private fun deviceKnown() {
+        try {
+            val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+
+            if (ActivityCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ) != PackageManager.PERMISSION_GRANTED
+            ) return
+
+            if (!locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) return
+
+            val location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
+
+            location?.let {
+                val isFresh = System.currentTimeMillis() - it.time < 10 * 60 * 1000
+
+                if (isFresh) {
+                    AppServiceLocator.provideSetworkProvider(this)
+                        .addLocation(it.latitude, it.longitude)
+                }
+            }
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
     private fun checkSoftwareUpdates() {
         AppServiceLocator.provideAppStoreRepository(this).let { appStore ->
             lifecycleScope.launch {
@@ -146,6 +182,11 @@ class MainActivity : AppCompatActivity() {
             Manifest.permission.POST_NOTIFICATIONS
         ) == PackageManager.PERMISSION_GRANTED
 
+        isLocationPermissionGranted = ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+
 //        isManageExternalStoragePermissionGranted = ContextCompat.checkSelfPermission(
 //            this,
 //            Manifest.permission.MANAGE_EXTERNAL_STORAGE
@@ -177,6 +218,11 @@ class MainActivity : AppCompatActivity() {
 //        ) == PackageManager.PERMISSION_GRANTED
 
         val permissionRequestList = ArrayList<String>()
+
+
+        if (!isLocationPermissionGranted) {
+            permissionRequestList.add(Manifest.permission.ACCESS_COARSE_LOCATION)
+        }
 
         if (!isNotificationPermissionGranted) {
             permissionRequestList.add(Manifest.permission.POST_NOTIFICATIONS)
@@ -210,6 +256,8 @@ class MainActivity : AppCompatActivity() {
             permissionLauncher.launch(permissionRequestList.toTypedArray())
         }
     }
+
+
 
     override fun onDestroy() {
         super.onDestroy()

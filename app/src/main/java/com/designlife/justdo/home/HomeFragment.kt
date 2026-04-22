@@ -140,7 +140,7 @@ class HomeFragment : Fragment(), TaskListener {
             AppServiceLocator.provideNoteRepository(requireActivity().applicationContext)
         val deckRepository =
             AppServiceLocator.provideDeckRepository(requireActivity().applicationContext)
-        val setworkProvider = SetworkProvider(requireContext())
+        val setworkProvider = AppServiceLocator.provideSetworkProvider(requireContext())
         val factory = HomeViewModelFactory(
             setworkProvider,
             dateGenerator,
@@ -298,9 +298,12 @@ class HomeFragment : Fragment(), TaskListener {
                 NavOptions.navOptionStack
             )
         }
-        Log.i("PROVIDER_FLOW", "onUserProviderEvent: actionId : ${actionId} taskId : ${taskId}")
         if (actionId == -3){
             navigateToTaskViewById(taskId)
+        }
+
+        if (actionId == -4){
+            Log.i("PROVIDER_FLOW", "onUserProviderEvent: actionId : ${actionId} taskId : ${taskId}")
         }
     }
 

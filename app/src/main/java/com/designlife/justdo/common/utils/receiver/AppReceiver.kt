@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 class AppReceiver() : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == Intent.ACTION_BOOT_COMPLETED) {
-            val provider = SetworkProvider(context)
+            val provider = AppServiceLocator.provideSetworkProvider(context)
             val pendingResult = goAsync()
             val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
             scope.launch {

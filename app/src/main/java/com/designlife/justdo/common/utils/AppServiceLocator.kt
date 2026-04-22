@@ -17,6 +17,7 @@ import com.designlife.justdo.common.domain.repositories.TodoRepository
 import com.designlife.justdo.common.domain.repositories.WidgetRepository
 import com.designlife.justdo.common.domain.repositories.appstore.IAppStoreRepository
 import com.designlife.justdo.common.utils.update.SoftwareUpdateManager
+import com.designlife.justdo_provider.SetworkProvider
 import com.designlife.orchestrator.SchedulingEngine
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -31,8 +32,12 @@ object AppServiceLocator {
     private var repeatRepository : RepeatRepository? = null
     private var appStoreRepository : IAppStoreRepository? = null
     private var widgetRepository : WidgetRepository? = null
+
     @SuppressLint("StaticFieldLeak")
     private var softwareUpdateManager : SoftwareUpdateManager? = null
+
+    @SuppressLint("StaticFieldLeak")
+    private var setworkProvider : SetworkProvider? = null
 
 
     public fun provideCategoryRepository(context : Context) : CategoryRepository{
@@ -134,6 +139,15 @@ object AppServiceLocator {
             notificationScheduler = notificationScheduler
         )
         return softwareUpdateManager!!
+    }
+
+    fun provideSetworkProvider(context: Context) : SetworkProvider{
+        return setworkProvider ?: createSetworkProvider(context)
+    }
+
+    private fun createSetworkProvider(context: Context): SetworkProvider {
+        setworkProvider = SetworkProvider(context)
+        return setworkProvider!!
     }
 
     fun clear(){

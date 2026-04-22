@@ -77,7 +77,7 @@ class TaskFragment : Fragment() {
         super.onCreate(savedInstanceState)
         alarmManager = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
         notificationManager = requireContext().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        val setworkProvider = SetworkProvider(requireContext())
+        val setworkProvider = AppServiceLocator.provideSetworkProvider(requireContext())
         val repeatRepository = AppServiceLocator.provideRepeatRepository()
         val todoRepository = AppServiceLocator.provideTodoRepository(requireActivity().applicationContext)
         val categoryRepository = AppServiceLocator.provideCategoryRepository(requireActivity().applicationContext)

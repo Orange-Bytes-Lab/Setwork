@@ -64,7 +64,7 @@ fun NoteItem(
             if (!hasCover) {
                 Modifier
                     .padding(horizontal = 10.dp, vertical = noteListHeight.value)
-                    .height(186.dp)
+                    .height(198.dp)
                     .shadow(
                         elevation = 7.dp,
                         shape = shape,
@@ -132,6 +132,7 @@ fun NoteItem(
 
             Column(
                 modifier = Modifier
+                    .wrapContentHeight()
                     .padding(horizontal = if (hasCover) 10.dp else 0.dp)
                     .fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -187,8 +188,10 @@ fun NoteItem(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .wrapContentHeight(),
-                        horizontalArrangement = Arrangement.SpaceAround
+                            .wrapContentHeight()
+                            .padding(bottom = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceAround,
+                        verticalAlignment = Alignment.Bottom
                     ) {
                         Text(
                             text = formattedTime,
@@ -200,7 +203,7 @@ fun NoteItem(
                         Spacer(modifier = Modifier.width(1.dp))
                         Icon(modifier = Modifier.size(12.dp), imageVector = Icons.Default.Edit, contentDescription = "Edit", tint = Color.Gray)
                     }
-                    Spacer(modifier = Modifier.height(2.dp))
+
                 }
             }
         }

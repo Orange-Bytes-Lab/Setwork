@@ -6,7 +6,6 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import com.designlife.justdo.common.data.entities.Note
-import com.designlife.justdo.common.data.entities.Todo
 import kotlinx.coroutines.flow.Flow
 
 @Dao

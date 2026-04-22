@@ -3,7 +3,6 @@ package com.designlife.justdo.common.domain.repositories
 import com.designlife.justdo.common.data.room.dao.NoteDao
 import com.designlife.justdo.common.domain.converters.NoteConverters
 import com.designlife.justdo.common.domain.entities.Note
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -26,19 +25,11 @@ class NoteRepository(
         }
     }
 
-    suspend fun getAllRawNotes(): Flow<List<com.designlife.justdo.common.data.entities.Note>> {
-        return noteDao.getAllNotes()
-    }
-
     suspend fun getNoteById(noteId: Long): Note {
         return NoteConverters.getNote(noteDao.getNoteById(noteId))
     }
 
-    suspend fun findNoteByTitleAndContent(title: String,description : String): Note {
-        return NoteConverters.getNote(noteDao.findNoteByTitleAndContent(title,description))
-    }
-
-    suspend fun updateNote(noteId: Long, note: Note): Unit {
+    suspend fun updateNote(noteId: Long, note: Note) {
         note.let {
             NoteConverters.getNoteEntity(it).let { note ->
                 noteDao.updateNoteById(

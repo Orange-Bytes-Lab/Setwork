@@ -32,11 +32,6 @@ class NoteViewModel(
     private val notificationScheduler: NotificationScheduler
 ) : ViewModel() {
 
-    private val TAG = "NoteVM"
-
-    // ----------------------------
-    // STATE
-    // ----------------------------
     data class State(
         val noteId: Long = 0L,
         val title: String = "",
@@ -58,9 +53,7 @@ class NoteViewModel(
     private val mutex = Mutex()
     private var autoSaveJob: Job? = null
 
-    // ----------------------------
-    // INIT
-    // ----------------------------
+
     fun init(noteId: Long?, categoryIndex: Int?) {
         viewModelScope.launch {
             val categories = categoryRepository.getAllCategory().firstOrNull().orEmpty()
@@ -160,9 +153,6 @@ class NoteViewModel(
         triggerAutoSave()
     }
 
-    // ----------------------------
-    // SAVE ENGINE (CRITICAL)
-    // ----------------------------
     private fun triggerAutoSave() {
         autoSaveJob?.cancel()
         autoSaveJob = viewModelScope.launch {

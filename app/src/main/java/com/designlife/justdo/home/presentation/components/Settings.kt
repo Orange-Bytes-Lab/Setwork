@@ -2,6 +2,7 @@ package com.designlife.justdo.home.presentation.components
 
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -15,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.blur
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.designlife.justdo.common.presentation.components.appBackground
@@ -31,6 +33,8 @@ fun Settings(
     iconList: List<SettingItem>,
     pickerState: Boolean,
     loaderState: Boolean,
+    onSwipeLeftEvent : () -> Unit,
+    onSwipeRightEvent : () -> Unit,
     onDefaultScreenEvent: () -> Unit,
     onAppThemeEvent: () -> Unit,
     onFontSizeEvent: () -> Unit,
@@ -45,6 +49,15 @@ fun Settings(
 ) {
     Box(
         modifier = Modifier
+            .pointerInput(Unit) {
+                detectHorizontalDragGestures { _, dragAmount ->
+                    if (dragAmount > 0) {
+                        onSwipeLeftEvent()
+                    } else {
+                        onSwipeRightEvent()
+                    }
+                }
+            }
             .fillMaxSize()
             .background(UIComponentBackground.value)
             .alpha(if (pickerState || loaderState) 0.7F else 1F)

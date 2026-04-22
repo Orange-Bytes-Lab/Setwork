@@ -22,6 +22,7 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -48,6 +49,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.unit.dp
 import androidx.core.os.bundleOf
@@ -554,11 +556,18 @@ class HomeFragment : Fragment(), TaskListener {
                                 AnimatedVisibility(visible = viewType != ViewType.SETTING) {
                                     Spacer(modifier = Modifier.Companion.height(20.dp))
                                 }
-                                AnimatedVisibility(visible = viewType == ViewType.TASK) {
+                                AnimatedVisibility(
+                                    visible = viewType == ViewType.TASK,
+                                ) {
                                     TodoItemList(
                                         listState = todoListState,
                                         todoList = todoList,
                                         colorMap = colorMap,
+                                        onSwipeLeftEvent = {
+                                        },
+                                        onSwipeRightEvent = {
+                                            swipeActionEvent(ViewType.NOTE)
+                                        },
                                         onFirstIndexChangeEvent = { date ->
                                             viewModel.onEvent(HomeEvents.HighlightDateByTodo(date))
                                             scope.launch(Dispatchers.Main) {
@@ -578,6 +587,12 @@ class HomeFragment : Fragment(), TaskListener {
                                         listState = noteListState,
                                         noteList = noteList as List<Note>,
                                         colorMap = colorMap,
+                                        onSwipeLeftEvent = {
+                                            swipeActionEvent(ViewType.TASK)
+                                        },
+                                        onSwipeRightEvent = {
+                                            swipeActionEvent(ViewType.DECK)
+                                        },
                                         onNoteClickEvent = {
                                             val bundle = bundleOf()
                                             bundle.putLong("noteId", noteList[it].noteId)
@@ -599,6 +614,12 @@ class HomeFragment : Fragment(), TaskListener {
                                         listState = deckListState,
                                         deckList = deckList as List<Deck>,
                                         colorMap = colorMap,
+                                        onSwipeLeftEvent = {
+                                            swipeActionEvent(ViewType.NOTE)
+                                        },
+                                        onSwipeRightEvent = {
+                                            swipeActionEvent(ViewType.SETTING)
+                                        },
                                         onDeckClickEvent = { index ->
                                             val bundle = bundleOf()
                                             bundle.putInt(
@@ -623,6 +644,12 @@ class HomeFragment : Fragment(), TaskListener {
                                         iconList = settingIcons,
                                         pickerState = pickerState,
                                         loaderState = loaderState,
+                                        onSwipeLeftEvent = {
+                                            swipeActionEvent(ViewType.DECK)
+                                        },
+                                        onSwipeRightEvent = {
+
+                                        },
                                         onDefaultScreenEvent = {
                                             settingViewModel.onEvent(
                                                 SettingEvents.OnGeneralSettingViewChange(
@@ -730,11 +757,7 @@ class HomeFragment : Fragment(), TaskListener {
                                 items = navigationItems,
                                 selectedScreen = viewType
                             ) {
-                                viewModel.onEvent(HomeEvents.OnViewChange(it))
-                                viewModel.onEvent(HomeEvents.OnClearSearch)
-                                viewModel.onEvent(HomeEvents.OnSearchToggle(false))
-                                // impossible index
-                                viewModel.onEvent(HomeEvents.OnCategorySortSelected(-1))
+                                swipeActionEvent(it)
                             }
                         }
                         if (viewModel.progressBarVisibility.value) {
@@ -804,6 +827,14 @@ class HomeFragment : Fragment(), TaskListener {
                 }
             }
         }
+    }
+
+    private fun swipeActionEvent(viewType: ViewType){
+        viewModel.onEvent(HomeEvents.OnViewChange(viewType))
+        viewModel.onEvent(HomeEvents.OnClearSearch)
+        viewModel.onEvent(HomeEvents.OnSearchToggle(false))
+        // impossible index
+        viewModel.onEvent(HomeEvents.OnCategorySortSelected(-1))
     }
 
     private fun getCategoryIndexFromNote(note: Note): Int {

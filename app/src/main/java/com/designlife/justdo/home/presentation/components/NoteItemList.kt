@@ -1,6 +1,7 @@
 package com.designlife.justdo.home.presentation.components
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -12,6 +13,7 @@ import androidx.compose.foundation.lazy.staggeredgrid.itemsIndexed
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import com.designlife.justdo.common.domain.entities.Note
 import com.designlife.justdo.ui.theme.TaskItemLabelColor
@@ -22,11 +24,27 @@ fun NoteItemList(
     listState: LazyStaggeredGridState,
     noteList: List<Note>,
     colorMap: Map<Long, Color>,
+    onSwipeRightEvent : () -> Unit,
+    onSwipeLeftEvent : () -> Unit,
     onNoteClickEvent: (index: Int) -> Unit,
 ) {
 
     LazyVerticalStaggeredGrid(
         modifier = Modifier
+            .pointerInput(Unit){
+                detectHorizontalDragGestures(
+                    onDragEnd = {
+                        // gesture finished
+                    },
+                    onHorizontalDrag = { change, dragAmount ->
+                        if (dragAmount > 0) {
+                            onSwipeLeftEvent()
+                        } else {
+                            onSwipeRightEvent()
+                        }
+                    }
+                )
+            }
             .padding(horizontal = 6.dp)
             .fillMaxSize(),
         verticalItemSpacing = 8.dp,

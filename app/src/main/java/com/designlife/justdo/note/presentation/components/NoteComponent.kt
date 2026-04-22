@@ -195,7 +195,7 @@ private fun NoteEditor(
                 maxLines = Int.MAX_VALUE
                 movementMethod = ScrollingMovementMethod()
                 overScrollMode = View.OVER_SCROLL_NEVER
-                setLineSpacing(0f, 1f)
+                setLineSpacing(0f, 1.5f)
                 setText(noteText)
                 setSelection(noteText.length)
                 addTextChangedListener(

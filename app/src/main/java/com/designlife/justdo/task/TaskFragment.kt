@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -32,7 +31,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import com.designlife.justdo.R
 import com.designlife.justdo.common.domain.calendar.IDateGenerator
-import com.designlife.justdo.common.domain.entities.Category
 import com.designlife.justdo.common.presentation.components.CommonCustomHeader
 import com.designlife.justdo.common.presentation.components.ProgressBar
 import com.designlife.justdo.common.presentation.components.TopPaddingComponent
@@ -44,8 +42,6 @@ import com.designlife.justdo.common.utils.enums.ScreenType
 import com.designlife.justdo.common.utils.enums.ViewType
 import com.designlife.justdo.container.presentation.viewmodel.ContainerViewModel
 import com.designlife.justdo.container.presentation.viewmodel.ContainerViewModelFactory
-import com.designlife.justdo.deck.presentation.events.DeckEvents
-import com.designlife.justdo.home.presentation.components.CategoryItem
 import com.designlife.justdo.task.presentation.components.DeleteDialogComponent
 import com.designlife.justdo.task.presentation.components.TaskItemDate
 import com.designlife.justdo.task.presentation.components.TaskItemView
@@ -54,7 +50,6 @@ import com.designlife.justdo.task.presentation.viewmodel.TaskViewModel
 import com.designlife.justdo.task.presentation.viewmodel.TaskViewModelFactory
 import com.designlife.justdo.ui.theme.ButtonPrimary
 import com.designlife.justdo.ui.theme.PrimaryBackgroundColor
-import com.designlife.justdo_provider.SetworkProvider
 import com.designlife.orchestrator.NotificationScheduler
 import com.designlife.orchestrator.SchedulingEngine
 import kotlinx.coroutines.Dispatchers
@@ -123,7 +118,7 @@ class TaskFragment : Fragment() {
                 val selectedDateText = viewmodel.selectedDateText.value
                 val selectedTimeText = viewmodel.selectedTimeText.value
                 val calendar = Calendar.getInstance()
-                var  selectedCategory = if (shareViewModel.categoryList.isEmpty()) shareViewModel.unloadedCategory else shareViewModel.categoryList[shareViewModel.selectedCategory.value]
+                val  selectedCategory = if (shareViewModel.categoryList.isEmpty()) shareViewModel.unloadedCategory else shareViewModel.categoryList[shareViewModel.selectedCategory.value]
                 val selectedRepeatMode = if (shareViewModel.repeatList.value.isEmpty()) shareViewModel.unloadedRepeatMode else shareViewModel.repeatList.value[shareViewModel.selectedRepeatIndex.value]
                 val progressBar = viewmodel.progressBar.value
                 val deletePopupState = viewmodel.deleteTaskPopup.value

@@ -38,6 +38,7 @@ import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import com.designlife.justdo.R
 import com.designlife.justdo.common.domain.entities.FlashCard
+import com.designlife.justdo.common.presentation.components.TopPaddingComponent
 import com.designlife.justdo.common.utils.AppServiceLocator
 import com.designlife.justdo.common.utils.constants.Constants
 import com.designlife.justdo.common.utils.enums.ScreenType
@@ -113,6 +114,7 @@ class DeckFragment : Fragment() {
                             .background(color = UIComponentBackground.value),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
+                        TopPaddingComponent()
                         AnimatedVisibility(
                             visible = !viewModeVisibility
                         ){

@@ -21,6 +21,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import com.designlife.justdo.common.domain.enums.CategoryState
 import com.designlife.justdo.common.presentation.components.CategoryHeader
+import com.designlife.justdo.common.presentation.components.TopPaddingComponent
 import com.designlife.justdo.common.utils.AppServiceLocator
 import com.designlife.justdo.common.utils.constants.Constants
 import com.designlife.justdo.common.utils.enums.ScreenType
@@ -84,6 +85,7 @@ class ContainerFragment : Fragment() {
                             .background(PrimaryBackgroundColor.value)
                             .alpha(if (colorPickerState) .8F else 1F)
                     ) {
+                        TopPaddingComponent()
                         CategoryHeader(
                             headerTitle = if (screenType == ScreenType.CATEGORY) "New Category" else "Repeat",
                             screenType = screenType,

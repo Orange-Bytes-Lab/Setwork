@@ -35,6 +35,7 @@ import com.designlife.justdo.common.domain.calendar.IDateGenerator
 import com.designlife.justdo.common.domain.entities.Category
 import com.designlife.justdo.common.presentation.components.CommonCustomHeader
 import com.designlife.justdo.common.presentation.components.ProgressBar
+import com.designlife.justdo.common.presentation.components.TopPaddingComponent
 import com.designlife.justdo.common.utils.AppServiceLocator
 import com.designlife.justdo.common.utils.camelCase
 import com.designlife.justdo.common.utils.constants.Constants
@@ -140,6 +141,7 @@ class TaskFragment : Fragment() {
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Top
                         ) {
+                            TopPaddingComponent()
                             CommonCustomHeader(headerTitle = if (isOverview) "Task Overview" else "New Task", forTask = true, hasDone = viewmodel.isCompleted.value, onCloseEvent = { findNavController().navigateUp()}, isOverview = isOverview, viewType = ViewType.TASK) {
                                 if (isOverview){
 //                                viewmodel.onEvent(TaskEvents.MarkTaskDone(taskId))

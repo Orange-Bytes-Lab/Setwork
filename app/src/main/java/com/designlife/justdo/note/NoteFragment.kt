@@ -35,6 +35,7 @@ import com.designlife.justdo.common.presentation.components.CommonCustomHeader
 import com.designlife.justdo.common.presentation.components.CustomAttachmentsTab
 import com.designlife.justdo.common.presentation.components.ProgressBar
 import com.designlife.justdo.common.presentation.components.ToolBarPopUpComponent
+import com.designlife.justdo.common.presentation.components.TopPaddingComponent
 import com.designlife.justdo.common.utils.AppServiceLocator
 import com.designlife.justdo.common.utils.constants.Constants
 import com.designlife.justdo.common.utils.enums.ScreenType
@@ -91,6 +92,7 @@ class NoteFragment : Fragment(), SetworkOLLM.SetworkMessage {
                     .fillMaxSize()
                     .background(color = UIComponentBackground.value)) {
                     Column {
+                        TopPaddingComponent()
                         CommonCustomHeader(
                             headerTitle = state.title.ifEmpty { "New Note" },
                             onCloseEvent = {

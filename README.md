@@ -132,11 +132,15 @@ A note on the 100MB CursorWindow: the default SQLite cursor window in Android is
 ## Download
 
 [![GitHub Releases](https://img.shields.io/badge/Download-GitHub%20Releases-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/itsfaraz/Setwork/releases/tag/1.0.0)
+<p align="left">
+  <img src="https://ph-files.imgix.net/cb1ed39f-d9ed-4db0-8681-50b75522eaf8.png?auto=compress,format&codec=mozjpeg&cs=strip&fit=crop&h=80&w=80" alt="Setwork Logo" width="80" height="80">
+</p>
 
-**Distribution — coming soon:**
 
-[![F-Droid](https://img.shields.io/badge/F--Droid-Pending-1976D2?style=flat-square&logo=f-droid&logoColor=white)](#)
+**Distribution — **
+[![F-Droid](https://img.shields.io/badge/F--Droid-Pending-1976D2?style=flat-square&logo=f-droid&logoColor=white)](https://f-droid.org/en/packages/com.designlife.justdo/)
 [![Static Badge](https://img.shields.io/badge/Amazon%20-%20App%20Store%20-%20Orange?logo=streamrunners&labelColor=%23006340)](https://www.amazon.com/gp/product/B0CR83YYW1)
+[![Product Hunt](https://img.shields.io/badge/Product%20Hunt-Check%20it%20out-ff6154?style=for-the-badge&logo=producthunt&logoColor=white)](https://www.producthunt.com/products/setwork?embed=true&utm_source=embed&utm_medium=post_embed)
 
 
 When installing from a GitHub release APK, you will need to permit installation from unknown sources on your device: Settings > Apps > Special App Access > Install Unknown Apps.
